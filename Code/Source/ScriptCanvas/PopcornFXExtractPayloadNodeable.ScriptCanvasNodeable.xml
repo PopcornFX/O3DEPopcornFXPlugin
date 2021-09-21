@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScriptCanvas Include="Source/ScriptCanvas/PopcornFXExtractPayloadNodeable.h" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Class Name="PopcornFXExtractPayloadNodeable"
+           Namespace="LmbrPk"
+           QualifiedName="LmbrPk::PopcornFXExtractPayloadNodeable"
+           PreferredClassName="PopcornFX Extract Payload"
+           Base="ScriptCanvas::Nodeable"
+           Icon="Icons/ScriptCanvas/Bus.png"
+           EditAttributes="AZ::Edit::Attributes::Category@PopcornFX/Event"
+           GraphEntryPoint="False"
+           GeneratePropertyFriend="True"
+           Description="PopcornFX Extract Payload">
+
+      <Input Name="Extract Payload" Description="" DisplayGroup="Extract Payload">
+        <Parameter Name="Payload Name" Type="AZStd::string" Description="The payload name contained in the broadcasted event."/>
+        <Parameter Name="Payload Type" Type="AZStd::string" Description="The payload type contained in the broadcasted event."/>
+        <Branch Name="Float" Description="" DisplayGroup="Extract Payload">
+          <Return Name="FloatOutput" Type="float" DisplayGroup="Extract Payload"/>
+        </Branch>
+        <Branch Name="Float2" Description="" DisplayGroup="Extract Payload">
+          <Return Name="Float2Output" Type="AZ::Vector2" DisplayGroup="Extract Payload"/>
+        </Branch>
+        <Branch Name="Float3" Description="" DisplayGroup="Extract Payload">
+          <Return Name="Float3Output" Type="AZ::Vector3" DisplayGroup="Extract Payload"/>
+        </Branch>
+        <Branch Name="Float4" Description="" DisplayGroup="Extract Payload">
+          <Return Name="Float4Output" Type="AZ::Vector4" DisplayGroup="Extract Payload"/>
+        </Branch>
+        <Branch Name="Int" Description="" DisplayGroup="Extract Payload">
+          <Return Name="IntOutput" Type="float" DisplayGroup="Extract Payload"/>
+        </Branch>
+        <Branch Name="Int2" Description="" DisplayGroup="Extract Payload">
+          <Return Name="Int2Output" Type="AZ::Vector2" DisplayGroup="Extract Payload"/>
+        </Branch>
+        <Branch Name="Int3" Description="" DisplayGroup="Extract Payload">
+          <Return Name="Int3Output" Type="AZ::Vector3" DisplayGroup="Extract Payload"/>
+        </Branch>
+        <Branch Name="Int4" Description="" DisplayGroup="Extract Payload">
+          <Return Name="Int4Output" Type="AZ::Vector4" DisplayGroup="Extract Payload"/>
+        </Branch>
+        <Branch Name="Bool" Description="" DisplayGroup="Extract Payload">
+          <Return Name="BoolOutput" Type="bool" DisplayGroup="Extract Payload"/>
+        </Branch>
+        <Branch Name="Orientation" Description="" DisplayGroup="Extract Payload">
+          <Return Name="OrientationOutput" Type="AZ::Quaternion" DisplayGroup="Extract Payload"/>
+        </Branch>
+      </Input>
+
+    </Class>
+</ScriptCanvas>

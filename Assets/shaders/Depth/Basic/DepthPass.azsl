@@ -1,0 +1,31 @@
+/* 
+ *----------------------------------------------------------------------------
+ * This program is the property of Persistant Studios SARL.
+ *
+ * You may not redistribute it and/or modify it under any conditions
+ * without written permission from Persistant Studios SARL, unless
+ * otherwise stated in the latest Persistant Studios Code License.
+ *
+ * See the Persistant Studios Code License for further details.
+ *----------------------------------------------------------------------------
+*/
+
+#include <viewsrg.srgi>
+
+struct VertexInput
+{
+    float3 m_position : POSITION;
+};
+
+struct VSDepthOutput
+{
+    float4 m_position : SV_Position;
+};
+
+VSDepthOutput DepthPassVS(VertexInput input)
+{
+    VSDepthOutput	output;
+
+    output.m_position = mul(ViewSrg::m_viewProjectionMatrix, float4(input.m_position, 1.0f));
+    return output;
+}
