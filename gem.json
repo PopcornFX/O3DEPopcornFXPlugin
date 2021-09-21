@@ -1,0 +1,12 @@
+{
+    "gem_name": "PopcornFX",
+    "display_name": "PopcornFX",
+    "license": "Proprietary",
+    "origin": "Persistant Studios - popcornfx.com",
+    "type": "Code",
+    "summary": "The PopcornFX Gem provides real-time FX solution for particle effects.",
+    "canonical_tags": ["Gem"],
+    "user_tags": ["Particles", "Simulation", "SDK"],
+    "icon_path": "preview.png",
+    "requirements": ""
+}
