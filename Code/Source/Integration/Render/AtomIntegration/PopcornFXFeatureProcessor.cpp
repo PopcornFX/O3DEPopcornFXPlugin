@@ -147,6 +147,52 @@ const AZ::RHI::DrawPacket* CPopcornFXFeatureProcessor::BuildDrawPacket(	const SL
 
 	if (objectSrg != nullptr)
     {
+#if 1 // for development branch
+		// retrieve probe constant indices
+		AZ::RHI::ShaderInputConstantIndex modelToWorldConstantIndex = objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_modelToWorld"));
+		AZ_Error("MeshDataInstance", modelToWorldConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
+
+		AZ::RHI::ShaderInputConstantIndex modelToWorldInverseConstantIndex = objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_modelToWorldInverse"));
+		AZ_Error("MeshDataInstance", modelToWorldInverseConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
+
+		AZ::RHI::ShaderInputConstantIndex outerObbHalfLengthsConstantIndex = objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_outerObbHalfLengths"));
+		AZ_Error("MeshDataInstance", outerObbHalfLengthsConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
+
+		AZ::RHI::ShaderInputConstantIndex innerObbHalfLengthsConstantIndex = objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_innerObbHalfLengths"));
+		AZ_Error("MeshDataInstance", innerObbHalfLengthsConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
+
+		AZ::RHI::ShaderInputConstantIndex useReflectionProbeConstantIndex = objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_useReflectionProbe"));
+		AZ_Error("MeshDataInstance", useReflectionProbeConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
+
+		AZ::RHI::ShaderInputConstantIndex useParallaxCorrectionConstantIndex = objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_useParallaxCorrection"));
+		AZ_Error("MeshDataInstance", useParallaxCorrectionConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
+
+		// retrieve probe cubemap index
+		AZ::Name reflectionCubeMapImageName = AZ::Name("m_reflectionProbeCubeMap");
+		AZ::RHI::ShaderInputImageIndex reflectionCubeMapImageIndex = objectSrg->FindShaderInputImageIndex(reflectionCubeMapImageName);
+		AZ_Error("MeshDataInstance", reflectionCubeMapImageIndex.IsValid(), "Failed to find shader image index [%s]", reflectionCubeMapImageName.GetCStr());
+
+		AZ::Render::ReflectionProbeFeatureProcessor* reflectionProbeFeatureProcessor = GetParentScene()->GetFeatureProcessor<AZ::Render::ReflectionProbeFeatureProcessor>();
+
+		AZ::Render::ReflectionProbeFeatureProcessor::ReflectionProbeVector reflectionProbes;
+		reflectionProbeFeatureProcessor->FindReflectionProbes(AZ::Vector3(pkfxDrawCall.m_BoundingBox.Center().x(), pkfxDrawCall.m_BoundingBox.Center().y(), pkfxDrawCall.m_BoundingBox.Center().z()), reflectionProbes);
+
+		if (!reflectionProbes.empty() && reflectionProbes[0])
+		{
+			objectSrg->SetConstant(modelToWorldConstantIndex, reflectionProbes[0]->GetTransform());
+			objectSrg->SetConstant(modelToWorldInverseConstantIndex, AZ::Matrix3x4::CreateFromTransform(reflectionProbes[0]->GetTransform()).GetInverseFull());
+			objectSrg->SetConstant(outerObbHalfLengthsConstantIndex, reflectionProbes[0]->GetOuterObbWs().GetHalfLengths());
+			objectSrg->SetConstant(innerObbHalfLengthsConstantIndex, reflectionProbes[0]->GetInnerObbWs().GetHalfLengths());
+			objectSrg->SetConstant(useReflectionProbeConstantIndex, true);
+			objectSrg->SetConstant(useParallaxCorrectionConstantIndex, reflectionProbes[0]->GetUseParallaxCorrection());
+
+			objectSrg->SetImage(reflectionCubeMapImageIndex, reflectionProbes[0]->GetCubeMapImage());
+		}
+		else
+		{
+			objectSrg->SetConstant(useReflectionProbeConstantIndex, false);
+		}
+#else
         // retrieve probe constant indices
         AZ::RHI::ShaderInputConstantIndex posConstantIndex =
             objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_aabbPos"));
@@ -212,6 +258,7 @@ const AZ::RHI::DrawPacket* CPopcornFXFeatureProcessor::BuildDrawPacket(	const SL
         if (!objectSrg->IsQueuedForCompile())
             objectSrg->Compile();
         dpBuilder.AddShaderResourceGroup(objectSrg->GetRHIShaderResourceGroup());
+#endif
     }
 
 	return dpBuilder.End();
