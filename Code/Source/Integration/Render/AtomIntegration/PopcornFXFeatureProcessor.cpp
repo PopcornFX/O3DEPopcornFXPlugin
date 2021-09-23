@@ -192,6 +192,9 @@ const AZ::RHI::DrawPacket* CPopcornFXFeatureProcessor::BuildDrawPacket(	const SL
 		{
 			objectSrg->SetConstant(useReflectionProbeConstantIndex, false);
 		}
+		if (!objectSrg->IsQueuedForCompile())
+			objectSrg->Compile();
+		dpBuilder.AddShaderResourceGroup(objectSrg->GetRHIShaderResourceGroup());
 #else
         // retrieve probe constant indices
         AZ::RHI::ShaderInputConstantIndex posConstantIndex =
