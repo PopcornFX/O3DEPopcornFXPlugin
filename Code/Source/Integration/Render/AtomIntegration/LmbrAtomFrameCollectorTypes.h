@@ -16,7 +16,10 @@
 #include <Atom/RHI/DrawItem.h>
 #include <Atom/RHI/DrawList.h>
 #include <Atom/RHI/PipelineState.h>
+#include <Atom/RPI.Public/Scene.h>
+#include <Atom/RPI.Public/RPISystemInterface.h>
 #include <Atom/RPI.Public/Shader/ShaderResourceGroup.h>
+#include <Atom/Feature/CoreLights/SimplePointLightFeatureProcessorInterface.h>
 
 __LMBRPK_BEGIN
 //----------------------------------------------------------------------------
@@ -30,6 +33,16 @@ struct	SLmbrAtomRenderContext
 
 struct	SLmbrAtomDrawOutputs
 {
+	typedef AZ::Render::SimplePointLightFeatureProcessorInterface				ParticleLightProcessor;
+	typedef AZ::Render::SimplePointLightFeatureProcessorInterface::LightHandle	ParticleLightHandle;
+
+	struct	SLight
+	{
+		CFloat3		m_Position = CFloat3::ZERO;
+		CFloat3		m_Color = CFloat3::ZERO;
+		float		m_AttenuationRadius = 0.0f;
+	};
+
 	struct	SDrawCall
 	{
         ERendererClass                                          m_RendererType;
@@ -54,7 +67,23 @@ struct	SLmbrAtomDrawOutputs
 
 	};
 
-	PopcornFX::TArray<SDrawCall>	m_DrawCalls;
+	void	Clear(AZ::RPI::Scene *scene)
+	{
+		PK_SCOPEDPROFILE();
+		m_DrawCalls.Clear();
+		m_Lights.Clear();
+
+		// Release the previous frame's light handles
+		ParticleLightProcessor	*processor = scene->GetFeatureProcessor<ParticleLightProcessor>();
+		for (ParticleLightHandle& lightHandle : m_LightHandles)
+			processor->ReleaseLight(lightHandle);
+
+		m_LightHandles.Clear();
+	}
+
+	PopcornFX::TArray<SDrawCall>			m_DrawCalls;
+	PopcornFX::TArray<SLight>				m_Lights;
+	PopcornFX::TArray<ParticleLightHandle>	m_LightHandles;
 };
 
 struct	SLmbrAtomViewUserData { };

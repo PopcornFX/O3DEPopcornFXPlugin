@@ -19,8 +19,8 @@
 
 # Installing the Gem
 
-https://www.popcornfx.com/docs/popcornfx-v2-9/plugins/o3de-gem/gem-installation/
+https://www.popcornfx.com/docs/popcornfx-v2/plugins/o3de-gem/gem-installation/
 
 # PopcornFX documentation
 
-https://www.popcornfx.com/docs/popcornfx-v2-9/
+https://www.popcornfx.com/docs/popcornfx-v2/

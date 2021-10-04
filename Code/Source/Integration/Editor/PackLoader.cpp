@@ -214,8 +214,8 @@ AZStd::string	FindPkprojWithRootDirOnDev(const AZStd::string &devFolderPath)
 
 void	GetThumbnailPathForAsset(const AZStd::string &assetPath, AZStd::string &outThumbnailPath)
 {
-	AZStd::string	devassets = AZ::IO::FileIOBase::GetInstance()->GetAlias("@devassets@");
-	AZStd::string	folderPath = assetPath;
+	const AZStd::string	devassets = AZ::IO::FileIOBase::GetInstance()->GetAlias("@devassets@");
+	AZStd::string		folderPath = assetPath;
 	AzFramework::StringFunc::Path::StripFullName(folderPath);
 	AzFramework::StringFunc::Path::Normalize(folderPath);
 
@@ -265,12 +265,7 @@ bool	ChangePackIFN(	const AZStd::string &assetPath, IFileSystem *fileSystem,
 						AZStd::string &outRootPath, AZStd::string &outLibraryPath,
 						const AZStd::string &devFolder /*= ""*/)
 {
-	AZStd::string	srcPath = assetPath;
-	AzFramework::StringFunc::Path::Normalize(srcPath);
-
-	AZStd::string	folderPath = srcPath;
-	if (!devFolder.empty())
-		AzFramework::StringFunc::Path::Join(devFolder.c_str(), folderPath.c_str(), folderPath);
+	AZStd::string	folderPath = assetPath;
 	AzFramework::StringFunc::Path::StripFullName(folderPath);
 	AzFramework::StringFunc::Path::Normalize(folderPath);
 

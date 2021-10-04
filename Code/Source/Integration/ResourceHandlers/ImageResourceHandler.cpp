@@ -92,7 +92,7 @@ void    *CImageResourceHandler::Load(   const CResourceManager  *resourceManager
         return null;
     }
 
-    const AZ::RHI::ImageDescriptor      &imgDesc = streamingImageAsset->GetImageDescriptor();
+    const AZ::RHI::ImageDescriptor	&imgDesc = streamingImageAsset->GetImageDescriptor();
 
     if (!PK_VERIFY(imgDesc.m_dimension == AZ::RHI::ImageDimension::Image2D))
     {
@@ -103,19 +103,10 @@ void    *CImageResourceHandler::Load(   const CResourceManager  *resourceManager
     AZStd::array_view<uint8_t>          imgData = streamingImageAsset->GetSubImageData(0, 0);
     AZ::RHI::Format                     imgFormat = imgDesc.m_format;
     AZ::RHI::Size                       imgSize = imgDesc.m_size;
+
     CImage::EFormat                     pkImageFormat = CImage::Format_Invalid;
     u32                                 pkImageFlags = 0;
-    const u32                           formatArraySize = (u32)AZ::RHI::Format::Count;
-
-    for (u32 i = 0; i < formatArraySize; ++i)
-    {
-        if (m_AtomToPk[i].m_AtFormat == imgFormat)
-        {
-            pkImageFormat = m_AtomToPk[i].m_PkFormat;
-            pkImageFlags = m_AtomToPk[i].m_PkFlags;
-            break;
-        }
-    }
+	ToPkImageFormatAndFlags(imgFormat, pkImageFormat, pkImageFlags);
 
     if (pkImageFormat == CImage::Format_Invalid)
     {
@@ -402,5 +393,25 @@ CImageResourceHandler::SAtomToPkFormat     CImageResourceHandler::m_AtomToPk[(u3
     { AZ::RHI::Format::R5G6B5_UNORM,                  CImage::Format_Invalid,       0 },
     { AZ::RHI::Format::B8G8R8A8_SNORM,                CImage::Format_Invalid,       0 },
 };
+
+//----------------------------------------------------------------------------
+
+void	ToPkImageFormatAndFlags(const AZ::RHI::Format &imgFormat, PopcornFX::CImage::EFormat &outPkImatFormat, u32 &outPkImageFlags)
+{
+	outPkImatFormat = CImage::Format_Invalid;
+	outPkImageFlags = 0;
+
+	for (u32 i = 0; i < (u32)AZ::RHI::Format::Count; ++i)
+	{
+		if (CImageResourceHandler::m_AtomToPk[i].m_AtFormat == imgFormat)
+		{
+			outPkImatFormat = CImageResourceHandler::m_AtomToPk[i].m_PkFormat;
+			outPkImageFlags = CImageResourceHandler::m_AtomToPk[i].m_PkFlags;
+			break;
+		}
+	}
+}
+
+//----------------------------------------------------------------------------
 
 __LMBRPK_END

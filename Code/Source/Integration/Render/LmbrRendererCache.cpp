@@ -394,7 +394,7 @@ void	SParticleMaterialBasicDesc::InitFromRenderer(const CRendererDataBase &rende
 	}
 
 	// Has_Distortion:
-	if (distortion != null && distortion->ValueB() && distortionMap != null && !distortionMap->ValuePath().Empty())
+	if (distortion != null && distortion->ValueB() && distortionMap != null && !distortionMap->ValuePath().Empty() && distortionColorInput.Valid())
 	{
         _AddRendererFlags(RendererFlags::Has_Distortion, true, true);
 		m_MaterialKey.m_DistortionMapPath = CStringId(packPath / distortionMap->ValuePath());

@@ -39,6 +39,6 @@ namespace PopcornFX {}
 
 #endif //POPCORNFX_EDITOR
 
-//#define PK_LMBR_ATOM_0_8
-
-#pragma warning( disable : 4266 ) //Disable warning for lumberyard
+#if defined(PK_WINDOWS)
+#	pragma warning( disable : 4266 )
+#endif

@@ -115,8 +115,6 @@ bool	CLmbrAtomPipelineCache::InitFromRendererCacheIFN(const CLmbrRendererCache* 
 		return true;
     }
 
-	const EPopcornFXShader	usedShader = rendererCache->m_BasicDescription.m_PipelineStateKey.m_UsedShader;
-
     // Get the material SRG and fill it with the renderer properties:
 	m_MaterialSrg = _CreateShaderResourceGroup(pipelineStateCache->m_MaterialShader, "MaterialSrg");
 
@@ -308,7 +306,20 @@ void	CLmbrAtomPipelineCache::ConfigureDrawCall(SLmbrAtomDrawOutputs::SDrawCall &
 
 AZ::Data::Instance<AZ::RPI::ShaderResourceGroup>	CLmbrAtomPipelineCache::_CreateShaderResourceGroup(AZ::Data::Instance<AZ::RPI::Shader> shader, const char* srgName)
 {
-#if 0 //for main branch
+#if defined(O3DE_DEV) //for develop branch
+	AZ::Data::Asset<AZ::RPI::ShaderAsset> shaderAsset = shader->GetAsset();
+	AZ::RPI::SupervariantIndex supervariantIndex = shader->GetSupervariantIndex();
+	AZ::RHI::Ptr<AZ::RHI::ShaderResourceGroupLayout> perObjectSrgLayout = shader->FindShaderResourceGroupLayout(AZ::Name{ srgName });
+
+	auto perInstanceSrgAsset = shader->FindShaderResourceGroupLayout(AZ::Name{ srgName });
+	if (!perInstanceSrgAsset)
+	{
+		CLog::Log(PK_ERROR, "Could not find shader resource group asset '%s'", srgName);
+		return nullptr;
+	}
+
+	auto srg = AZ::RPI::ShaderResourceGroup::Create(shaderAsset, supervariantIndex, perObjectSrgLayout->GetName());
+#else //for main branch
 	auto perInstanceSrgAsset = shader->FindShaderResourceGroupAsset(AZ::Name{ srgName });
 	if (!perInstanceSrgAsset.GetId().IsValid())
 	{
@@ -322,21 +333,6 @@ AZ::Data::Instance<AZ::RPI::ShaderResourceGroup>	CLmbrAtomPipelineCache::_Create
 	}
 
 	auto srg = AZ::RPI::ShaderResourceGroup::Create(perInstanceSrgAsset);
-
-#else //for develop branch
-	AZ::Data::Asset<AZ::RPI::ShaderAsset> shaderAsset = shader->GetAsset();
-	AZ::RPI::SupervariantIndex supervariantIndex = shader->GetSupervariantIndex();
-	AZ::RHI::Ptr<AZ::RHI::ShaderResourceGroupLayout> perObjectSrgLayout = shader->FindShaderResourceGroupLayout(AZ::Name{ srgName });
-
-	auto perInstanceSrgAsset = shader->FindShaderResourceGroupLayout(AZ::Name{ srgName });
-	if (!perInstanceSrgAsset)
-	{
-		CLog::Log(PK_ERROR, "Could not find shader resource group asset '%s'", srgName);
-		return nullptr;
-	}
-
-	auto srg = AZ::RPI::ShaderResourceGroup::Create(shaderAsset, supervariantIndex, perObjectSrgLayout->GetName());
-
 #endif
 
 	if (!srg)
@@ -482,8 +478,7 @@ void	CLmbrAtomPipelineCache::_FillMeshSrgBindIndices(const CLmbrRendererCache* r
 		AZ::Name("m_matrices"),
 		AZ::Name("m_diffuseColors"),
 		AZ::Name("m_emissiveColors"),
-		AZ::Name("m_alphaCursors"),
-		AZ::Name("m_drawRequests"),
+		AZ::Name("m_alphaCursors")
 	};
 
 	const AZ::Name	constantNames[MeshSrg::__Max_ConstantsSemantic] =

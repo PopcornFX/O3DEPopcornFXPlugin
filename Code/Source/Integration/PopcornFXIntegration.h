@@ -79,7 +79,7 @@ __LMBRPK_BEGIN
 
 		//////////////////////////////////////////////////////////////////////////
 		// AZ::Data::PopcornFXLoadBus::Handler
-		virtual bool						LoadEffect(PopcornFXAsset* asset, const char *assetPath, const AZ::u8 *assetData, const AZ::IO::SizeType assetDataSize) override;
+		virtual bool						LoadEffect(PopcornFXAsset* asset, const char *assetPath, const AZ::u8 *assetData, const AZ::IO::SizeType assetDataSize, const AZ::Data::AssetId &assetId) override;
 		virtual void						UnloadEffect(PopcornFXAsset *asset) override;
 		//////////////////////////////////////////////////////////////////////////
 
@@ -195,7 +195,6 @@ __LMBRPK_BEGIN
 #if defined(POPCORNFX_EDITOR)
 		CBakerManager				m_BakerManager;
 #endif
-		int32						m_ParticleQuality = -1;
 		AZStd::mutex				m_ParticleQualityLock;
 
 		PopcornFXStartUpdate		m_StartUpdate;

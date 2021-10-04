@@ -12,6 +12,7 @@
 #include "PopcornFXTrackViewAttributeGameComponent.h"
 
 #include <AzCore/Serialization/SerializeContext.h>
+#include <AzCore/Asset/AssetSerializer.h>
 #include <AzCore/RTTI/BehaviorContext.h>
 
 __LMBRPK_BEGIN

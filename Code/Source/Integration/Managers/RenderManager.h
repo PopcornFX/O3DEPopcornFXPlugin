@@ -20,6 +20,7 @@
 __LMBRPK_BEGIN
 //----------------------------------------------------------------------------
 
+class CPopcornFXFeatureProcessor;
 struct SSceneViews;
 
 class CRenderManager
@@ -28,6 +29,7 @@ public:
 	void	Activate(CParticleMediumCollection *mediumCollection, const AZStd::string &packPath);
 	void	Deactivate();
 	void	Reset();
+	void	SetFeatureProcessor(CPopcornFXFeatureProcessor *featureProcessor) { m_FeatureProcessor = featureProcessor; }
 	void	SetPackPath(const AZStd::string &packPath);
 	void	StartUpdate(CParticleMediumCollection *mediumCollection, const SSceneViews *sceneViews);
 	void	StopUpdate(CParticleMediumCollection *mediumCollection);
@@ -50,6 +52,7 @@ private:
 	CLmbrAtomRenderDataFactory			m_RenderBatchFactory;
 	SLmbrAtomRenderContext				m_RenderContext;
 	SLmbrAtomDrawOutputs				m_CollectedDrawCalls;
+	CPopcornFXFeatureProcessor			*m_FeatureProcessor = null;
 
 	const SSceneViews					*m_SceneViews = null; // Used by CollectFrame
 };

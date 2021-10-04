@@ -31,11 +31,11 @@ __LMBRPK_BEGIN
 		PopcornFXPreviewersSystemComponent() = default;
 		~PopcornFXPreviewersSystemComponent() override = default;
 
-		static void Reflect(AZ::ReflectContext* context) { PK_UNUSED(context); }
-		static void GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType& provided) { PK_UNUSED(provided); }
-		static void GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType& incompatible) { PK_UNUSED(incompatible); }
-		static void GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType& required) { PK_UNUSED(required); }
-		static void GetDependentServices(AZ::ComponentDescriptor::DependencyArrayType& dependent) { PK_UNUSED(dependent); }
+		static void Reflect(AZ::ReflectContext* context) { AZ_UNUSED(context); }
+		static void GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType& provided) { AZ_UNUSED(provided); }
+		static void GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType& incompatible) { AZ_UNUSED(incompatible); }
+		static void GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType& required) { AZ_UNUSED(required); }
+		static void GetDependentServices(AZ::ComponentDescriptor::DependencyArrayType& dependent) { AZ_UNUSED(dependent); }
 
 	private:
 		AZStd::unique_ptr<const PopcornFXEffectPreviewerFactory>	m_PreviewerFactory;

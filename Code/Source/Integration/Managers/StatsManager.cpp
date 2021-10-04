@@ -188,7 +188,6 @@ void CStatsManager::OnRenderTick()
 		return;
 	}
 
-	auto	viewportSize = viewportContext->GetViewportSize();
 	m_drawParams.m_drawViewportId = viewportContext->GetId();
 	m_drawParams.m_position = AZ::Vector3(p_PopcornFXHUD_TopRightBorderPadding) * viewportContext->GetDpiScalingFactor();
 	m_drawParams.m_color = AZ::Colors::White;

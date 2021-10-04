@@ -79,7 +79,14 @@ private:
         u32                 m_PkFlags;
     };
 
+public:
     static SAtomToPkFormat     m_AtomToPk[];
 };
+
+//----------------------------------------------------------------------------
+
+void	ToPkImageFormatAndFlags(const AZ::RHI::Format &imgFormat, PopcornFX::CImage::EFormat &outPkImatFormat, u32 &outPkImageFlags);
+
+//----------------------------------------------------------------------------
 
 __LMBRPK_END

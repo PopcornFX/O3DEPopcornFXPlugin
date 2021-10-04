@@ -167,6 +167,7 @@ public:
 	// Called once per new frame
 	void			ClearBuffers(SLmbrAtomRenderContext &ctx);
 
+	bool			EmitLights(const SDrawCallDesc& toEmit, SLmbrAtomDrawOutputs& output);
 	bool			EmitDrawCall(SLmbrAtomRenderContext &ctx, const SDrawCallDesc &toEmit, SLmbrAtomDrawOutputs &output);
 
 private:

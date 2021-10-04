@@ -17,6 +17,7 @@
 
 #include <PopcornFX/PopcornFXBus.h>
 #include <AzCore/Math/Quaternion.h>
+#include <AzCore/Asset/AssetSerializer.h>
 
 __LMBRPK_BEGIN
 

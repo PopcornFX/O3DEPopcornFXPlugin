@@ -13,6 +13,7 @@
 #if defined(LMBR_USE_PK)
 
 #include "Integration/Render/CameraInfo.h"
+#include "Integration/Render/AtomIntegration/PopcornFXFeatureProcessor.h"
 #include "Integration/PopcornFXUtils.h"
 #include <Atom/RPI.Public/RPIUtils.h>
 #include <Atom/RHI/Factory.h>
@@ -35,10 +36,10 @@ void	CRenderManager::Activate(CParticleMediumCollection *mediumCollection, const
 	m_RenderContext.m_RenderManager = this;
 	const u32	enabledRenderers =	(1U << PopcornFX::ERendererClass::Renderer_Billboard) |
 									(1U << PopcornFX::ERendererClass::Renderer_Ribbon) |
-									(1U << PopcornFX::ERendererClass::Renderer_Mesh);/*|
+									(1U << PopcornFX::ERendererClass::Renderer_Light) |
+									(1U << PopcornFX::ERendererClass::Renderer_Mesh); /* |
 									(1U << PopcornFX::ERendererClass::Renderer_Decal) |
-									(1U << PopcornFX::ERendererClass::Renderer_Sound) |
-									(1U << PopcornFX::ERendererClass::Renderer_Light);*/
+									(1U << PopcornFX::ERendererClass::Renderer_Sound)*/;
 
 	m_RenderBatchFactory.SetPackPath(packPath.c_str());
 
@@ -89,8 +90,7 @@ void	CRenderManager::StartUpdate(CParticleMediumCollection *mediumCollection, co
 	// Replace this with a callback when pipeline is recreated if possible
 	// or change the pass json to be active by default.
 	AZStd::vector<AZ::RPI::Pass*> distortionPasses = AZ::RPI::PassSystemInterface::Get()->FindPasses(AZ::RPI::PassHierarchyFilter(AZ::Name("DistortionPass")));
-	if (distortionPasses.size() == 0)
-		CLog::Log(PK_ERROR, "RenderManager.cpp: could not find distortion pass.");
+	AZ_ErrorOnce("PopcornFX", distortionPasses.size() == 0, "RenderManager.cpp: could not find distortion pass.");
 	for (auto pass : distortionPasses)
 	{
 		if (!pass->IsEnabled())
@@ -100,7 +100,7 @@ void	CRenderManager::StartUpdate(CParticleMediumCollection *mediumCollection, co
 	if (sceneViews->m_Views.Empty())
 		return;
 
-	m_CollectedDrawCalls.m_DrawCalls.Clear();
+	m_CollectedDrawCalls.Clear(m_FeatureProcessor->GetParentScene());
 	m_SceneViews = sceneViews;
 	mediumCollection->m_OnUpdateComplete += FastDelegate<void(CParticleMediumCollection*)>(this, &CRenderManager::CollectFrame);
 }
@@ -156,6 +156,11 @@ void	CRenderManager::StopUpdate(CParticleMediumCollection *mediumCollection)
 
 		if (m_FrameCollector.BeginCollectingDrawCalls(m_RenderContext, views))
 			m_FrameCollector.EndCollectingDrawCalls(m_RenderContext, m_CollectedDrawCalls, true);
+
+		// To remove once O3DE moves the simple point light processor GPU buffer update into their Render() function instead of Simulate()
+#if 1
+		m_FeatureProcessor->AppendLightParticles();
+#endif
 	}
 
 	m_SceneViews = null;
