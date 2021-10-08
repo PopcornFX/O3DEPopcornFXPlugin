@@ -10,7 +10,7 @@
 #pragma once
 
 #include <LmbrCentral/Rendering/MaterialAsset.h>
-#include <AzFramework/Asset/SimpleAsset.h>
+#include <Atom/RPI.Reflect/Image/StreamingImageAsset.h>
 
 #include "Integration/PopcornFXIntegrationBus.h"
 
@@ -24,17 +24,11 @@ __LMBRPK_BEGIN
 
 	class PopcornFXSamplerImage
 		: public PopcornFXSamplerComponentRequestBus::Handler
-#if 0//defined(LMBR_USE_PK)
+#if defined(LMBR_USE_PK)
 		, public AZ::TickBus::Handler
 #endif //LMBR_USE_PK
 	{
 	public:
-		enum class TexcoordMode
-		{
-			Clamp,
-			Wrap,
-		};
-
 		AZ_TYPE_INFO(PopcornFXSamplerImage, "{969B9AC2-3218-4208-AA82-CFCD985CF1A3}")
 
 		static void	Reflect(AZ::ReflectContext* context);
@@ -48,16 +42,14 @@ __LMBRPK_BEGIN
 
 	protected:
 		AZ::u32		_OnDataChanged();
-		void		_OnTexcoordModeChanged();
 
-		AzFramework::SimpleAssetReference<LmbrCentral::TextureAsset>	m_Texture;
-		TexcoordMode													m_TexcoordMode = TexcoordMode::Clamp;
+		AZ::Data::Asset<AZ::RPI::StreamingImageAsset>	m_Texture;
 
 	private:
 		static bool VersionConverter(	AZ::SerializeContext& context,
 										AZ::SerializeContext::DataElementNode& classElement);
 
-#if 0//defined(LMBR_USE_PK)
+#if defined(LMBR_USE_PK)
 	public:
 		//////////////////////////////////////////////////////////////////////////
 		// PopcornFXSamplerComponentRequestBus interface implementation
@@ -73,7 +65,7 @@ __LMBRPK_BEGIN
 	protected:
 		void	_Clean();
 		void	_LoadTexture();
-		bool	_BuildDescriptor(ITexture *texture);
+		bool	_BuildDescriptor(const AZ::RHI::ImageDescriptor &imgDesc);
 
 		PParticleSamplerDescriptor	m_SamplerDescriptor = null;
 		CImageSampler				*m_ImageSampler = null;

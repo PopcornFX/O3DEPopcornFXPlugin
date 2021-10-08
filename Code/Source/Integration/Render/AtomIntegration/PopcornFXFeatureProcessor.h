@@ -43,6 +43,8 @@ public:
 
 	void	Init(CParticleMediumCollection *medCol, const SSceneViews *views);
 
+	void	AppendLightParticles();
+
 	CRenderManager		&GetRenderManager() { return m_RenderManager; }
 
 private:

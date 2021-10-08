@@ -197,18 +197,21 @@ bool	CLmbrAtomBillboardingBatchPolicy::AllocBuffers(SLmbrAtomRenderContext &ctx,
 		m_RenderContext = &ctx;
 		m_RendererType = rendererType;
 
-		// Create atlas definition buffer:
-		if (rendererCache->m_Atlas != null)
+		if (m_RendererType == Renderer_Billboard ||
+			m_RendererType == Renderer_Ribbon)
 		{
-			m_AtlasSubRectsCount = rendererCache->m_Atlas->m_RectsFp32.Count();
-			m_AtlasDefinition = m_RenderContext->m_RenderManager->ResizeOrCreateBufferIFN(m_AtlasDefinition, m_AtlasSubRectsCount * sizeof(CFloat4), 0x10);
-			if (!PK_VERIFY(m_AtlasDefinition != null))
-				return false;
-			CFloat4	*atlasSubRects = static_cast<CFloat4*>(m_RenderContext->m_RenderManager->MapBuffer(m_AtlasDefinition, m_AtlasSubRectsCount * sizeof(CFloat4)));
-			if (!PK_VERIFY(atlasSubRects != null))
-				return false;
-			Mem::Copy(atlasSubRects, rendererCache->m_Atlas->m_RectsFp32.RawDataPointer(), m_AtlasSubRectsCount * sizeof(CFloat4));
-			m_RenderContext->m_RenderManager->UnmapBuffer(m_AtlasDefinition);
+			if (rendererCache->m_Atlas != null)
+			{
+				m_AtlasSubRectsCount = rendererCache->m_Atlas->m_RectsFp32.Count();
+				m_AtlasDefinition = m_RenderContext->m_RenderManager->ResizeOrCreateBufferIFN(m_AtlasDefinition, m_AtlasSubRectsCount * sizeof(CFloat4), 0x10);
+				if (!PK_VERIFY(m_AtlasDefinition != null))
+					return false;
+				CFloat4	*atlasSubRects = static_cast<CFloat4*>(m_RenderContext->m_RenderManager->MapBuffer(m_AtlasDefinition, m_AtlasSubRectsCount * sizeof(CFloat4)));
+				if (!PK_VERIFY(atlasSubRects != null))
+					return false;
+				Mem::Copy(atlasSubRects, rendererCache->m_Atlas->m_RectsFp32.RawDataPointer(), m_AtlasSubRectsCount * sizeof(CFloat4));
+				m_RenderContext->m_RenderManager->UnmapBuffer(m_AtlasDefinition);
+			}
 		}
 
 		m_PipelineCaches.Resize(1);
@@ -285,9 +288,12 @@ bool	CLmbrAtomBillboardingBatchPolicy::AllocBuffers(SLmbrAtomRenderContext &ctx,
 			m_DrawInstanceIdxCount = 0;
 			m_DrawInstanceVtxCount = 0;
 		}
-
-
 		m_Initialized = true;
+	}
+	if (m_RendererType == Renderer_Light)
+	{
+		// All good, nothing else to do
+		return true;
 	}
 
 	// This happen at initialization but also if the geometry cache is reloaded
@@ -297,9 +303,8 @@ bool	CLmbrAtomBillboardingBatchPolicy::AllocBuffers(SLmbrAtomRenderContext &ctx,
 		if (m_PipelineCaches.Count() != m_GeometryCache->m_PerGeometryViews.Count())
 			m_PipelineCaches.Resize(m_GeometryCache->m_PerGeometryViews.Count());
 	}
-
 	for (auto &pipelineCache : m_PipelineCaches)
-		pipelineCache.InitFromRendererCacheIFN(rendererCache); 
+		pipelineCache.InitFromRendererCacheIFN(rendererCache);
 
 	{
 		PK_NAMEDSCOPEDPROFILE("CLmbrAtomBillboardingBatchPolicy::AllocBuffers Alloc additional inputs");
@@ -696,9 +701,65 @@ void	CLmbrAtomBillboardingBatchPolicy::ClearBuffers(SLmbrAtomRenderContext &ctx)
 
 //----------------------------------------------------------------------------
 
-bool	CLmbrAtomBillboardingBatchPolicy::EmitDrawCall(SLmbrAtomRenderContext&ctx, const SDrawCallDesc &toEmit, SLmbrAtomDrawOutputs &output)
+bool	CLmbrAtomBillboardingBatchPolicy::EmitLights(const SDrawCallDesc &toEmit, SLmbrAtomDrawOutputs &output)
+{
+	if (!PK_VERIFY(output.m_Lights.Reserve(output.m_Lights.Count() + toEmit.m_TotalParticleCount)))
+		return false;
+	for (u32 iDr = 0; iDr < toEmit.m_DrawRequests.Count(); ++iDr)
+	{
+		const Drawers::SLight_DrawRequest			*dr = static_cast<const Drawers::SLight_DrawRequest*>(toEmit.m_DrawRequests[iDr]);
+		const Drawers::SLight_BillboardingRequest	&br = dr->m_BB;
+		const CParticleStreamToRender_MainMemory	*streamToRender = toEmit.m_DrawRequests[iDr]->StreamToRender_MainMemory();
+		const u32									pageCount = streamToRender->PageCount();
+
+		for (u32 iPage = 0; iPage < pageCount; ++iPage)
+		{
+			const CParticlePageToRender_MainMemory	*page = streamToRender->Page(iPage);
+			if (page->Culled())
+				continue;
+
+			TMemoryView<const CFloat3>	positions = page->StreamForReading<const CFloat3>(br.m_PositionStreamId).ToMemoryView();
+			TMemoryView<const CFloat4>	colors = page->StreamForReading<const CFloat4>(br.m_ColorStreamId).ToMemoryView();
+			TMemoryView<const float>	ranges = page->StreamForReading<const float>(br.m_RangeStreamId).ToMemoryView();
+			TMemoryView<const bool>		enableds = page->StreamForReading<const bool>(br.m_EnabledStreamId).ToMemoryView();
+
+			// emergency abort, in case this material isn't supported.
+			if (!PK_VERIFY(!positions.Empty() && !colors.Empty() && !ranges.Empty() && !enableds.Empty()))
+				return false;
+
+			PK_ASSERT(positions.Count() == colors.Count());
+			PK_ASSERT(positions.Count() == ranges.Count());
+			PK_ASSERT(positions.Count() == enableds.Count());
+
+			const u32	particleCount = page->InputParticleCount();
+			for (u32 iParticle = 0; iParticle < particleCount; ++iParticle)
+			{
+				if (enableds[iParticle] == false)
+					continue;
+				if (!PK_VERIFY(output.m_Lights.PushBack().Valid()))
+					return false;
+				SLmbrAtomDrawOutputs::SLight	&light = output.m_Lights.Last();
+				light.m_Position = positions[iParticle];
+
+				// Atom handles the falloff in the shader directly. scale down the color directly with attenuation steepness
+				// It's not entirely correct but it's visually close to rendering in PopcornFX Editor
+				light.m_Color = colors[iParticle].xyz() * br.m_AttenuationSteepness;
+
+				light.m_AttenuationRadius = ranges[iParticle];
+			}
+		}
+	}
+	return true;
+}
+
+//----------------------------------------------------------------------------
+
+bool	CLmbrAtomBillboardingBatchPolicy::EmitDrawCall(SLmbrAtomRenderContext &ctx, const SDrawCallDesc &toEmit, SLmbrAtomDrawOutputs &output)
 {
 	AZ_UNUSED(ctx);
+
+	if (m_RendererType == Renderer_Light)
+		return EmitLights(toEmit, output);
 
 	SLmbrAtomDrawOutputs::SDrawCall		dc;
 
@@ -711,7 +772,7 @@ bool	CLmbrAtomBillboardingBatchPolicy::EmitDrawCall(SLmbrAtomRenderContext&ctx, 
     const CParticleBuffers::SViewIndependent    &viewIndependent = GetCurBuffers().m_ViewIndependent;
     const CParticleBuffers::SViewDependent      &viewDependent = GetCurBuffers().m_ViewDependent;
 	const CLmbrRendererCache	                *rendererCache = static_cast<const CLmbrRendererCache*>(toEmit.m_RendererCaches.First().Get());
-    
+
 	if (!PK_VERIFY(rendererCache != null))
 		return false;
 
@@ -831,8 +892,7 @@ bool	CLmbrAtomBillboardingBatchPolicy::EmitDrawCall(SLmbrAtomRenderContext&ctx, 
 		dc.m_DrawIndexed.m_vertexOffset = 0;
 
 		// Draw instance indices and tex-coords:
-		output.m_DrawCalls.PushBack(dc);
-		return true;
+		return PK_VERIFY(output.m_DrawCalls.PushBack(dc).Valid());
 	}
     else if (m_RendererType == Renderer_Ribbon)
     {
@@ -929,11 +989,9 @@ bool	CLmbrAtomBillboardingBatchPolicy::EmitDrawCall(SLmbrAtomRenderContext&ctx, 
 		dc.m_DrawIndexed.m_vertexOffset = 0;
 
 		// Draw instance indices and tex-coords:
-		output.m_DrawCalls.PushBack(dc);
-		return true;
-    }
-
-	if (m_RendererType == Renderer_Mesh)
+		return PK_VERIFY(output.m_DrawCalls.PushBack(dc).Valid());
+	}
+	else if (m_RendererType == Renderer_Mesh)
 	{
 		if (!PK_VERIFY(m_GeometryCache != null))
 			return false;
@@ -1010,12 +1068,14 @@ bool	CLmbrAtomBillboardingBatchPolicy::EmitDrawCall(SLmbrAtomRenderContext&ctx, 
 			dc.m_DrawIndexed.m_vertexOffset = 0;
 
 			// Draw instance indices and tex-coords:
-			output.m_DrawCalls.PushBack(dc);
+			if (!PK_VERIFY(output.m_DrawCalls.PushBack(dc).Valid()))
+				return false;
 			particleOffset += meshAtlas ? particleCount : 0;
 		}
 		return true;
 	}
-	return true;
+	// Unrecognized renderer type
+	return false;
 }
 
 //----------------------------------------------------------------------------
@@ -1084,16 +1144,16 @@ bool        CLmbrAtomBillboardingBatchPolicy::_AllocViewDependentBuffers(const S
 		const SGeneratedInputs::SViewGeneratedInputs	&curView = inputs.m_PerViewGeneratedInputs[i];
 
         u32     inputsToGenerate = curView.m_GeneratedInputs;
-    
+
         while (inputsToGenerate != 0)
         {
             CParticleBuffers::EGenBuffer    currentGenBuffer = static_cast<CParticleBuffers::EGenBuffer>(IntegerLog2(inputsToGenerate));
-    
+
             PK_ASSERT(currentGenBuffer < CParticleBuffers::EGenBuffer::__GenBuffer_Count);
-    
+
             AZ::RHI::Ptr<AZ::RHI::Buffer>   &currentBufferPtr = GetCurBuffers().m_ViewDependent.m_GenBuffers[currentGenBuffer];
             const u32                       stride = CParticleBuffers::kBufferStrides[currentGenBuffer];
-    
+
             if (currentGenBuffer == CParticleBuffers::EGenBuffer::GenBuffer_Indices)
             {
                 // Indices:
@@ -1104,7 +1164,7 @@ bool        CLmbrAtomBillboardingBatchPolicy::_AllocViewDependentBuffers(const S
         		currentBufferPtr = m_RenderContext->m_RenderManager->ResizeOrCreateBufferIFN(currentBufferPtr, m_ParticleCount * stride);
             else // Per vertex
         		currentBufferPtr = m_RenderContext->m_RenderManager->ResizeOrCreateBufferIFN(currentBufferPtr, m_VertexCount * stride);
-    
+
             success &= currentBufferPtr != null;
             inputsToGenerate ^= (1 << currentGenBuffer);
         }

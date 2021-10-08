@@ -49,12 +49,15 @@ PRendererCacheBase	CLmbrAtomRenderDataFactory::UpdateThread_CreateRendererCache(
 		
 	rendererCache->m_CacheFactory = this;
 	rendererCache->InitFromRenderer(*renderer, m_PackPath, particleDesc->ParentEffect()->FilePath());
-	if (!PK_VERIFY(m_RendererLoader.AddMaterialToCreate(rendererCache->m_BasicDescription.m_MaterialKey, rendererCache->m_BasicDescription.m_PipelineStateKey)))
-		return null;
-	if (rendererCache->m_RendererType == Renderer_Mesh)
+	if (renderer->m_RendererType != Renderer_Light)
 	{
-		if (!PK_VERIFY(m_RendererLoader.AddGeometryToLoad(rendererCache->m_BasicDescription.m_MeshPath.ToString(), rendererCache)))
+		if (!PK_VERIFY(m_RendererLoader.AddMaterialToCreate(rendererCache->m_BasicDescription.m_MaterialKey, rendererCache->m_BasicDescription.m_PipelineStateKey)))
 			return null;
+		if (rendererCache->m_RendererType == Renderer_Mesh)
+		{
+			if (!PK_VERIFY(m_RendererLoader.AddGeometryToLoad(rendererCache->m_BasicDescription.m_MeshPath.ToString(), rendererCache)))
+				return null;
+		}
 	}
 	return rendererCache;
 }
@@ -77,7 +80,7 @@ CLmbrAtomRenderDataFactory::CBillboardingBatchInterface		*CLmbrAtomRenderDataFac
 	typedef	TBillboardBatch<CLmbrAtomParticleBatchTypes, CLmbrAtomBillboardingBatchPolicy>	CBillboardBillboardingBatch;
 	typedef	TRibbonBatch<CLmbrAtomParticleBatchTypes, CLmbrAtomBillboardingBatchPolicy>		CRibbonBillboardingBatch;
 	typedef	TMeshBatch<CLmbrAtomParticleBatchTypes, CLmbrAtomBillboardingBatchPolicy>		CMeshBillboardingBatch;
-//	typedef	TLightBatch<CLmbrAtomParticleBatchTypes, CLmbrAtomBillboardingBatchPolicy>		CLightBillboardingBatch;
+	typedef	TLightBatch<CLmbrAtomParticleBatchTypes, CLmbrAtomBillboardingBatchPolicy>		CLightBillboardingBatch;
 //	typedef	TDecalBatch<CLmbrAtomParticleBatchTypes, CLmbrAtomBillboardingBatchPolicy>		CDecalBillboardingBatch;
 
 	if (!gpuStorage)
@@ -96,12 +99,11 @@ CLmbrAtomRenderDataFactory::CBillboardingBatchInterface		*CLmbrAtomRenderDataFac
 			CRibbonBillboardingBatch* batch = PK_NEW(CRibbonBillboardingBatch);
 			return batch;
 		}
-
 		case	Renderer_Mesh:
 			return PK_NEW(CMeshBillboardingBatch);
-//		case    Renderer_Light:
-//			return PK_NEW(CLightBillboardingBatch);
-//		case    Renderer_Decal:
+		case	Renderer_Light:
+			return PK_NEW(CLightBillboardingBatch);
+//		case	Renderer_Decal:
 //			return PK_NEW(CDecalBillboardingBatch);
 		default:
 			return null;

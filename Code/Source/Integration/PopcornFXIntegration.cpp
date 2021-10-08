@@ -20,6 +20,7 @@
 
 #if defined(POPCORNFX_EDITOR)
 #include "Editor/PackLoader.h"
+#include <AzToolsFramework/AssetBrowser/AssetBrowserEntry.h>
 #endif //POPCORNFX_EDITOR
 
 #include <AzCore/Console/IConsole.h>
@@ -351,15 +352,24 @@ void	PopcornFXIntegration::DestroyEffect(StandaloneEmitter *emitter)
 // AZ::Data::PopcornFXLoadBus::Handler
 ////////////////////////////////////////////////////////////////////////
 
-bool	PopcornFXIntegration::LoadEffect(PopcornFXAsset* asset, const char *assetPath, const AZ::u8 *assetData, const AZ::IO::SizeType assetDataSize)
+bool	PopcornFXIntegration::LoadEffect(PopcornFXAsset* asset, const char *assetPath, const AZ::u8 *assetData, const AZ::IO::SizeType assetDataSize, [[maybe_unused]] const AZ::Data::AssetId &assetId)
 {
 #if defined(POPCORNFX_EDITOR)
 	AZStd::string	rootPath;
 	AZStd::string	libraryPath;
 	AZStd::string	devassets = AZ::IO::FileIOBase::GetInstance()->GetAlias("@devassets@");
 
-	if (ChangePackIFN(assetPath, File::DefaultFileSystem(), rootPath, libraryPath, devassets))
-		PackChanged(rootPath, libraryPath);
+	AzToolsFramework::AssetBrowser::ProductAssetBrowserEntry	*product = AzToolsFramework::AssetBrowser::ProductAssetBrowserEntry::GetProductByAssetId(assetId);
+	if (product != null)
+	{
+		if (ChangePackIFN(product->GetFullPath().c_str(), File::DefaultFileSystem(), rootPath, libraryPath, devassets))
+			PackChanged(rootPath, libraryPath);
+	}
+	else
+	{
+		AZ_Error("PopcornFX", false, "PopcornFXAssetHandler: Unable to get product asset for %s", assetPath);
+		return false;
+	}
 #endif //POPCORNFX_EDITOR
 
 	const CString	pkPath = File::DefaultFileSystem()->PhysicalToVirtual(assetPath);

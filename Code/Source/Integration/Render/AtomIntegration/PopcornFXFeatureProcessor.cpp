@@ -37,6 +37,7 @@ CPopcornFXFeatureProcessor::CPopcornFXFeatureProcessor()
 
 void	CPopcornFXFeatureProcessor::Activate()
 {
+    m_RenderManager.SetFeatureProcessor(this);
 }
 
 void	CPopcornFXFeatureProcessor::Deactivate()
@@ -49,6 +50,11 @@ void	CPopcornFXFeatureProcessor::Simulate(const SimulatePacket& packet)
 	AZ_UNUSED(packet);
 	if (!CCurrentThread::IsRegistered())
 		CCurrentThread::RegisterUserThread();
+
+	// To enable once O3DE moves the simple point light processor GPU buffer update into their Render() function instead of Simulate()
+#if 0
+	AppendLightParticles();
+#endif
 }
 
 void	CPopcornFXFeatureProcessor::Render(const RenderPacket& packet)
@@ -58,18 +64,50 @@ void	CPopcornFXFeatureProcessor::Render(const RenderPacket& packet)
 	// Delete the DrawPackets that were used last frame
 	m_drawPackets.clear();
 
-	for (const SLmbrAtomDrawOutputs::SDrawCall& dc : drawCalls.m_DrawCalls)
 	{
-    	for (const AZ::RPI::ViewPtr &view : packet.m_views)
-	    {
-    		const AZ::RHI::DrawPacket	*drawPacket = BuildDrawPacket(dc, view->GetRHIShaderResourceGroup(), 0);
-    		m_drawPackets.emplace_back(drawPacket);
+		PK_NAMEDSCOPEDPROFILE("Append draw calls");
 
-            CFloat3         bboxCenter = dc.m_BoundingBox.Center();
-            AZ::Matrix4x4   cameraMatrix = view->GetViewToWorldMatrix();
-            CFloat3         cameraPosition = ToPk(cameraMatrix.GetTranslation());
+		for (const SLmbrAtomDrawOutputs::SDrawCall &dc : drawCalls.m_DrawCalls)
+		{
+			for (const AZ::RPI::ViewPtr &view : packet.m_views)
+			{
+				const AZ::RHI::DrawPacket	*drawPacket = BuildDrawPacket(dc, view->GetRHIShaderResourceGroup(), 0);
+				m_drawPackets.emplace_back(drawPacket);
 
-			view->AddDrawPacket(drawPacket, (cameraPosition - bboxCenter).Length());
+				const CFloat3		&bboxCenter = dc.m_BoundingBox.Center();
+				const AZ::Matrix4x4	&cameraMatrix = view->GetViewToWorldMatrix();
+				CFloat3				cameraPosition = ToPk(cameraMatrix.GetTranslation());
+
+				view->AddDrawPacket(drawPacket, (cameraPosition - bboxCenter).Length());
+			}
+		}
+	}
+}
+
+void	CPopcornFXFeatureProcessor::AppendLightParticles()
+{
+	SLmbrAtomDrawOutputs& drawCalls = const_cast<SLmbrAtomDrawOutputs&>(m_RenderManager.GetCollectedDrawCalls());
+
+	if (!drawCalls.m_Lights.Empty())
+	{
+		PK_NAMEDSCOPEDPROFILE("Append lights");
+		if (PK_VERIFY(drawCalls.m_LightHandles.Reserve(drawCalls.m_Lights.Count())))
+		{
+			SLmbrAtomDrawOutputs::ParticleLightProcessor	*processor = GetParentScene()->GetFeatureProcessor<SLmbrAtomDrawOutputs::ParticleLightProcessor>();
+
+			for (const SLmbrAtomDrawOutputs::SLight &light : drawCalls.m_Lights)
+			{
+				SLmbrAtomDrawOutputs::ParticleLightHandle	lightHandle = processor->AcquireLight();
+				processor->SetAttenuationRadius(lightHandle, light.m_AttenuationRadius);
+				processor->SetPosition(lightHandle, ToAZ(light.m_Position));
+
+				// TODO: can this be simplified, and check the color space
+				// Here, it's doing a CFloat3->AZ::Vector3->AZ::Color->AZ::Render::PhotometricColor convertion/copy per particle..
+				AZ::Render::PhotometricColor<SLmbrAtomDrawOutputs::ParticleLightProcessor::PhotometricUnitType> lightColor(AZ::Color::CreateFromVector3(ToAZ(light.m_Color)));
+				processor->SetRgbIntensity(lightHandle, lightColor);
+
+				PK_VERIFY(drawCalls.m_LightHandles.PushBack(lightHandle).Valid());
+			}
 		}
 	}
 }
@@ -147,7 +185,7 @@ const AZ::RHI::DrawPacket* CPopcornFXFeatureProcessor::BuildDrawPacket(	const SL
 
 	if (objectSrg != nullptr)
     {
-#if 1 // for development branch
+#if defined(O3DE_DEV)
 		// retrieve probe constant indices
 		AZ::RHI::ShaderInputConstantIndex modelToWorldConstantIndex = objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_modelToWorld"));
 		AZ_Error("MeshDataInstance", modelToWorldConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
@@ -238,12 +276,12 @@ const AZ::RHI::DrawPacket* CPopcornFXFeatureProcessor::BuildDrawPacket(	const SL
         Transform transform = transformServiceFeatureProcessor->GetTransformForId(m_objectId);*/
 
         AZ::Render::ReflectionProbeFeatureProcessor* reflectionProbeFeatureProcessor = GetParentScene()->GetFeatureProcessor<AZ::Render::ReflectionProbeFeatureProcessor>();
-   
+
         AZ::Render::ReflectionProbeFeatureProcessor::ReflectionProbeVector reflectionProbes;
         reflectionProbeFeatureProcessor->FindReflectionProbes(AZ::Vector3(pkfxDrawCall.m_BoundingBox.Center().x(), pkfxDrawCall.m_BoundingBox.Center().y(), pkfxDrawCall.m_BoundingBox.Center().z()), reflectionProbes);
 
         if (!reflectionProbes.empty() && reflectionProbes[0])
-        { 
+        {
             objectSrg->SetConstant(posConstantIndex, reflectionProbes[0]->GetPosition());
             objectSrg->SetConstant(outerAabbMinConstantIndex, reflectionProbes[0]->GetOuterAabbWs().GetMin());
             objectSrg->SetConstant(outerAabbMaxConstantIndex, reflectionProbes[0]->GetOuterAabbWs().GetMax());

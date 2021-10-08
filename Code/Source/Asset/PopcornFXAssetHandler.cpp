@@ -62,19 +62,14 @@ __LMBRPK_BEGIN
 			return AZ::Data::AssetHandler::LoadResult::Error;
 		}
 
-		AZStd::string	assetPath;
-		EBUS_EVENT_RESULT(assetPath, AZ::Data::AssetCatalogRequestBus, GetAssetPathById, asset.GetId());
-
-		if (assetPath.empty())
-			return AZ::Data::AssetHandler::LoadResult::Error;
-
-		const AZ::IO::SizeType size = stream->GetLength();
+		const char				*assetPath = stream->GetFilename();
+		const AZ::IO::SizeType	size = stream->GetLength();
 
 		AZStd::vector<AZ::u8> assetData(size);
 		stream->Read(size, assetData.data());
 
 		bool loaded = false;
-		LmbrPk::PopcornFXLoadBus::BroadcastResult(loaded, &LmbrPk::PopcornFXLoadBus::Handler::LoadEffect, popcornFXAsset, assetPath.c_str(), assetData.data(), size);
+		LmbrPk::PopcornFXLoadBus::BroadcastResult(loaded, &LmbrPk::PopcornFXLoadBus::Handler::LoadEffect, popcornFXAsset, assetPath, assetData.data(), size, asset.GetId());
 
 		return loaded ? AZ::Data::AssetHandler::LoadResult::LoadComplete : AZ::Data::AssetHandler::LoadResult::Error;
 	}

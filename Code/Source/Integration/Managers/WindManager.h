@@ -41,7 +41,7 @@ class CWindManagerBase
 {
 public:
 	CWindManagerBase();
-
+	virtual ~CWindManagerBase() {};
 	virtual bool	Reset(const AZStd::string &libraryPath);
 
 	virtual void	SampleWindField(const TStridedMemoryView<CFloat3>		&dstWind,

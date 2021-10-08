@@ -11,6 +11,7 @@
 
 #include <AzCore/Component/ComponentBus.h>
 #include <AzCore/EBus/Policies.h>
+#include <AzCore/IO/GenericStreams.h>
 #include <AzCore/std/string/string.h>
 #include <AzCore/Math/Vector3.h>
 #include <AzFramework/Physics/Configuration/CollisionConfiguration.h>
@@ -71,7 +72,7 @@ __LMBRPK_BEGIN
 		// Public functions
 		virtual ~PopcornFXLoadRequests() {}
 
-		virtual bool							LoadEffect(PopcornFXAsset* asset, const char *assetPath, const AZ::u8 *assetData, const AZ::IO::SizeType assetDataSize) = 0;
+		virtual bool							LoadEffect(PopcornFXAsset* asset, const char *assetPath, const AZ::u8 *assetData, const AZ::IO::SizeType assetDataSize, const AZ::Data::AssetId &assetId) = 0;
 		virtual void							UnloadEffect(PopcornFXAsset *asset) = 0;
 	};
 	using PopcornFXLoadBus = AZ::EBus<PopcornFXLoadRequests>;

@@ -103,10 +103,10 @@ bool    CPopcornFXSkinnedMesh::Init(const EMotionFX::Actor* actor, AZ::u32 lodIn
             }
 
             const EMotionFX::SubMesh    *subMesh = mesh->GetSubMesh(subMeshIndex);
-            const AZ::u32               subMeshvertexCount = subMesh->GetNumVertices();
+            const AZ::u32               subMeshVertexCount = subMesh->GetNumVertices();
 
             // Skip empty sub-meshes and sub-meshes that would put the total vertex count beyond the supported range
-            if (vertexCount <= 0 && !IsVertexCountWithinSupportedRange(0, vertexCount))
+            if (subMeshVertexCount <= 0 && !IsVertexCountWithinSupportedRange(0, subMeshVertexCount))
             {
                 AZ_Error("PopcornFX", false, "Sub-mesh is empty or beyond supported range for sampler shape");
                 return false;

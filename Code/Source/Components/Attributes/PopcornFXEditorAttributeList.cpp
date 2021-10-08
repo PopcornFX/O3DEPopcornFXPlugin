@@ -699,7 +699,7 @@ void PopcornFXEditorAttributeList::Prepare(	const CParticleAttributeList *defaul
 	TMemoryView<const CParticleAttributeDeclaration * const>	srcAttribs = defaultList->UniqueAttributeList();
 	const u32													attrCount = srcAttribs.Count();
 
-	for (u32 iAttrib = 0; iAttrib < srcAttribs.Count(); ++iAttrib)
+	for (u32 iAttrib = 0; iAttrib < attrCount; ++iAttrib)
 	{
 		if (srcAttribs[iAttrib] != null)
 		{

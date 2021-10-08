@@ -468,6 +468,10 @@ void	CBakerManager::_SetBuildVersion(const AZStd::string &platform)
 				CString	platformTags;
 				if (platform == AzFramework::PlatformPC)
 					platformTags = "windows, desktop";
+#if defined(O3DE_DEV) //for develop branch
+				else if (platform == AzFramework::PlatformLinux)
+					platformTags = "linux, desktop";
+#endif
 				else if (platform == AzFramework::PlatformMac)
 					platformTags = "macos, desktop";
 				else if (platform == AzFramework::PlatformAndroid)
