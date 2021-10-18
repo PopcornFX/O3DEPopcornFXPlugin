@@ -357,7 +357,11 @@ bool	PopcornFXIntegration::LoadEffect(PopcornFXAsset* asset, const char *assetPa
 #if defined(POPCORNFX_EDITOR)
 	AZStd::string	rootPath;
 	AZStd::string	libraryPath;
+# if defined(O3DE_DEV)
+	AZStd::string	devassets = AZ::IO::FileIOBase::GetInstance()->GetAlias("@projectroot@");
+#else
 	AZStd::string	devassets = AZ::IO::FileIOBase::GetInstance()->GetAlias("@devassets@");
+#endif
 
 	AzToolsFramework::AssetBrowser::ProductAssetBrowserEntry	*product = AzToolsFramework::AssetBrowser::ProductAssetBrowserEntry::GetProductByAssetId(assetId);
 	if (product != null)
