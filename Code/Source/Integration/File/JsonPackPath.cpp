@@ -21,11 +21,19 @@
 #include <AzCore/JSON/stringbuffer.h>
 #include <AzCore/JSON/prettywriter.h>
 
-#if defined(POPCORNFX_EDITOR)
-#define JSON_PACK_PATH "@devassets@/popcornfx_pack.json"
-#else
-#define JSON_PACK_PATH "@assets@/popcornfx_pack.json"
-#endif
+#	if defined(POPCORNFX_EDITOR)
+#		if defined(O3DE_DEV)
+#			define JSON_PACK_PATH	"@projectroot@/popcornfx_pack.json"
+#		else
+#			define JSON_PACK_PATH	"@devassets@/popcornfx_pack.json"
+#		endif
+#	else
+#		if defined(O3DE_DEV)
+#			define JSON_PACK_PATH	"@projectproductassets@/popcornfx_pack.json"
+#		else
+#			define JSON_PACK_PATH	"@assets@/popcornfx_pack.json"
+#		endif
+#	endif
 
 __LMBRPK_BEGIN
 

@@ -214,7 +214,11 @@ AZStd::string	FindPkprojWithRootDirOnDev(const AZStd::string &devFolderPath)
 
 void	GetThumbnailPathForAsset(const AZStd::string &assetPath, AZStd::string &outThumbnailPath)
 {
+#if defined(O3DE_DEV)
+	const AZStd::string	devassets = AZ::IO::FileIOBase::GetInstance()->GetAlias("@projectroot@");
+#else
 	const AZStd::string	devassets = AZ::IO::FileIOBase::GetInstance()->GetAlias("@devassets@");
+#endif
 	AZStd::string		folderPath = assetPath;
 	AzFramework::StringFunc::Path::StripFullName(folderPath);
 	AzFramework::StringFunc::Path::Normalize(folderPath);
