@@ -8,5 +8,14 @@
     "canonical_tags": ["Gem"],
     "user_tags": ["Particles", "Simulation", "SDK"],
     "icon_path": "preview.png",
-    "requirements": ""
+    "requirements": "",
+    "dependencies": [
+        "Atom_RPI",
+        "Atom_RHI",
+        "LmbrCentral",
+        "LyShine",
+        "ScriptCanvas",
+        "EMotionFX",
+        "StartingPointInput"
+    ]
 }
