@@ -1,9 +1,9 @@
 {
-    "gem_name": "PopcornFX-2.9",
-    "display_name": "PopcornFX 2.9",
+    "gem_name": "PopcornFX-2.11",
+    "display_name": "PopcornFX 2.11",
     "license": "Proprietary",
     "license_url": "https://www.popcornfx.com/terms-and-conditions/#O3DEPlugin",
-    "version": "2.9.20",
+    "version": "2.11.2",
     "last_updated": "2022-02-24",
     "type": "Code",
     "summary": "The PopcornFX Gem provides real-time FX solution for particle effects.",

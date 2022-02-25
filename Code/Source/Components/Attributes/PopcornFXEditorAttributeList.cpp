@@ -479,7 +479,7 @@ void PopcornFXEditorSampler::Copy(AZ::EntityId entityId, const CParticleAttribut
 	if (!sampler->Description().Empty())
 		m_Description += AZStd::string(" - ") + sampler->Description().MapDefault().ToUTF8().Data();
 
-	const PParticleSamplerDescriptor	&desc = sampler->DefaultValue()->GetSamplerDefaultDescriptor();
+	const PParticleSamplerDescriptor	&desc = sampler->GetSamplerDefaultDescriptor();
 	if (desc != null)
 		m_Type = desc->SamplerTypeID();
 	else

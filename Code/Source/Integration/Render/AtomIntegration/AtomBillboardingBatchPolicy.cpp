@@ -10,6 +10,7 @@
 #if defined(O3DE_USE_PK)
 
 #include <pk_render_helpers/include/basic_renderer_properties/rh_basic_renderer_properties.h>
+#include <pk_particles/include/Renderers/ps_renderer_feature_fields.h>
 
 namespace PopcornFX {
 //----------------------------------------------------------------------------
@@ -307,7 +308,7 @@ bool	CAtomBillboardingBatchPolicy::AllocBuffers(SAtomRenderContext &ctx, const S
 
 		for (u32 i = 0; i < additionalShaderInputsCount; ++i)
 		{
-			const SGeneratedInputs::SAdditionalInputInfo	&curAdditionalShaderInput = allocBuffers.m_ToGenerate.m_AdditionalGeneratedInputs[i];
+			const SRendererFeatureFieldDefinition	&curAdditionalShaderInput = allocBuffers.m_ToGenerate.m_AdditionalGeneratedInputs[i];
 			SHandledAdditionalFields	*addFieldDesc = m_HandledAdditionalFields.Find(SHandledAdditionalFields(curAdditionalShaderInput.m_Name, curAdditionalShaderInput.m_Type));
 			if (addFieldDesc != null)
 			{
@@ -414,7 +415,7 @@ bool	CAtomBillboardingBatchPolicy::MapBuffers(SAtomRenderContext &ctx, const TMe
 		return false;
 	for (u32 i = 0; i < additionalShaderInputsCount; ++i)
 	{
-		const SGeneratedInputs::SAdditionalInputInfo	&curAdditionalShaderInput = toMap.m_AdditionalGeneratedInputs[i];
+		const SRendererFeatureFieldDefinition	&curAdditionalShaderInput = toMap.m_AdditionalGeneratedInputs[i];
 		SHandledAdditionalFields	*addFieldDesc = m_HandledAdditionalFields.Find(SHandledAdditionalFields(curAdditionalShaderInput.m_Name, curAdditionalShaderInput.m_Type));
 		if (addFieldDesc != null)
 		{
@@ -528,7 +529,7 @@ bool	CAtomBillboardingBatchPolicy::MapBuffers(SAtomRenderContext &ctx, const TMe
 		return false;
 	for (u32 i = 0; i < additionalShaderInputsCount; ++i)
 	{
-		const SGeneratedInputs::SAdditionalInputInfo	&curAdditionalShaderInput = toMap.m_AdditionalGeneratedInputs[i];
+		const SRendererFeatureFieldDefinition	&curAdditionalShaderInput = toMap.m_AdditionalGeneratedInputs[i];
 		SHandledAdditionalFields	*addFieldDesc = m_HandledAdditionalFields.Find(SHandledAdditionalFields(curAdditionalShaderInput.m_Name, curAdditionalShaderInput.m_Type));
 		if (addFieldDesc != null)
 		{
@@ -606,7 +607,7 @@ bool	CAtomBillboardingBatchPolicy::MapBuffers(SAtomRenderContext &ctx, const TMe
 		return false;
 	for (u32 i = 0; i < additionalShaderInputsCount; ++i)
 	{
-		const SGeneratedInputs::SAdditionalInputInfo	&curAdditionalShaderInput = toMap.m_AdditionalGeneratedInputs[i];
+		const SRendererFeatureFieldDefinition	&curAdditionalShaderInput = toMap.m_AdditionalGeneratedInputs[i];
 		SHandledAdditionalFields	*addFieldDesc = m_HandledAdditionalFields.Find(SHandledAdditionalFields(curAdditionalShaderInput.m_Name, curAdditionalShaderInput.m_Type));
 		if (addFieldDesc != null)
 		{

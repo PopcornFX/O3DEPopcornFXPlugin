@@ -43,6 +43,7 @@ public:
 													u32									eventID,
 													CStringId							eventName,
 													u32									count,
+													const SUpdateTimeArgs				&timeArgs,
 													const TMemoryView<const float>		&spawnDtToEnd,
 													const TMemoryView<const CEffectID>	&effectIDs,
 													const SPayloadView					&payloadView);

@@ -232,7 +232,7 @@ bool	PopcornFXAttributeList::Prepare(const CParticleAttributeList *defaultList)
 
 			if (srcSamplers[sampleri] != null)
 			{
-				const PParticleSamplerDescriptor	&desc = srcSamplers[sampleri]->DefaultValue()->GetSamplerDefaultDescriptor();
+				const PParticleSamplerDescriptor	&desc = srcSamplers[sampleri]->GetSamplerDefaultDescriptor();
 				if (desc != null)
 					samplerType = (AZ::u32)desc->SamplerTypeID();
 			}
@@ -278,7 +278,7 @@ bool	PopcornFXAttributeList::Prepare(const CParticleAttributeList *defaultList)
 		{
 			if (srcSamplers[sampleri] != null)
 			{
-				const PParticleSamplerDescriptor	&desc = srcSamplers[sampleri]->DefaultValue()->GetSamplerDefaultDescriptor();
+				const PParticleSamplerDescriptor	&desc = srcSamplers[sampleri]->GetSamplerDefaultDescriptor();
 				if (!srcSamplers[sampleri]->ExportedName().Empty())
 					m_Samplers[sampleri].m_Name = srcSamplers[sampleri]->ExportedName().Data();
 				if (desc != null)
@@ -332,7 +332,7 @@ void	PopcornFXAttributeList::_CopySamplers(const CParticleAttributeList *attribu
 		{
 			if (srcSamplers[i] != null)
 			{
-				const PParticleSamplerDescriptor	&desc = srcSamplers[i]->DefaultValue()->GetSamplerDefaultDescriptor();
+				const PParticleSamplerDescriptor	&desc = srcSamplers[i]->GetSamplerDefaultDescriptor();
 				if (!srcSamplers[i]->ExportedName().Empty())
 					m_Samplers[i].m_Name = srcSamplers[i]->ExportedName().Data();
 				if (desc != null)

@@ -163,11 +163,12 @@ void	CBroadcastManager::RegisterToBroadcastCallback(	PopcornFX::Threads::SThread
 														u32									eventID,
 														PopcornFX::CStringId				eventName,
 														u32									count,
+														const SUpdateTimeArgs				&timeArgs,
 														const TMemoryView<const float>		&spawnDtToEnd,
 														const TMemoryView<const CEffectID>	&effectIDs,
 														const PopcornFX::SPayloadView		&payloadView)
 {
-	(void)threadCtx; (void)parentMedium; (void)eventID;
+	(void)threadCtx; (void)parentMedium; (void)eventID; (void)timeArgs;
 
 	SPopcornFXBroadcastParams	params;
 
