@@ -5,7 +5,7 @@
 
 set(POPCORNFX_VERSION 2.12.0.preview0)
 set(POPCORNFX_LICENSE O3DE)
-set(O3DE_DEVELOPMENT OFF)
+set(O3DE_DEVELOPMENT ON)
 
 if (${O3DE_DEVELOPMENT})
     add_compile_definitions(O3DE_DEV)
