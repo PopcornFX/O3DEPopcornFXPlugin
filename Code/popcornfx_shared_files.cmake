@@ -9,8 +9,16 @@ set(FILES
     Source/Integration/Audio/PopcornFXAudioPool.h
     Source/Integration/Audio/PopcornFXAudioPool.cpp
 
-    Source/Integration/Render/AtomIntegration/AtomBillboardingBatchPolicy.h
-    Source/Integration/Render/AtomIntegration/AtomBillboardingBatchPolicy.cpp
+    Source/Integration/Render/AtomIntegration/ParticleBuffers.h
+    Source/Integration/Render/AtomIntegration/ParticleBuffers.cpp
+    Source/Integration/Render/AtomIntegration/BillboardBatchDrawer.h
+    Source/Integration/Render/AtomIntegration/BillboardBatchDrawer.cpp
+    Source/Integration/Render/AtomIntegration/RibbonBatchDrawer.h
+    Source/Integration/Render/AtomIntegration/RibbonBatchDrawer.cpp
+    Source/Integration/Render/AtomIntegration/MeshBatchDrawer.h
+    Source/Integration/Render/AtomIntegration/MeshBatchDrawer.cpp
+    Source/Integration/Render/AtomIntegration/LightBatchDrawer.h
+    Source/Integration/Render/AtomIntegration/LightBatchDrawer.cpp
     Source/Integration/Render/AtomIntegration/AtomFrameCollector.h
     Source/Integration/Render/AtomIntegration/AtomFrameCollector.cpp
     Source/Integration/Render/AtomIntegration/AtomFrameCollectorTypes.h

@@ -93,7 +93,11 @@ void	*CImageResourceHandler::Load(	const CResourceManager	*resourceManager,
 		return null;
 	}
 
+#if defined(O3DE_DEV)
+	AZStd::span<const uint8_t>			imgData = streamingImageAsset->GetSubImageData(0, 0);
+#else
 	AZStd::array_view<uint8_t>			imgData = streamingImageAsset->GetSubImageData(0, 0);
+#endif
 	AZ::RHI::Format						imgFormat = imgDesc.m_format;
 	AZ::RHI::Size						imgSize = imgDesc.m_size;
 

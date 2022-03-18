@@ -268,9 +268,9 @@ namespace PopcornFX {
 		if (m_Asset.IsReady())
 			_LoadAndSet();
 		if (m_StandaloneEmitter != null)
-			PopcornFXEventsBus::Broadcast(&PopcornFXEventsBus::Events::OnFxCreated, m_StandaloneEmitter);
+			PopcornFXEventsBus::Broadcast(&PopcornFXEventsBus::Events::OnEmitterReady, m_StandaloneEmitter);
 		else if (m_EntityId.IsValid())
-			PopcornFXEmitterComponentEventsBus::Event(m_EntityId, &PopcornFXEmitterComponentEventsBus::Events::OnFxCreated, m_EntityId);
+			PopcornFXEmitterComponentEventsBus::Event(m_EntityId, &PopcornFXEmitterComponentEventsBus::Events::OnEmitterReady);
 	}
 
 	void	PopcornFXEmitterRuntime::SetVisible(bool visible)

@@ -19,15 +19,14 @@ namespace PopcornFX {
 
 class	CRenderManager;
 
-class	CAtomRenderDataFactory : public TParticleRenderDataFactory<CAtomParticleBatchTypes>
+class	CAtomRenderDataFactory
 {
 public:
 	CAtomRenderDataFactory() { }
-	virtual ~CAtomRenderDataFactory() { }
+	~CAtomRenderDataFactory() { }
 
-	virtual PRendererCacheBase			UpdateThread_CreateRendererCache(const PRendererDataBase &renderer, const CParticleDescriptor *particleDesc) override;
-	virtual void						UpdateThread_CollectedForRendering(const PRendererCacheBase &rendererCache) override;
-	virtual CBillboardingBatchInterface	*CreateBillboardingBatch(ERendererClass rendererType, const PRendererCacheBase &rendererCache, bool gpuStorage) override;
+	CRendererBatchDrawer	*CreateBatchDrawer(ERendererClass rendererType, const PRendererCacheBase &rendererCache, bool gpuStorage);
+	PRendererCacheBase		CreateRendererCache(const PRendererDataBase &renderer, const CParticleDescriptor *particleDesc);
 
 	void								SetPackPath(const char *path) { m_PackPath = CString(path); }
 	void								SetRenderManager(CRenderManager *renderManager) { m_RendererLoader.SetRenderManager(renderManager); }

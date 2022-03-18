@@ -3,11 +3,13 @@
 # https://www.popcornfx.com/terms-and-conditions/
 #----------------------------------------------------------------------------
 
-set(POPCORNFX_VERSION 2.11.2)
+set(POPCORNFX_VERSION 2.12.0.preview0)
 set(POPCORNFX_LICENSE O3DE)
+set(O3DE_DEVELOPMENT OFF)
 
-# Uncomment this for O3DE development branch
-add_compile_definitions(O3DE_DEV)
+if (${O3DE_DEVELOPMENT})
+    add_compile_definitions(O3DE_DEV)
+endif()
 
 ly_get_list_relative_pal_filename(pal_dir ${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME})
 
@@ -18,7 +20,7 @@ if(NOT PAL_TRAIT_POPCORNFX_SUPPORTED)
 endif()
 
 ly_add_target(
-    NAME PopcornFX-2.11.Static STATIC
+    NAME PopcornFX.Static STATIC
     NAMESPACE Gem
     FILES_CMAKE
         popcornfx_autogen_files.cmake
@@ -61,7 +63,7 @@ ly_add_target(
 )
 
 ly_add_target(
-    NAME PopcornFX-2.11 ${PAL_TRAIT_MONOLITHIC_DRIVEN_MODULE_TYPE}
+    NAME PopcornFX ${PAL_TRAIT_MONOLITHIC_DRIVEN_MODULE_TYPE}
     NAMESPACE Gem
     FILES_CMAKE
         popcornfx_files.cmake
@@ -73,17 +75,17 @@ ly_add_target(
             Include
     BUILD_DEPENDENCIES
         PRIVATE
-            Gem::PopcornFX-2.11.Static
+            Gem::PopcornFX.Static
     RUNTIME_DEPENDENCIES
         Gem::LmbrCentral
 )
 
-ly_create_alias(NAME PopcornFX-2.11.Clients NAMESPACE Gem TARGETS Gem::PopcornFX-2.11)
-#ly_create_alias(NAME PopcornFX-2.11.Servers NAMESPACE Gem TARGETS Gem::PopcornFX-2.11)
+ly_create_alias(NAME PopcornFX.Clients NAMESPACE Gem TARGETS Gem::PopcornFX)
+#ly_create_alias(NAME PopcornFX.Servers NAMESPACE Gem TARGETS Gem::PopcornFX)
 
 if(PAL_TRAIT_BUILD_HOST_TOOLS)
     ly_add_target(
-        NAME PopcornFX-2.11.Editor MODULE
+        NAME PopcornFX.Editor MODULE
         NAMESPACE Gem
         AUTOUIC
         AUTOMOC
@@ -104,11 +106,11 @@ if(PAL_TRAIT_BUILD_HOST_TOOLS)
                 AZ::AssetBuilderSDK
                 AZ::AzToolsFramework
                 3rdParty::PopcornFXEditor
-                Gem::PopcornFX-2.11.Static
+                Gem::PopcornFX.Static
         RUNTIME_DEPENDENCIES
             Gem::LmbrCentral.Editor
     )
 
-    ly_create_alias(NAME PopcornFX-2.11.Builders NAMESPACE Gem TARGETS Gem::PopcornFX-2.11.Editor)
-    ly_create_alias(NAME PopcornFX-2.11.Tools NAMESPACE Gem TARGETS Gem::PopcornFX-2.11.Editor)
+    ly_create_alias(NAME PopcornFX.Builders NAMESPACE Gem TARGETS Gem::PopcornFX.Editor)
+    ly_create_alias(NAME PopcornFX.Tools NAMESPACE Gem TARGETS Gem::PopcornFX.Editor)
 endif()

@@ -308,7 +308,7 @@ namespace PopcornFX {
 				if (m_Enable)
 					m_Emitter.Start();
 
-				PopcornFXEmitterComponentEventsBus::Event(GetEntityId(), &PopcornFXEmitterComponentEventsBus::Events::OnFxCreated, entityId);
+				PopcornFXEmitterComponentEventsBus::Event(GetEntityId(), &PopcornFXEmitterComponentEventsBus::Events::OnEmitterReady);
 			}
 
 			SetDirty();

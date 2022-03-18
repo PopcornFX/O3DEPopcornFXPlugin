@@ -29,7 +29,7 @@ namespace PopcornFX {
 		AZ::s32	AttributeType() { return m_AttributeType; }
 
 		// PopcornFXEmitterComponentEventsBus::Handler
-		void	OnFxCreated(const AZ::EntityId &entityId) override;
+		void	OnEmitterReady() override;
 
 		// PopcornFXTrackViewComponentRequestBus::Handler
 		void	SetValueFX(float value) override;

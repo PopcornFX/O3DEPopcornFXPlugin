@@ -187,7 +187,7 @@ public:
 
 	void	SetVertexInputBuffer(EVertexInputSemantic semantic, const AZ::RHI::StreamBufferView &streamBufferView);
 	void	SetIndexBuffer(const AZ::RHI::IndexBufferView &idxBufferView);
-	void	ConfigureDrawCall(SAtomDrawOutputs::SDrawCall &drawCall);
+	void	ConfigureDrawCall(SAtomRenderContext::SDrawCall &drawCall);
 
 	bool	IsInitialized() const { return m_IsInitialized; }
 

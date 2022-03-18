@@ -682,13 +682,8 @@ AZ::RHI::ConstPtr<AZ::RHI::PipelineState>	PopcornFXRendererLoader::_CreatePipeli
 		}
 	}
 
-#if defined(O3DE_DEV)
 	const auto	scene = AZ::RPI::RPISystemInterface::Get()->GetSceneByName(AZ::Name(AzFramework::Scene::MainSceneName));
 	const char	*shaderPath = GetPopornFXUsedShaderPath(key.m_UsedShader);
-#else
-	AZ::RPI::ScenePtr	scene = AZ::RPI::RPISystemInterface::Get()->GetDefaultScene();
-	const char			*shaderPath = GetPopornFXUsedShaderPath(key.m_UsedShader);
-#endif
 
 	if (!PK_VERIFY(scene != null))
 	{

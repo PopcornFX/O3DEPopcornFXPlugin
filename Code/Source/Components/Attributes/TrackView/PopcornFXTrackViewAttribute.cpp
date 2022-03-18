@@ -95,11 +95,8 @@ namespace PopcornFX {
 		GetAttributeIdAndType();
 	}
 
-	void	PopcornFXTrackViewAttribute::OnFxCreated(const AZ::EntityId &entityId)
+	void	PopcornFXTrackViewAttribute::OnEmitterReady()
 	{
-		if (entityId != m_ParentId)
-			return;
-
 		m_FxCreated = true;
 		GetAttributeIdAndType();
 	}

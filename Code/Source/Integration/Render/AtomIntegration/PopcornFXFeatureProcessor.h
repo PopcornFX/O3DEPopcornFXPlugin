@@ -44,7 +44,7 @@ public:
 	CRenderManager		&GetRenderManager() { return m_RenderManager; }
 
 private:
-	const AZ::RHI::DrawPacket	*BuildDrawPacket(	const SAtomDrawOutputs::SDrawCall &pkfxDrawCall,
+	const AZ::RHI::DrawPacket	*BuildDrawPacket(	const SAtomRenderContext::SDrawCall &pkfxDrawCall,
 													const AZ::RHI::ShaderResourceGroup *viewSrg,
 													AZ::RHI::DrawItemSortKey sortKey);
 

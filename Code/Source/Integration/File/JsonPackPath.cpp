@@ -15,17 +15,9 @@
 #include <AzCore/JSON/prettywriter.h>
 
 #	if defined(POPCORNFX_EDITOR)
-#		if defined(O3DE_DEV)
-#			define JSON_PACK_PATH	"@projectroot@/popcornfx_pack.json"
-#		else
-#			define JSON_PACK_PATH	"@devassets@/popcornfx_pack.json"
-#		endif
+#		define JSON_PACK_PATH	"@projectroot@/popcornfx_pack.json"
 #	else
-#		if defined(O3DE_DEV)
-#			define JSON_PACK_PATH	"@projectproductassets@/popcornfx_pack.json"
-#		else
-#			define JSON_PACK_PATH	"@assets@/popcornfx_pack.json"
-#		endif
+#		define JSON_PACK_PATH	"@products@/popcornfx_pack.json"
 #	endif
 
 namespace PopcornFX {
