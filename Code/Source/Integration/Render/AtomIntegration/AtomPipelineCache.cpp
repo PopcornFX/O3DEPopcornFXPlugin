@@ -271,7 +271,7 @@ void	CAtomPipelineCache::SetIndexBuffer(const AZ::RHI::IndexBufferView &idxBuffe
 
 //----------------------------------------------------------------------------
 
-void	CAtomPipelineCache::ConfigureDrawCall(SAtomDrawOutputs::SDrawCall &drawCall)
+void	CAtomPipelineCache::ConfigureDrawCall(SAtomRenderContext::SDrawCall &drawCall)
 {
 	if (!m_RendererSrg->IsQueuedForCompile())
 		m_RendererSrg->Compile();
@@ -303,7 +303,6 @@ void	CAtomPipelineCache::ConfigureDrawCall(SAtomDrawOutputs::SDrawCall &drawCall
 
 AZ::Data::Instance<AZ::RPI::ShaderResourceGroup>	CAtomPipelineCache::_CreateShaderResourceGroup(AZ::Data::Instance<AZ::RPI::Shader> shader, const char *srgName)
 {
-#if defined(O3DE_DEV) //for develop branch
 	AZ::Data::Asset<AZ::RPI::ShaderAsset> shaderAsset = shader->GetAsset();
 	AZ::RPI::SupervariantIndex supervariantIndex = shader->GetSupervariantIndex();
 	AZ::RHI::Ptr<AZ::RHI::ShaderResourceGroupLayout> perObjectSrgLayout = shader->FindShaderResourceGroupLayout(AZ::Name{ srgName });
@@ -316,21 +315,6 @@ AZ::Data::Instance<AZ::RPI::ShaderResourceGroup>	CAtomPipelineCache::_CreateShad
 	}
 
 	auto srg = AZ::RPI::ShaderResourceGroup::Create(shaderAsset, supervariantIndex, perObjectSrgLayout->GetName());
-#else //for main branch
-	auto perInstanceSrgAsset = shader->FindShaderResourceGroupAsset(AZ::Name{ srgName });
-	if (!perInstanceSrgAsset.GetId().IsValid())
-	{
-		CLog::Log(PK_ERROR, "Could not find shader resource group asset '%s'", srgName);
-		return null;
-	}
-	else if (!perInstanceSrgAsset.IsReady())
-	{
-		CLog::Log(PK_ERROR, "Shader resource group asset '%s' is not loaded", srgName);
-		return null;
-	}
-
-	auto srg = AZ::RPI::ShaderResourceGroup::Create(perInstanceSrgAsset);
-#endif
 
 	if (!srg)
 	{

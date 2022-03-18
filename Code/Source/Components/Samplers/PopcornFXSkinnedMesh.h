@@ -7,12 +7,17 @@
 
 #if defined(O3DE_USE_PK)
 
+#include <AzCore/base.h>
 #include <pk_particles_toolbox/include/pt_mesh_deformers_skin.h>
 #include <pk_geometrics/include/ge_mesh_resource.h>
 
 #if defined(PK_USE_EMOTIONFX)
-	#include <EMotionFX/Source/EMotionFX.h>
-#endif
+namespace EMotionFX
+{
+	class Actor;
+	class ActorInstance;
+}
+#endif //PK_USE_EMOTIONFX
 
 namespace PopcornFX {
 

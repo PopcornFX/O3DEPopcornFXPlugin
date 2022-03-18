@@ -15,6 +15,22 @@
 
 namespace PopcornFX {
 
+	namespace Internal
+	{
+		struct PopcornFXEmitterComponentEventsBusHandler final
+			: public PopcornFXEmitterComponentEventsBus::Handler
+			, public AZ::BehaviorEBusHandler
+		{
+			AZ_EBUS_BEHAVIOR_BINDER(
+				PopcornFXEmitterComponentEventsBusHandler, "{CAECE674-6197-4437-AEAA-8FE8563F089F}", AZ::SystemAllocator, OnEmitterReady);
+
+			void OnEmitterReady() override
+			{
+				Call(FN_OnEmitterReady);
+			}
+		};
+	} // namespace Internal
+
 	PopcornFXEmitterGameComponent::PopcornFXEmitterGameComponent()
 	{
 	}
@@ -98,6 +114,11 @@ namespace PopcornFX {
 				->Event("SetTeleportThisFrame", &PopcornFXEmitterComponentRequestBus::Events::SetTeleportThisFrame)
 				->VirtualProperty("Enable", "IsEnabled", "Enable")
 				;
+
+			behaviorContext->EBus<PopcornFXEmitterComponentEventsBus>("PopcornFXEmitterComponentEventsBus")
+				->Attribute(AZ::Script::Attributes::Scope, AZ::Script::Attributes::ScopeFlags::Common)
+				->Attribute(AZ::Edit::Attributes::Category, "PopcornFX")
+				->Handler<Internal::PopcornFXEmitterComponentEventsBusHandler>();
 		}
 	}
 

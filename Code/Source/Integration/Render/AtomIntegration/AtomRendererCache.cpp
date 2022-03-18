@@ -334,8 +334,11 @@ void	SParticleMaterialBasicDesc::InitFromRenderer(const CRendererDataBase &rende
 		BasicFeatures::AtlasBlending::EAtlasBlending	atlasBlending = static_cast<BasicFeatures::AtlasBlending::EAtlasBlending>(linearAtlasBlending->ValueI().x());
 
 		// For billboards, the atlas blending uses the same shader (changesPipelineState set to false):
-		const bool	changesPipelineState = renderer.m_RendererType != ERendererClass::Renderer_Billboard;
-		_AddRendererFlags(RendererFlags::Has_AnimBlend, true, changesPipelineState);
+		if (atlasBlending != BasicFeatures::AtlasBlending::None)
+		{
+			const bool	changesPipelineState = renderer.m_RendererType != ERendererClass::Renderer_Billboard;
+			_AddRendererFlags(RendererFlags::Has_AnimBlend, true, changesPipelineState);
+		}
 		if (atlasBlending == BasicFeatures::AtlasBlending::Linear)
 			_AddRendererFlags(RendererFlags::Has_AnimBlend_Linear, true, false);
 		else if (atlasBlending == BasicFeatures::AtlasBlending::MotionVectors && motionVectorsMap != null && !motionVectorsMap->ValuePath().Empty())

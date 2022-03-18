@@ -12,9 +12,15 @@
 #include <pk_maths/include/pk_maths_simd.h>
 
 #if defined(PK_USE_EMOTIONFX)
-	#include <Source/Integration/Rendering/RenderActor.h>
-	#include <Atom/Feature/SkinnedMesh/SkinnedMeshInputBuffers.h>
-#endif
+#include <Source/Integration/Rendering/RenderActor.h>
+#include <Atom/Feature/SkinnedMesh/SkinnedMeshInputBuffers.h>
+#include <EMotionFX/Source/Actor.h>
+#include <EMotionFX/Source/ActorInstance.h>
+#include <EMotionFX/Source/Mesh.h>
+#include <EMotionFX/Source/SubMesh.h>
+#include <EMotionFX/Source/SkinningInfoVertexAttributeLayer.h>
+#include <EMotionFX/Source/TransformData.h>
+#endif //PK_USE_EMOTIONFX
 
 // Copied from ActorAsset.cpp
 namespace

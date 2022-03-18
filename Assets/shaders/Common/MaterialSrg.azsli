@@ -12,8 +12,8 @@ ShaderResourceGroup MaterialSrg : SRG_PerMaterial
     // Textures:
     Sampler     m_sampler
     {
-        AddressU = Clamp;
-        AddressV = Clamp;
+        AddressU = Wrap;
+        AddressV = Wrap;
         MinFilter = Linear;
         MagFilter = Linear;
         MipFilter = Linear;

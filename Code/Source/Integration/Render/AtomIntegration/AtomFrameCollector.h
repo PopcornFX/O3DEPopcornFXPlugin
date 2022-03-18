@@ -15,11 +15,13 @@ namespace PopcornFX {
 //----------------------------------------------------------------------------
 
 // Frame collector is templated with user data:
-class	CAtomFrameCollector : public TFrameCollector<CAtomParticleBatchTypes>
+class	CAtomFrameCollector : public CFrameCollector
 {
 public:
 	CAtomFrameCollector();
 	virtual ~CAtomFrameCollector();
+
+	TMemoryView<const PParticleRenderMedium>	RenderMediums() const { return m_ParticleRenderMediums.View(); }
 
 private:
 	// Early Cull: Culls an entire medium on the update thread (when collecting the frame)

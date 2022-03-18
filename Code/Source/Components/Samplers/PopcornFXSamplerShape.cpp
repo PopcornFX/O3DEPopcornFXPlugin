@@ -9,7 +9,8 @@
 
 #if defined(PK_USE_EMOTIONFX)
 #include <Source/Integration/Rendering/RenderActor.h>
-#endif
+#include <EMotionFX/Source/ActorInstance.h>
+#endif //PK_USE_EMOTIONFX
 
 #include <AzCore/Math/Matrix4x4.h>
 #include <AzCore/Serialization/EditContext.h>

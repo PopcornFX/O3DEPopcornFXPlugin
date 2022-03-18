@@ -11,9 +11,8 @@
 #include <AtomLyIntegration/CommonFeatures/Mesh/MeshComponentBus.h>
 
 #if defined(PK_USE_EMOTIONFX)
-	#include <EMotionFX/Source/EMotionFX.h>
-	#include <Integration/ActorComponentBus.h>
-#endif
+#include <Integration/ActorComponentBus.h>
+#endif //PK_USE_EMOTIONFX
 
 #include "Integration/PopcornFXIntegrationBus.h"
 
@@ -23,6 +22,13 @@
 #include <pk_geometrics/include/ge_shapes.h>
 #include <pk_geometrics/include/ge_mesh_resource.h>
 #endif //O3DE_USE_PK
+
+#if defined(PK_USE_EMOTIONFX)
+namespace EMotionFX
+{
+	class ActorInstance;
+}
+#endif //PK_USE_EMOTIONFX
 
 namespace PopcornFX {
 

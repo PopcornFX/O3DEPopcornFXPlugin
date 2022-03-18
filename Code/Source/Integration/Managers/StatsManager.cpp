@@ -10,7 +10,11 @@
 
 #include <PopcornFX/PopcornFXBus.h>
 
+#if defined(O3DE_DEV)
+#include <LyShine/IDraw2d.h>
+#else
 #include <LyShine/Draw2d.h>
+#endif
 
 #include <AzCore/Console/IConsole.h>
 #include <AzCore/Interface/Interface.h>
@@ -428,7 +432,7 @@ void	CStatsManager::UpdateProfiler(CParticleMediumCollection *mediumCollection)
 			effectTimings.m_EffectPath = effect->File()->Path();
 		}
 		PopcornFX::SEvolveStatsReport	mediumStatsReport;
-		mediumStats->ComputeGlobalStats(mediumStatsReport);
+		mediumStats->ComputeMediumGlobalStats(mediumStatsReport);
 
 		effectTimings.m_TotalStatsReport += mediumStatsReport;
 	}

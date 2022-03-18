@@ -12,11 +12,7 @@
 namespace PopcornFX {
 	void	GetThumbnailPathForAsset(const AZStd::string &assetPath, AZStd::string &outThumbnailPath);
 	bool	ChangePackIFN(	const AZStd::string &assetPath, IFileSystem *fileSystem,
-							AZStd::string &outRootPath, AZStd::string &outLibraryPath,
-							const AZStd::string &devFolder = "");
-	bool	ChangePackWithPathIFN(	const AZStd::string &pkProjPath, IFileSystem *fileSystem,
-									AZStd::string &outRootPath, AZStd::string &outLibraryPath,
-									const AZStd::string &devFolder = "");
+							AZStd::string &rootPath, AZStd::string &outLibraryPath, bool assetProcessor = true);
 }
 
 #endif //O3DE_USE_PK
