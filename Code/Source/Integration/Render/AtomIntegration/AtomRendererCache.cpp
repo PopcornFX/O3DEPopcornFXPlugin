@@ -287,6 +287,10 @@ void	SParticleMaterialBasicDesc::InitFromRenderer(const CRendererDataBase &rende
 			EBillboardMode	mode = Drawers::SBillboard_BillboardingRequest::BillboardProperty_BillboardMode_ToInternal(bbMode->ValueI().x());
 			if (mode == BillboardMode_AxisAlignedCapsule)
 				_AddRendererFlags(RendererFlags::Has_Capsules, true, true);
+			else if (mode == BillboardMode_AxisAligned || mode == BillboardMode_AxisAlignedSpheroid)
+				_AddRendererFlags(RendererFlags::HAS_Axis0, true, false);
+			else if (mode == BillboardMode_PlaneAligned)
+				_AddRendererFlags(RendererFlags::HAS_Axis1, true, false);
 		}
 		if (billboardSize2 != null && billboardSize2->ValueB())
 		{
