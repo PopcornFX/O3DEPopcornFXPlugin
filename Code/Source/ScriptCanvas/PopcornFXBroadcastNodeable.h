@@ -35,10 +35,11 @@ namespace PopcornFX
 
 		//////////////////////////////////////////////////////////////////////////
 		/// PopcornFX::PopcornFXEventsBus::Handler
-		void OnFxCreated(const AZ::EntityId&) override;
-		void OnFxBroadcastEvent(const AZ::EntityId&, PopcornFX::SBroadcastParams *params) override;
+		void OnEmitterReady() override;
+		void OnEmitterBroadcastEvent(PopcornFX::SBroadcastParams *params) override;
 
 		AZStd::string	m_EventName;
+		AZ::EntityId	m_EntityId;
 	};
 
 }

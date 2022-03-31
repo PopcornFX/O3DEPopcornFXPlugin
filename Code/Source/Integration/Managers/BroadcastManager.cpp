@@ -41,7 +41,7 @@ void	CBroadcastManager::Update()
 						PopcornFX::SBroadcastParams	params;
 						const AZ::EntityId			entityId = entityToBroadcast.m_EntityId[subIdx];
 						params.m_EventName = event.m_EventName.ToStringData();
-						PopcornFXEmitterComponentEventsBus::Event(entityId, &PopcornFXEmitterComponentEventsBus::Events::OnFxBroadcastEvent, entityId, &params);
+						PopcornFXEmitterComponentEventsBus::Event(entityId, &PopcornFXEmitterComponentEventsBus::Events::OnEmitterBroadcastEvent, &params);
 					}
 				}
 			}
@@ -109,7 +109,7 @@ bool	CBroadcastManager::RegisterToBroadcast(AZ::EntityId entityId, const AZStd::
 		m_EntitiesToBroadcast[foundIdx].m_EffectId.push_back(effectId);
 		m_EntitiesToBroadcast[foundIdx].m_EntityId.push_back(entityId);
 #if 0
-		AZ_Printf("PopcorFX", "OnFxCreated Add => EventName: [%s] EntityID: [%s] EffectID: [%d]", m_EventName.data(), m_EntityID.ToString().c_str(), emitter.GetEmitter()->EffectID());
+		AZ_Printf("PopcorFX", "RegisterToBroadcast Add => EventName: [%s] EntityID: [%s] EffectID: [%d]", m_EventName.data(), m_EntityID.ToString().c_str(), emitter.GetEmitter()->EffectID());
 #endif
 	}
 	else
@@ -121,7 +121,7 @@ bool	CBroadcastManager::RegisterToBroadcast(AZ::EntityId entityId, const AZStd::
 		params.m_Effect = effect;
 		m_EntitiesToBroadcast.PushBack(params);
 #if 0
-		AZ_Printf("PopcorFX", "OnFxCreated New => EventName: [%s] EntityID: [%s] EffectID: [%d]", params.m_EventName.data(), m_EntityID.ToString().c_str(), emitter.GetEmitter()->EffectID());
+		AZ_Printf("PopcorFX", "RegisterToBroadcast New => EventName: [%s] EntityID: [%s] EffectID: [%d]", params.m_EventName.data(), m_EntityID.ToString().c_str(), emitter.GetEmitter()->EffectID());
 #endif
 		const PopcornFX::FastDelegate<PopcornFX::CParticleEffect::EventCallback>	broadcastCallback(this, &CBroadcastManager::RegisterToBroadcastCallback);
 

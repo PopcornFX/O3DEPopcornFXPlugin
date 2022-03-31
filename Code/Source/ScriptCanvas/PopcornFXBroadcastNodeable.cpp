@@ -25,6 +25,7 @@ namespace PopcornFX {
 
 		if (entityId.IsValid())
 		{
+			m_EntityId = entityId;
 			m_EventName = eventName;
 			PopcornFX::PopcornFXEmitterComponentEventsBus::Handler::BusConnect(entityId);
 		}
@@ -35,14 +36,14 @@ namespace PopcornFX {
 		PopcornFX::PopcornFXEmitterComponentEventsBus::Handler::BusDisconnect();
 	}
 
-	void	PopcornFXBroadcastNodeable::OnFxCreated(const AZ::EntityId &entityId)
+	void	PopcornFXBroadcastNodeable::OnEmitterReady()
 	{
 		bool ok = false;
-		PopcornFX::PopcornFXIntegrationBus::BroadcastResult(ok, &PopcornFX::PopcornFXIntegrationBus::Handler::RegisterToBroadcast, entityId, m_EventName);
+		PopcornFX::PopcornFXIntegrationBus::BroadcastResult(ok, &PopcornFX::PopcornFXIntegrationBus::Handler::RegisterToBroadcast, m_EntityId, m_EventName);
 		AZ_Error("PopcornFX", ok, "Unable to register event %s to broadcast.", m_EventName.c_str());
 	}
 
-	void	PopcornFXBroadcastNodeable::OnFxBroadcastEvent(const AZ::EntityId&, PopcornFX::SBroadcastParams *params)
+	void	PopcornFXBroadcastNodeable::OnEmitterBroadcastEvent(PopcornFX::SBroadcastParams *params)
 	{
 		SCRIPT_CANVAS_PERFORMANCE_SCOPE_LATENT(GetScriptCanvasId(), GetAssetId());
 

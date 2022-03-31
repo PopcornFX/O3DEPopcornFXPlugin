@@ -430,7 +430,7 @@ void	CStatsManager::UpdateProfiler(CParticleMediumCollection *mediumCollection)
 			effectTimings.m_EffectPath = effect->File()->Path();
 		}
 		PopcornFX::SEvolveStatsReport	mediumStatsReport;
-		mediumStats->ComputeGlobalStats(mediumStatsReport);
+		mediumStats->ComputeMediumGlobalStats(mediumStatsReport);
 
 		effectTimings.m_TotalStatsReport += mediumStatsReport;
 	}

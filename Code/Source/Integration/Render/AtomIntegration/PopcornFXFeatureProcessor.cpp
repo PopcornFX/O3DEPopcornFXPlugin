@@ -181,7 +181,6 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 
 	if (objectSrg != null)
 	{
-#if defined(O3DE_DEV)
 		// retrieve probe constant indices
 		AZ::RHI::ShaderInputConstantIndex	modelToWorldConstantIndex = objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_modelToWorld"));
 		AZ_Error("MeshDataInstance", modelToWorldConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
@@ -229,73 +228,6 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 		if (!objectSrg->IsQueuedForCompile())
 			objectSrg->Compile();
 		dpBuilder.AddShaderResourceGroup(objectSrg->GetRHIShaderResourceGroup());
-#else
-		// retrieve probe constant indices
-		AZ::RHI::ShaderInputConstantIndex posConstantIndex =
-			objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_aabbPos"));
-		AZ_Error("MeshDataInstance", posConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
-
-		AZ::RHI::ShaderInputConstantIndex outerAabbMinConstantIndex =
-			objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_outerAabbMin"));
-		AZ_Error("MeshDataInstance", outerAabbMinConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
-
-		AZ::RHI::ShaderInputConstantIndex outerAabbMaxConstantIndex =
-			objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_outerAabbMax"));
-		AZ_Error("MeshDataInstance", outerAabbMaxConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
-
-		AZ::RHI::ShaderInputConstantIndex innerAabbMinConstantIndex =
-			objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_innerAabbMin"));
-		AZ_Error("MeshDataInstance", innerAabbMinConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
-
-		AZ::RHI::ShaderInputConstantIndex innerAabbMaxConstantIndex =
-			objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_innerAabbMax"));
-		AZ_Error("MeshDataInstance", innerAabbMaxConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
-
-		AZ::RHI::ShaderInputConstantIndex useReflectionProbeConstantIndex =
-			objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_useReflectionProbe"));
-		AZ_Error("MeshDataInstance", useReflectionProbeConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
-
-		AZ::RHI::ShaderInputConstantIndex useParallaxCorrectionConstantIndex =
-			objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_useParallaxCorrection"));
-		AZ_Error("MeshDataInstance", useParallaxCorrectionConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
-
-	 // retrieve probe cubemap index
-	 AZ::Name reflectionCubeMapImageName = AZ::Name("m_reflectionProbeCubeMap");
-	 AZ::RHI::ShaderInputImageIndex reflectionCubeMapImageIndex = objectSrg->FindShaderInputImageIndex(reflectionCubeMapImageName);
-	 AZ_Error(
-		"MeshDataInstance", reflectionCubeMapImageIndex.IsValid(), "Failed to find shader image index [%s]",
-		reflectionCubeMapImageName.GetCStr());
-
-		// retrieve the list of probes that contain the centerpoint of the mesh
-		/*/
-		AZ::Render::TransformServiceFeatureProcessor	*transformServiceFeatureProcessor = GetParentScene()->GetFeatureProcessor<TransformServiceFeatureProcessor>();
-		Transform transform = transformServiceFeatureProcessor->GetTransformForId(m_objectId);*/
-
-		AZ::Render::ReflectionProbeFeatureProcessor	*reflectionProbeFeatureProcessor = GetParentScene()->GetFeatureProcessor<AZ::Render::ReflectionProbeFeatureProcessor>();
-
-		AZ::Render::ReflectionProbeFeatureProcessor::ReflectionProbeVector reflectionProbes;
-		reflectionProbeFeatureProcessor->FindReflectionProbes(AZ::Vector3(pkfxDrawCall.m_BoundingBox.Center().x(), pkfxDrawCall.m_BoundingBox.Center().y(), pkfxDrawCall.m_BoundingBox.Center().z()), reflectionProbes);
-
-		if (!reflectionProbes.empty() && reflectionProbes[0])
-		{
-			objectSrg->SetConstant(posConstantIndex, reflectionProbes[0]->GetPosition());
-			objectSrg->SetConstant(outerAabbMinConstantIndex, reflectionProbes[0]->GetOuterAabbWs().GetMin());
-			objectSrg->SetConstant(outerAabbMaxConstantIndex, reflectionProbes[0]->GetOuterAabbWs().GetMax());
-			objectSrg->SetConstant(innerAabbMinConstantIndex, reflectionProbes[0]->GetInnerAabbWs().GetMin());
-			objectSrg->SetConstant(innerAabbMaxConstantIndex, reflectionProbes[0]->GetInnerAabbWs().GetMax());
-			objectSrg->SetConstant(useReflectionProbeConstantIndex, true);
-			objectSrg->SetConstant(useParallaxCorrectionConstantIndex, reflectionProbes[0]->GetUseParallaxCorrection());
-
-			objectSrg->SetImage(reflectionCubeMapImageIndex, reflectionProbes[0]->GetCubeMapImage());
-		}
-		else
-		{
-			objectSrg->SetConstant(useReflectionProbeConstantIndex, false);
-		}
-		if (!objectSrg->IsQueuedForCompile())
-			objectSrg->Compile();
-		dpBuilder.AddShaderResourceGroup(objectSrg->GetRHIShaderResourceGroup());
-#endif
 	}
 
 	return dpBuilder.End();

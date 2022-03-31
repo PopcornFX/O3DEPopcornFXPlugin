@@ -55,11 +55,7 @@ void	PopcornFXIntegration::StartUpdate(float deltaTime)
 
 	if (!m_FeatureProcessorEnabled)
 	{
-#if defined(O3DE_DEV)
 		const auto	scene = AZ::RPI::RPISystemInterface::Get()->GetSceneByName(AZ::Name(AzFramework::Scene::MainSceneName));
-#else
-		AZ::RPI::ScenePtr	scene = AZ::RPI::RPISystemInterface::Get()->GetDefaultScene();
-#endif
 		if (scene)
 		{
 			CPopcornFXFeatureProcessor	*pkfxFeatureProc = static_cast<CPopcornFXFeatureProcessor*>(scene->GetFeatureProcessor<CPopcornFXFeatureProcessor>());
@@ -88,11 +84,7 @@ void	PopcornFXIntegration::StartUpdate(float deltaTime)
 
 	// This binds the CollectFrame function to the m_OnUpdateComplete:
 	//m_RenderManager.StartUpdate(mediumCollection, m_SceneViewsManager.SceneViews());
-#if defined(O3DE_DEV)
 	const auto	scene = AZ::RPI::RPISystemInterface::Get()->GetSceneByName(AZ::Name(AzFramework::Scene::MainSceneName));
-#else
-	AZ::RPI::ScenePtr	scene = AZ::RPI::RPISystemInterface::Get()->GetDefaultScene();
-#endif
 	if (scene)
 	{
 		CPopcornFXFeatureProcessor	*pkfxFeatureProc = static_cast<CPopcornFXFeatureProcessor*>(scene->GetFeatureProcessor<CPopcornFXFeatureProcessor>());
@@ -127,11 +119,7 @@ void	PopcornFXIntegration::StopUpdate()
 	m_StatsManager.StartBillboardingSpanTimer();
 
 	//m_RenderManager.StopUpdate(mediumCollection);
-#if defined(O3DE_DEV)
 	const auto	scene = AZ::RPI::RPISystemInterface::Get()->GetSceneByName(AZ::Name(AzFramework::Scene::MainSceneName));
-#else
-	AZ::RPI::ScenePtr	scene = AZ::RPI::RPISystemInterface::Get()->GetDefaultScene();
-#endif
 	if (scene)
 	{
 		CPopcornFXFeatureProcessor	*pkfxFeatureProc = static_cast<CPopcornFXFeatureProcessor*>(scene->GetFeatureProcessor<CPopcornFXFeatureProcessor>());
@@ -163,11 +151,7 @@ void	PopcornFXIntegration::Activate()
 
 void	PopcornFXIntegration::Deactivate()
 {
-#if defined(O3DE_DEV)
 	const auto	scene = AZ::RPI::RPISystemInterface::Get()->GetSceneByName(AZ::Name(AzFramework::Scene::MainSceneName));
-#else
-	AZ::RPI::ScenePtr	scene = AZ::RPI::RPISystemInterface::Get()->GetDefaultScene();
-#endif
 	if (scene)
 	{
 		CPopcornFXFeatureProcessor	*pkfxFeatureProc = static_cast<CPopcornFXFeatureProcessor*>(scene->GetFeatureProcessor<CPopcornFXFeatureProcessor>());
@@ -253,11 +237,7 @@ void	PopcornFXIntegration::_SetEnabled(bool enable)
 void	PopcornFXIntegration::_Clean(bool unloadPreloadedEffects)
 {
 	m_MediumCollectionManager.Reset();
-#if defined(O3DE_DEV)
 	const auto	scene = AZ::RPI::RPISystemInterface::Get()->GetSceneByName(AZ::Name(AzFramework::Scene::MainSceneName));
-#else
-	AZ::RPI::ScenePtr	scene = AZ::RPI::RPISystemInterface::Get()->GetDefaultScene();
-#endif
 	if (scene)
 	{
 		CPopcornFXFeatureProcessor	*pkfxFeatureProc = static_cast<CPopcornFXFeatureProcessor*>(scene->GetFeatureProcessor<CPopcornFXFeatureProcessor>());
@@ -334,6 +314,16 @@ void	PopcornFXIntegration::OnCrySystemInitialized(ISystem &system, const SSystem
 		{
 			AZ_Error("PopcornFX", false, "Empty PopcornFX pack path in json.");
 		}
+#else
+		if (LoadPackPathFromJson(m_PackPath, m_LibraryPath))
+		{
+			if (!m_PackPath.empty() && !m_LibraryPath.empty())
+			{
+				PFilePack	pack = File::DefaultFileSystem()->MountPack(m_PackPath.c_str());
+				if (pack != null)
+					PackChanged(m_PackPath, m_LibraryPath);
+			}
+		}
 #endif
 
 		PK_VERIFY(_ActivateManagers());
@@ -377,18 +367,13 @@ void	PopcornFXIntegration::DestroyEffect(StandaloneEmitter *emitter)
 bool	PopcornFXIntegration::LoadEffect(PopcornFXAsset *asset, const char *assetPath, const AZ::u8 *assetData, const AZ::IO::SizeType assetDataSize, [[maybe_unused]] const AZ::Data::AssetId &assetId)
 {
 #if defined(POPCORNFX_EDITOR)
-	AZStd::string	rootPath;
+	AZStd::string	rootPath = m_PackPath;
 	AZStd::string	libraryPath;
-# if defined(O3DE_DEV)
-	AZStd::string	devassets = AZ::IO::FileIOBase::GetInstance()->GetAlias("@projectroot@");
-#else
-	AZStd::string	devassets = AZ::IO::FileIOBase::GetInstance()->GetAlias("@devassets@");
-#endif
 
 	AzToolsFramework::AssetBrowser::ProductAssetBrowserEntry	*product = AzToolsFramework::AssetBrowser::ProductAssetBrowserEntry::GetProductByAssetId(assetId);
 	if (product != null)
 	{
-		if (ChangePackIFN(product->GetFullPath().c_str(), File::DefaultFileSystem(), rootPath, libraryPath, devassets))
+		if (ChangePackIFN(product->GetFullPath().c_str(), File::DefaultFileSystem(), rootPath, libraryPath, false))
 			PackChanged(rootPath, libraryPath);
 	}
 	else
@@ -426,11 +411,7 @@ void	PopcornFXIntegration::UnloadEffect(PopcornFXAsset *asset)
 
 	if (rpiSystemInterface != null)
 	{
-#if defined(O3DE_DEV)
 		const auto	scene = rpiSystemInterface->GetSceneByName(AZ::Name(AzFramework::Scene::MainSceneName));
-#else
-		AZ::RPI::ScenePtr	scene = rpiSystemInterface->GetDefaultScene();
-#endif
 		if (asset->m_Effect != null && scene != null)
 		{
 			CPopcornFXFeatureProcessor	*pkfxFeatureProc = static_cast<CPopcornFXFeatureProcessor*>(scene->GetFeatureProcessor<CPopcornFXFeatureProcessor>());
@@ -508,11 +489,7 @@ void	PopcornFXIntegration::PackChanged(const AZStd::string &packPath, const AZSt
 		m_LibraryPath = libraryPath;
 		SavePackPathToJson(m_PackPath, m_LibraryPath);
 	}
-#if defined(O3DE_DEV)
 	const auto	scene = AZ::RPI::RPISystemInterface::Get()->GetSceneByName(AZ::Name(AzFramework::Scene::MainSceneName));
-#else
-	AZ::RPI::ScenePtr	scene = AZ::RPI::RPISystemInterface::Get()->GetDefaultScene();
-#endif
 	if (scene)
 	{
 		CPopcornFXFeatureProcessor	*pkfxFeatureProc = static_cast<CPopcornFXFeatureProcessor*>(scene->GetFeatureProcessor<CPopcornFXFeatureProcessor>());

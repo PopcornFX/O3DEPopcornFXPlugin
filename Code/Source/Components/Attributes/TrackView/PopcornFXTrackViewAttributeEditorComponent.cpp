@@ -96,13 +96,10 @@ namespace PopcornFX {
 		}
 	}
 
-	void	PopcornFXTrackViewAttributeEditorComponent::OnFxCreated(const AZ::EntityId &entityId)
+	void	PopcornFXTrackViewAttributeEditorComponent::OnEmitterReady()
 	{
 		AZ::EntityId	parentId;
 		AZ::TransformBus::EventResult(parentId, GetEntityId(), &AZ::TransformBus::Events::GetParentId);
-
-		if (entityId != parentId)
-			return;
 
 		AZ::u32	attributesCount;
 		PopcornFX::PopcornFXEmitterComponentRequestBus::EventResult(attributesCount, parentId, &PopcornFX::PopcornFXEmitterComponentRequests::GetAttributesCount);

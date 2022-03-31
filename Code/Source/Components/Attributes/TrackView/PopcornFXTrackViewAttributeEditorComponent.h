@@ -49,7 +49,7 @@ namespace PopcornFX {
 		static void	Reflect(AZ::ReflectContext *context);
 
 		// PopcornFXEmitterComponentEventsBus::Handler
-		void	OnFxCreated(const AZ::EntityId &entityId) override;
+		void	OnEmitterReady() override;
 
 		// PopcornFXEmitterEditorComponentEventsBus::Handler
 		void	OnAttributeChanged() override;

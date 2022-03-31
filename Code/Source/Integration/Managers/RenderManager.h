@@ -48,7 +48,7 @@ private:
 	CAtomRenderDataFactory			m_RenderBatchFactory;
 	SAtomRenderContext				m_RenderContext;
 	SAtomDrawOutputs				m_CollectedDrawCalls;
-	CPopcornFXFeatureProcessor			*m_FeatureProcessor = null;
+	CPopcornFXFeatureProcessor		*m_FeatureProcessor = null;
 
 	const SSceneViews					*m_SceneViews = null; // Used by CollectFrame
 };

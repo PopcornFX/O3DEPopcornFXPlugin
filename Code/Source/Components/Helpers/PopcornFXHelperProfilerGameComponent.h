@@ -68,17 +68,9 @@ public:
 	static AZStd::string	GetAlias()
 	{
 #	if defined(POPCORNFX_EDITOR)
-#		if defined(O3DE_DEV)
 		return "@projectroot@";
-#		else
-		return "@devassets@";
-#		endif
 #	else
-#		if defined(O3DE_DEV)
-		return "@projectproductassets@";
-#		else
-		return "@assets@";
-#		endif
+		return "@products@";
 #	endif
 	}
 
