@@ -3,15 +3,15 @@
 # https://www.popcornfx.com/terms-and-conditions/
 #----------------------------------------------------------------------------
 
-set(POPCORNFX_VERSION 2.12.0.preview0)
+set(POPCORNFX_VERSION 2.12.0)
 set(POPCORNFX_LICENSE O3DE)
-set(O3DE_DEVELOPMENT OFF)
 
 if (${O3DE_DEVELOPMENT})
     add_compile_definitions(O3DE_DEV)
+    o3de_pal_dir(pal_dir ${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME} "${gem_restricted_path}" "${gem_path}" "${gem_name}")
+else()
+    ly_get_list_relative_pal_filename(pal_dir ${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME} ${gem_restricted_path} ${gem_path} ${gem_name})
 endif()
-
-ly_get_list_relative_pal_filename(pal_dir ${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME})
 
 include(${pal_dir}/PAL_${PAL_PLATFORM_NAME_LOWERCASE}.cmake) #for PAL_TRAIT_POPCORNFX_SUPPORTED Traits
 
@@ -85,7 +85,7 @@ ly_create_alias(NAME PopcornFX.Clients NAMESPACE Gem TARGETS Gem::PopcornFX)
 
 if(PAL_TRAIT_BUILD_HOST_TOOLS)
     ly_add_target(
-        NAME PopcornFX.Editor MODULE
+        NAME PopcornFX.Editor GEM_MODULE
         NAMESPACE Gem
         AUTOUIC
         AUTOMOC
