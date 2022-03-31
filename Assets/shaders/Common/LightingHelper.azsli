@@ -49,8 +49,6 @@ ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
     const float clearCoatFactor = 0.0;
     const float clearCoatRoughness = 0.0;
     const float3 clearCoatNormal =  normal;
-    const float4 transmissionTintThickness = {0,0,0,0};
-    const float4 transmissionParams = {0,0,0,0};
     const float2 anisotropy = 0.0;
 
     Surface surface;
@@ -73,10 +71,11 @@ ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
     surface.CalculateRoughnessA();
 
     // ------- Transmission -------
-
+#if ENABLE_TRANSMISSION
     surface.transmission.tint = float3(0,0,0);
     surface.transmission.thickness = 0.0f;
     surface.transmission.transmissionParams = float4(0,0,0,0);
+#endif
 
    // ------- Lighting Data -------
 

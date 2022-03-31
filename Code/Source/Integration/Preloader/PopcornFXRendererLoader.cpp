@@ -200,9 +200,7 @@ void	PopcornFXRendererLoader::OnShaderReinitialized(const AZ::RPI::Shader &shade
 //----------------------------------------------------------------------------
 void	PopcornFXRendererLoader::OnShaderVariantReinitialized(const AZ::RPI::ShaderVariant &shaderVariant)
 {
-	CLog::Log(PK_INFO, "_OnShaderVariantsReloaded (OnShaderVariantReinitialized)");
 	_OnShaderVariantsReloaded(shaderVariant.GetShaderAsset().GetId(), shaderVariant.GetShaderVariantId());
-	CLog::Log(PK_INFO, "(EXIT OnShaderVariantReinitialized)");
 }
 
 //----------------------------------------------------------------------------
@@ -258,7 +256,6 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 
 	if (asset.GetType() == azrtti_typeid<AZ::RPI::ShaderAsset>())
 	{
-		CLog::Log(PK_INFO, "OnAssetReady ShaderAsset");
 		// Shader loaded:
 		AZ::Data::Asset<AZ::RPI::ShaderAsset>	shaderAsset = AZ::Data::Asset<AZ::RPI::ShaderAsset>(dependencies->m_AssetRef);
 		AZ::Data::Instance<AZ::RPI::Shader>		shader = AZ::RPI::Shader::FindOrCreate(shaderAsset);
@@ -314,7 +311,6 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 	}
 	else if (asset.GetType() == azrtti_typeid<AZ::RPI::StreamingImageAsset>())
 	{
-		CLog::Log(PK_INFO, "OnAssetReady StreamingImageAsset");
 		// Material texture loaded:
 		AZ::Data::Asset<AZ::RPI::StreamingImageAsset>	streamingImgAsset = AZ::Data::Asset<AZ::RPI::StreamingImageAsset>(dependencies->m_AssetRef);
 		for (const SAssetDependencies::SCaches &cache : dependencies->m_Caches)
@@ -333,8 +329,6 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 	}
 	else if (asset.GetType() == azrtti_typeid<AZ::RPI::ModelAsset>())
 	{
-		CLog::Log(PK_INFO, "OnAssetReady modelAsset");
-
 		// Dependency: geometry cache. Will hold actual mesh data
 		// We should have only one geometryCache dependency per model asset
 		PGeometryCache	geometryCache = null;
@@ -477,6 +471,7 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 
 void	PopcornFXRendererLoader::_OnShaderVariantsReloaded(const AZ::Data::AssetId &shaderId, const AZ::RPI::ShaderVariantId &shaderVariantId)
 {
+	AZ_UNUSED(shaderVariantId);
 	PK_SCOPEDLOCK(m_Lock);
 	SAssetDependencies	*dependencies = m_Assets.Find(shaderId);
 
@@ -502,9 +497,6 @@ void	PopcornFXRendererLoader::_OnShaderVariantsReloaded(const AZ::Data::AssetId 
 		return;
 	}
 
-	CLog::Log(PK_INFO, "_OnShaderVariantsReloaded: Reloading shader '%s' variant %u", shaderAsset.GetHint().c_str(), *shaderVariantId.m_key.data());
-	CLog::Log(PK_INFO, "_OnShaderVariantsReloaded: %u dependencies to reload...", dependencies->m_Caches.Count());
-
 	bool	variantFound = false;
 
 	for (const SAssetDependencies::SCaches &cache : dependencies->m_Caches)
@@ -514,47 +506,39 @@ void	PopcornFXRendererLoader::_OnShaderVariantsReloaded(const AZ::Data::AssetId 
 		if (pipelineStateCache != null && *pipelineStateCache != null)
 		{
 			AZ::RPI::ShaderVariantStableId			variantStableId = AZ::RPI::RootShaderVariantStableId;
-			bool									isSameVariantId = false;
 
 			const bool	isDepthShader = cache.m_Type == AssetType_OpaqueDepthShader || cache.m_Type == AssetType_TransparentDepthMinShader || cache.m_Type == AssetType_TransparentDepthMaxShader;
 
 			if (cache.m_Type == AssetType_MaterialShader || (isDepthShader && IsBillboardShader(cache.m_PipelineStateKey.m_UsedShader)))
 			{
 				AZ::RPI::ShaderVariantId			variantId = cache.m_PipelineStateKey.GetShaderVariantId(*shader, true, isDepthShader);
-				isSameVariantId = variantId == shaderVariantId;
-
-				CLog::Log(PK_INFO, "_OnShaderVariantsReloaded: dependency has variant id %u", *variantId.m_key.data());
-
 				AZ::RPI::ShaderVariantSearchResult	searchResult = shader->FindVariantStableId(variantId);
 				variantStableId = searchResult.GetStableId();
 			}
 
-			if (isSameVariantId)
+			AZ::RPI::ShaderVariant	shaderVariant = shader->GetVariant(variantStableId);
+
+			if (shaderVariant.GetStableId() != variantStableId)
 			{
-				AZ::RPI::ShaderVariant	shaderVariant = shader->GetVariant(variantStableId);
-
-				if (shaderVariant.GetStableId() != variantStableId)
-				{
-					// Not the variant we are looking for: the variant is not ready.
-					// this should not happen since the function should be triggered by
-					// variant reinitialized callback.
-					PK_ASSERT_NOT_REACHED_MESSAGE("Variant not ready");
-					continue;
-				}
-
-				// It seems that we must keep a reference to the variant for the variant callbacks to work.
-				AZ::Data::AssetId	variantID = shaderVariant.GetShaderVariantAsset().GetId();
-				if (m_LoadedVariants.Find(variantID) != null)
-					m_LoadedVariants.Remove(variantID);
-				m_LoadedVariants.Insert(variantID, shaderVariant.GetShaderVariantAsset());
-
-				PK_SCOPEDLOCK_WRITE((*pipelineStateCache)->m_Lock);
-
-				AZ::RHI::ConstPtr<AZ::RHI::PipelineState>	&pipelineStateSlot = _GetPipelineStateSlot(cache.m_Type, *pipelineStateCache);
-				pipelineStateSlot = _CreatePipelineStateCache(*shader, shaderVariant, cache.m_Type, cache.m_PipelineStateKey);
-				(*pipelineStateCache)->m_Modified = true;
-				variantFound = true;
+				// Not the variant we are looking for: the variant is not ready.
+				// this should not happen since the function should be triggered by
+				// variant reinitialized callback.
+				PK_ASSERT_NOT_REACHED_MESSAGE("Variant not ready");
+				continue;
 			}
+
+			// It seems that we must keep a reference to the variant for the variant callbacks to work.
+			AZ::Data::AssetId	variantID = shaderVariant.GetShaderVariantAsset().GetId();
+			if (m_LoadedVariants.Find(variantID) != null)
+				m_LoadedVariants.Remove(variantID);
+			m_LoadedVariants.Insert(variantID, shaderVariant.GetShaderVariantAsset());
+
+			PK_SCOPEDLOCK_WRITE((*pipelineStateCache)->m_Lock);
+
+			AZ::RHI::ConstPtr<AZ::RHI::PipelineState>	&pipelineStateSlot = _GetPipelineStateSlot(cache.m_Type, *pipelineStateCache);
+			pipelineStateSlot = _CreatePipelineStateCache(*shader, shaderVariant, cache.m_Type, cache.m_PipelineStateKey);
+			(*pipelineStateCache)->m_Modified = true;
+			variantFound = true;
 		}
 	}
 	/*
@@ -704,10 +688,6 @@ AZ::RHI::ConstPtr<AZ::RHI::PipelineState>	PopcornFXRendererLoader::_CreatePipeli
 	if (!PK_VERIFY(pipelineState->IsInitialized()))
 	{
 		CLog::Log(PK_ERROR, "Uninitialized pipeline state for shader '%s'", shaderPath);
-	}
-	else
-	{
-		CLog::Log(PK_INFO, "Successfully created pipeline state for shader '%s'", shaderPath);
 	}
 	return pipelineState;
 }
