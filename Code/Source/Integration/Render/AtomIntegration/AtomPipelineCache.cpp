@@ -271,7 +271,7 @@ void	CAtomPipelineCache::SetIndexBuffer(const AZ::RHI::IndexBufferView &idxBuffe
 
 //----------------------------------------------------------------------------
 
-void	CAtomPipelineCache::ConfigureDrawCall(SAtomDrawOutputs::SDrawCall &drawCall)
+void	CAtomPipelineCache::ConfigureDrawCall(SAtomRenderContext::SDrawCall &drawCall)
 {
 	if (!m_RendererSrg->IsQueuedForCompile())
 		m_RendererSrg->Compile();

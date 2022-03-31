@@ -24,7 +24,7 @@ namespace PopcornFX {
 		if (serializeContext)
 		{
 			serializeContext->Class<PopcornFXSamplerImage>()
-				->Version(1, &VersionConverter)
+				->Version(1)
 				->Field("Texture", &PopcornFXSamplerImage::m_Texture)
 				;
 
@@ -33,18 +33,10 @@ namespace PopcornFX {
 			{
 				editContext->Class<PopcornFXSamplerImage>("PopcornFX Sampler Image", "")
 					->DataElement(0, &PopcornFXSamplerImage::m_Texture, "Texture", "")
-						->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXSamplerImage::_OnDataChanged)
+						->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXSamplerImage::_OnTextureChanged)
 					;
 			}
 		}
-	}
-
-	// Private Static
-	bool	PopcornFXSamplerImage::VersionConverter(AZ::SerializeContext &context,
-													AZ::SerializeContext::DataElementNode &classElement)
-	{
-		(void)context; (void)classElement;
-		return true;
 	}
 
 	void	PopcornFXSamplerImage::CopyFrom(const PopcornFXSamplerImage &other)
@@ -72,29 +64,41 @@ namespace PopcornFX {
 	void	PopcornFXSamplerImage::Activate()
 	{
 		PopcornFXSamplerComponentRequestBus::Handler::BusConnect(m_AttachedToEntityId);
-		_LoadTexture();
+		_OnTextureChanged();
 	}
 
 	void	PopcornFXSamplerImage::Deactivate()
 	{
 		PopcornFXSamplerComponentRequestBus::Handler::BusDisconnect(m_AttachedToEntityId);
-		if (AZ::TickBus::Handler::BusIsConnected())
-			AZ::TickBus::Handler::BusDisconnect();
+		AZ::Data::AssetBus::Handler::BusDisconnect();
 		_Clean();
 	}
 
-	AZ::u32	PopcornFXSamplerImage::_OnDataChanged()
+	AZ::u32	PopcornFXSamplerImage::_OnTextureChanged()
 	{
-		_LoadTexture();
+		if (m_Texture.GetId().IsValid())
+		{
+			if (!AZ::Data::AssetBus::Handler::BusIsConnectedId(m_Texture.GetId()))
+			{
+				AZ::Data::AssetBus::Handler::BusDisconnect();
+				AZ::Data::AssetBus::Handler::BusConnect(m_Texture.GetId());
+				m_Texture.QueueLoad();
+			}
+		}
+		else
+			_Clean();
+		
 		return AZ::Edit::PropertyRefreshLevels::ValuesOnly;
 	}
 
-	void	PopcornFXSamplerImage::OnTick(float deltaTime, AZ::ScriptTimePoint time)
+	void	PopcornFXSamplerImage::OnAssetReloaded(AZ::Data::Asset<AZ::Data::AssetData> asset)
 	{
-		(void)deltaTime; (void)time;
+		OnAssetReady(asset);
+	}
 
-		if (m_LoadTexturePending)
-			_LoadTexture();
+	void	PopcornFXSamplerImage::OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData> asset)
+	{
+		_LoadTexture();
 	}
 
 	void	PopcornFXSamplerImage::_LoadTexture()
@@ -102,26 +106,6 @@ namespace PopcornFX {
 		if (!m_Texture.GetId().IsValid())
 		{
 			_Clean();
-			// Disconnect from the tick bus, just in case
-			if (!AZ::TickBus::Handler::BusIsConnected())
-				AZ::TickBus::Handler::BusDisconnect();
-			m_LoadTexturePending = false;
-			return;
-		}
-
-		if (!m_Texture.IsReady())
-		{
-			m_Texture.QueueLoad();
-			if (!AZ::TickBus::Handler::BusIsConnected())
-				AZ::TickBus::Handler::BusConnect();
-			m_LoadTexturePending = true;
-			return;
-		}
-		else
-		{
-			if (AZ::TickBus::Handler::BusIsConnected())
-				AZ::TickBus::Handler::BusDisconnect();
-			m_LoadTexturePending = false;
 		}
 
 		const AZ::RHI::ImageDescriptor	&imgDesc = m_Texture->GetImageDescriptor();
@@ -149,7 +133,11 @@ namespace PopcornFX {
 		if (!PK_VERIFY(m_ImageSampler != null))
 			return false;
 
+#if defined(O3DE_DEV)
+		AZStd::span<const uint8_t>	imgData = m_Texture->GetSubImageData(0, 0);
+#else
 		const AZStd::array_view<uint8_t>	imgData = m_Texture->GetSubImageData(0, 0);
+#endif
 		const AZ::RHI::Format				imgFormat = imgDesc.m_format;
 		const AZ::RHI::Size					imgSize = imgDesc.m_size;
 

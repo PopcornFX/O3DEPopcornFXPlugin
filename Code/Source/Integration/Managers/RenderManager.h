@@ -34,7 +34,9 @@ public:
 	void							*MapBuffer(AZ::RHI::Ptr<AZ::RHI::Buffer> buffer, AZ::u64 sizeToMap);
 	void							UnmapBuffer(AZ::RHI::Ptr<AZ::RHI::Buffer> buffer);
 
-	const SAtomDrawOutputs		&GetCollectedDrawCalls() const { return m_CollectedDrawCalls; }
+	const CAtomFrameCollector		&GetFrameCollector() const { return m_FrameCollector; }
+
+	const SAtomRenderContext		&GetRenderContext() const { return m_RenderContext; }
 	void							UnregisterEffectMaterials(const PParticleEffect &effect);
 
 private:
@@ -47,10 +49,9 @@ private:
 	CAtomFrameCollector				m_FrameCollector;
 	CAtomRenderDataFactory			m_RenderBatchFactory;
 	SAtomRenderContext				m_RenderContext;
-	SAtomDrawOutputs				m_CollectedDrawCalls;
 	CPopcornFXFeatureProcessor		*m_FeatureProcessor = null;
 
-	const SSceneViews					*m_SceneViews = null; // Used by CollectFrame
+	const SSceneViews				*m_SceneViews = null; // Used by CollectFrame
 };
 
 //----------------------------------------------------------------------------

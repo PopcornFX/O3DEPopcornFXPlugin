@@ -22,15 +22,12 @@ namespace PopcornFX {
 
 class CRenderManager;
 
-struct	SAtomRenderContext
-{
-	CRenderManager	*m_RenderManager = null;
-};
-
-struct	SAtomDrawOutputs
+struct	SAtomRenderContext : public SRenderContext
 {
 	typedef AZ::Render::SimplePointLightFeatureProcessorInterface				ParticleLightProcessor;
 	typedef AZ::Render::SimplePointLightFeatureProcessorInterface::LightHandle	ParticleLightHandle;
+
+	CRenderManager	*m_RenderManager = null;
 
 	struct	SLight
 	{
@@ -81,21 +78,6 @@ struct	SAtomDrawOutputs
 	PopcornFX::TArray<SLight>				m_Lights;
 	PopcornFX::TArray<ParticleLightHandle>	m_LightHandles;
 };
-
-struct	SAtomViewUserData { };
-
-class	CAtomParticleBatchTypes
-{
-public:
-	typedef SAtomRenderContext		CRenderContext;
-	typedef SAtomDrawOutputs		CFrameOutputData;
-	typedef SAtomViewUserData		CViewUserData;
-
-	enum { kMaxQueuedCollectedFrame = 2U };
-};
-
-// Billboarding views are templated with user data:
-typedef TSceneView<SAtomViewUserData>				SAtomSceneView;
 
 //----------------------------------------------------------------------------
 }

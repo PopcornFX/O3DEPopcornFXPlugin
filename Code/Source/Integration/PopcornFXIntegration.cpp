@@ -124,7 +124,9 @@ void	PopcornFXIntegration::StopUpdate()
 	{
 		CPopcornFXFeatureProcessor	*pkfxFeatureProc = static_cast<CPopcornFXFeatureProcessor*>(scene->GetFeatureProcessor<CPopcornFXFeatureProcessor>());
 		if (pkfxFeatureProc)
+		{
 			pkfxFeatureProc->GetRenderManager().StopUpdate(m_MediumCollectionManager.MediumCollection());
+		}
 	}
 
 	m_StatsManager.StopBillboardingSpanTimer();

@@ -30,18 +30,22 @@ AZ_CVAR(AZ::u32, p_PopcornFXMaxSlices, 1,
 void	CRenderManager::Activate(CParticleMediumCollection *mediumCollection, const AZStd::string &packPath)
 {
 	m_RenderContext.m_RenderManager = this;
-	const u32	enabledRenderers =	(1U << PopcornFX::ERendererClass::Renderer_Billboard) |
-									(1U << PopcornFX::ERendererClass::Renderer_Ribbon) |
-									(1U << PopcornFX::ERendererClass::Renderer_Light) |
-									(1U << PopcornFX::ERendererClass::Renderer_Mesh); /* |
-									(1U << PopcornFX::ERendererClass::Renderer_Decal) |
-									(1U << PopcornFX::ERendererClass::Renderer_Sound)*/;
-
 	m_RenderBatchFactory.SetPackPath(packPath.c_str());
 
-	CAtomFrameCollector::SFrameCollectorInit	init_UpdateThread(&m_RenderBatchFactory, enabledRenderers, false /*releaseOnCull*/, true /*statelessCollecting*/, Sort_Slices /*dcSortMethod*/);
-	m_FrameCollector.UpdateThread_Initialize(init_UpdateThread);
-	m_FrameCollector.UpdateThread_InstallToMediumCollection(mediumCollection);
+	const u32	enabledRenderers =	(1U << ERendererClass::Renderer_Billboard) |
+									(1U << ERendererClass::Renderer_Ribbon) |
+									(1U << ERendererClass::Renderer_Light) |
+									(1U << ERendererClass::Renderer_Mesh); /* |
+									(1U << ERendererClass::Renderer_Decal) |
+									(1U << ERendererClass::Renderer_Sound)*/;
+
+	CFrameCollector::SFrameCollectorInit	init(enabledRenderers,
+											CbNewBatchDrawer(&m_RenderBatchFactory, &CAtomRenderDataFactory::CreateBatchDrawer),
+											CbNewRendererCache(&m_RenderBatchFactory, &CAtomRenderDataFactory::CreateRendererCache),
+											2,
+											false);
+	m_FrameCollector.Initialize(init);
+	m_FrameCollector.InstallToMediumCollection(mediumCollection);
 
 	AZ::RHI::RHISystemInterface	*rhiSystem = AZ::RHI::RHISystemInterface::Get();
 
@@ -71,7 +75,8 @@ void	CRenderManager::Deactivate()
 
 void	CRenderManager::Reset()
 {
-	m_FrameCollector.DestroyBillboardingBatches();
+	// Should release the already collected frames.
+	// Not a big issue for now...
 }
 
 void	CRenderManager::SetPackPath(const AZStd::string &packPath)
@@ -104,7 +109,7 @@ void	CRenderManager::StartUpdate(CParticleMediumCollection *mediumCollection, co
 	if (sceneViews->m_Views.Empty())
 		return;
 
-	m_CollectedDrawCalls.Clear(m_FeatureProcessor->GetParentScene());
+	m_RenderContext.Clear(m_FeatureProcessor->GetParentScene());
 	m_SceneViews = sceneViews;
 	mediumCollection->m_OnUpdateComplete += FastDelegate<void(CParticleMediumCollection*)>(this, &CRenderManager::CollectFrame);
 }
@@ -144,7 +149,7 @@ void	CRenderManager::StopUpdate(CParticleMediumCollection *mediumCollection)
 {
 	mediumCollection->m_OnUpdateComplete -= FastDelegate<void(CParticleMediumCollection*)>(this, &CRenderManager::CollectFrame);
 
-	SParticleCollectedFrameToRender	*newToRender = m_FrameCollector.UpdateThread_GetLastCollectedFrame();
+	SParticleCollectedFrameToRender2	*newToRender = m_FrameCollector.GetLastCollectedFrame();
 	if (newToRender != null && PK_VERIFY(m_SceneViews != null))
 	{
 		m_FrameCollector.BuildNewFrame(newToRender);
@@ -153,13 +158,15 @@ void	CRenderManager::StopUpdate(CParticleMediumCollection *mediumCollection)
 
 		m_FrameCollector.SetDrawCallsSortMethod(slicesMaxCount == 1 ? Sort_None : Sort_Slices);
 
-		PopcornFX::TStaticArray<SAtomSceneView, 1>	viewsArray;
-		viewsArray[0].m_InvViewMatrix = m_SceneViews->m_Views[0].m_InvViewMatrix;
-		viewsArray[0].m_MaxSliceCount = slicesMaxCount;
-		TMemoryView<SAtomSceneView>		views(viewsArray.Data(), viewsArray.Count());
 
-		if (m_FrameCollector.BeginCollectingDrawCalls(m_RenderContext, views))
-			m_FrameCollector.EndCollectingDrawCalls(m_RenderContext, m_CollectedDrawCalls, true);
+		PopcornFX::TStaticArray<SSceneView, 1>	viewsArray;
+		viewsArray[0].m_InvViewMatrix = m_SceneViews->m_Views[0].m_InvViewMatrix;
+		viewsArray[0].m_MaxSliceCount = 1;
+		viewsArray[0].m_NeedsSortedIndices = true;
+		m_RenderContext.m_Views = viewsArray;
+
+		if (m_FrameCollector.BeginRenderBuiltFrame(m_RenderContext))
+			m_FrameCollector.EndRenderBuiltFrame(m_RenderContext, true);
 
 		// To remove once O3DE moves the simple point light processor GPU buffer update into their Render() function instead of Simulate()
 #if 1
@@ -172,8 +179,8 @@ void	CRenderManager::StopUpdate(CParticleMediumCollection *mediumCollection)
 
 void	CRenderManager::CollectFrame(CParticleMediumCollection *mediumCollection)
 {
-	if (m_FrameCollector.UpdateThread_BeginCollectFrame())
-		m_FrameCollector.UpdateThread_CollectFrame(mediumCollection);
+	AZ_UNUSED(mediumCollection);
+	m_FrameCollector.CollectFrame();
 }
 
 //----------------------------------------------------------------------------

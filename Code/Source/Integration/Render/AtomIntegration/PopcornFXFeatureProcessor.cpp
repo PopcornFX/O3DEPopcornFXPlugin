@@ -10,7 +10,11 @@
 #include <Atom/RPI.Public/View.h>
 #include <Atom/RHI/DrawPacketBuilder.h>
 #include <Atom/RPI.Public/Scene.h>
+
+#include <Atom/Feature/RenderCommon.h>
+#if !defined(O3DE_DEV)
 #include <Atom/Feature/ReflectionProbe/ReflectionProbeFeatureProcessor.h>
+#endif
 
 #if defined(O3DE_USE_PK)
 
@@ -55,7 +59,7 @@ void	CPopcornFXFeatureProcessor::Simulate(const SimulatePacket &packet)
 
 void	CPopcornFXFeatureProcessor::Render(const RenderPacket &packet)
 {
-	const SAtomDrawOutputs	&drawCalls = m_RenderManager.GetCollectedDrawCalls();
+	const SAtomRenderContext	&drawCalls = m_RenderManager.GetRenderContext();
 
 	// Delete the DrawPackets that were used last frame
 	m_drawPackets.clear();
@@ -63,7 +67,7 @@ void	CPopcornFXFeatureProcessor::Render(const RenderPacket &packet)
 	{
 		PK_NAMEDSCOPEDPROFILE("Append draw calls");
 
-		for (const SAtomDrawOutputs::SDrawCall &dc : drawCalls.m_DrawCalls)
+		for (const SAtomRenderContext::SDrawCall &dc : drawCalls.m_DrawCalls)
 		{
 			for (const AZ::RPI::ViewPtr &view : packet.m_views)
 			{
@@ -82,24 +86,24 @@ void	CPopcornFXFeatureProcessor::Render(const RenderPacket &packet)
 
 void	CPopcornFXFeatureProcessor::AppendLightParticles()
 {
-	SAtomDrawOutputs	&drawCalls = const_cast<SAtomDrawOutputs&>(m_RenderManager.GetCollectedDrawCalls());
+	SAtomRenderContext	&drawCalls = const_cast<SAtomRenderContext&>(m_RenderManager.GetRenderContext());
 
 	if (!drawCalls.m_Lights.Empty())
 	{
 		PK_NAMEDSCOPEDPROFILE("Append lights");
 		if (PK_VERIFY(drawCalls.m_LightHandles.Reserve(drawCalls.m_Lights.Count())))
 		{
-			SAtomDrawOutputs::ParticleLightProcessor	*processor = GetParentScene()->GetFeatureProcessor<SAtomDrawOutputs::ParticleLightProcessor>();
+			SAtomRenderContext::ParticleLightProcessor	*processor = GetParentScene()->GetFeatureProcessor<SAtomRenderContext::ParticleLightProcessor>();
 
-			for (const SAtomDrawOutputs::SLight &light : drawCalls.m_Lights)
+			for (const SAtomRenderContext::SLight &light : drawCalls.m_Lights)
 			{
-				SAtomDrawOutputs::ParticleLightHandle	lightHandle = processor->AcquireLight();
+				SAtomRenderContext::ParticleLightHandle	lightHandle = processor->AcquireLight();
 				processor->SetAttenuationRadius(lightHandle, light.m_AttenuationRadius);
 				processor->SetPosition(lightHandle, ToAZ(light.m_Position));
 
 				// TODO: can this be simplified, and check the color space
 				// Here, it's doing a CFloat3->AZ::Vector3->AZ::Color->AZ::Render::PhotometricColor convertion/copy per particle..
-				AZ::Render::PhotometricColor<SAtomDrawOutputs::ParticleLightProcessor::PhotometricUnitType> lightColor(AZ::Color::CreateFromVector3(ToAZ(light.m_Color)));
+				AZ::Render::PhotometricColor<SAtomRenderContext::ParticleLightProcessor::PhotometricUnitType> lightColor(AZ::Color::CreateFromVector3(ToAZ(light.m_Color)));
 				processor->SetRgbIntensity(lightHandle, lightColor);
 
 				PK_VERIFY(drawCalls.m_LightHandles.PushBack(lightHandle).Valid());
@@ -108,7 +112,7 @@ void	CPopcornFXFeatureProcessor::AppendLightParticles()
 	}
 }
 
-const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SAtomDrawOutputs::SDrawCall &pkfxDrawCall,
+const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SAtomRenderContext::SDrawCall &pkfxDrawCall,
 																			const AZ::RHI::ShaderResourceGroup *viewSrg,
 																			AZ::RHI::DrawItemSortKey sortKey)
 {
@@ -126,8 +130,13 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 		AZ::RHI::DrawPacketBuilder::DrawRequest	materialDr;
 		materialDr.m_listTag = pkfxDrawCall.m_MaterialDrawList;
 		materialDr.m_pipelineState = pkfxDrawCall.m_MaterialPipelineState.get();
+#if defined(O3DE_DEV)
+		materialDr.m_streamBufferViews = AZStd::span<const AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
+																						pkfxDrawCall.m_VertexInputs.Count());
+#else
 		materialDr.m_streamBufferViews = AZStd::array_view<AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
 																						pkfxDrawCall.m_VertexInputs.Count());
+#endif
 
 		// TODO: set this depending on lit state.
 		materialDr.m_stencilRef = (AZ::Render::StencilRefs::UseIBLSpecularPass | AZ::Render::StencilRefs::UseDiffuseGIPass);
@@ -136,18 +145,32 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 		dpBuilder.AddDrawItem(materialDr);
 	}
 
+#if defined(O3DE_DEV)
+	AZStd::span<const AZ::RHI::StreamBufferView>	depthVtxInput;
+#else
 	AZStd::array_view<AZ::RHI::StreamBufferView>	depthVtxInput;
+#endif
 
 	if (pkfxDrawCall.m_RendererType == Renderer_Billboard ||
 		pkfxDrawCall.m_RendererType == Renderer_Mesh)
 	{
+#if defined(O3DE_DEV)
+		depthVtxInput = AZStd::span<const AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
+																		pkfxDrawCall.m_VertexInputs.Count());
+#else
 		depthVtxInput = AZStd::array_view<AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
 																		pkfxDrawCall.m_VertexInputs.Count());
+#endif
 	}
 	else
 	{
+#if defined(O3DE_DEV)
+		depthVtxInput = AZStd::span<const AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
+																		1);
+#else
 		depthVtxInput = AZStd::array_view<AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
 																		1);
+#endif
 	}
 
 	if (pkfxDrawCall.m_OpaqueDepthPipelineState != null)
@@ -205,6 +228,8 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 		AZ::RHI::ShaderInputImageIndex reflectionCubeMapImageIndex = objectSrg->FindShaderInputImageIndex(reflectionCubeMapImageName);
 		AZ_Error("MeshDataInstance", reflectionCubeMapImageIndex.IsValid(), "Failed to find shader image index [%s]", reflectionCubeMapImageName.GetCStr());
 
+#if !defined(O3DE_DEV)
+//See : https://github.com/o3de/o3de/pull/7189 and https://github.com/o3de/o3de/issues/7434
 		AZ::Render::ReflectionProbeFeatureProcessor	*reflectionProbeFeatureProcessor = GetParentScene()->GetFeatureProcessor<AZ::Render::ReflectionProbeFeatureProcessor>();
 
 		AZ::Render::ReflectionProbeFeatureProcessor::ReflectionProbeVector	reflectionProbes;
@@ -222,6 +247,7 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 			objectSrg->SetImage(reflectionCubeMapImageIndex, reflectionProbes[0]->GetCubeMapImage());
 		}
 		else
+#endif
 		{
 			objectSrg->SetConstant(useReflectionProbeConstantIndex, false);
 		}
