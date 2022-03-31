@@ -52,6 +52,9 @@ namespace	RendererFlags
 		HAS_FlipV					= (1 << 19),
 
 		HAS_Masked					= (1 << 20),
+
+		HAS_Axis0					= (1 << 21),
+		HAS_Axis1					= (1 << 22),
 	};
 }
 

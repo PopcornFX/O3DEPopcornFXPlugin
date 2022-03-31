@@ -86,7 +86,6 @@ void	CRenderManager::StartUpdate(CParticleMediumCollection *mediumCollection, co
 	// Replace this with a callback when pipeline is recreated if possible
 	// or change the pass json to be active by default.
 
-#if defined(O3DE_DEV)
 	AZStd::vector<AZ::RPI::Pass*>	distortionPasses;
 	AZ::RPI::PassFilter				passFilter = AZ::RPI::PassFilter::CreateWithPassName(AZ::Name("DistortionPass"), m_FeatureProcessor->GetParentScene());
 	AZ::RPI::PassSystemInterface::Get()->ForEachPass(passFilter, [&distortionPasses](AZ::RPI::Pass *pass) -> AZ::RPI::PassFilterExecutionFlow
@@ -94,9 +93,6 @@ void	CRenderManager::StartUpdate(CParticleMediumCollection *mediumCollection, co
 		distortionPasses.push_back(pass);
 		return AZ::RPI::PassFilterExecutionFlow::ContinueVisitingPasses;
 	});
-#else
-	AZStd::vector<AZ::RPI::Pass*> distortionPasses = AZ::RPI::PassSystemInterface::Get()->FindPasses(AZ::RPI::PassHierarchyFilter(AZ::Name("DistortionPass")));
-#endif
 
 	AZ_ErrorOnce("PopcornFX", distortionPasses.size() == 0, "RenderManager.cpp: could not find distortion pass.");
 	for (auto pass : distortionPasses)

@@ -35,7 +35,7 @@ namespace PopcornFX
 		PopcornFX::PopcornFXEmitterRuntime	*m_EmitterInstance;
 
 		StandaloneEmitter()
-			: m_EmitterInstance(null)
+			: m_EmitterInstance(nullptr)
 		{
 		}
 	};
@@ -134,9 +134,8 @@ namespace PopcornFX
 		// Public functions
 		virtual ~PopcornFXEvents() {}
 
-		virtual void	OnFxCreated(StandaloneEmitter *emitter) { (void)emitter; }
-		virtual void	OnFxDisabled(StandaloneEmitter *emitter) { (void)emitter; }
-		virtual void	OnFxBroadcastEvent(SBroadcastParams *params) { (void)params; }
+		virtual void	OnEmitterReady(StandaloneEmitter *emitter) { (void)emitter; }
+		//virtual void	OnEmitterBroadcastEvent(SBroadcastParams *params) { (void)params; }
 
 	};
 	using PopcornFXEventsBus = AZ::EBus <PopcornFXEvents>;
@@ -402,16 +401,15 @@ namespace PopcornFX
 				bool loaded = false;
 				EBUS_EVENT_ID_RESULT(loaded, id, PopcornFXEmitterComponentRequestBus, IsLoaded);
 				if (loaded)
-					handler->OnFxCreated(id);
+					handler->OnEmitterReady();
 			}
 		};
 		template<typename Bus>
 		using ConnectionPolicy = PopcornFXEmitterComponentConnectionPolicy<Bus>;
 		//////////////////////////////////////////////////////////////////////////
 
-		virtual void	OnFxCreated(const AZ::EntityId&) { }
-		virtual void	OnFxDisabled(const AZ::EntityId&) { } // TODO : really trigger the event when the effect is disabled
-		virtual void	OnFxBroadcastEvent(const AZ::EntityId&, SBroadcastParams*) { }
+		virtual void	OnEmitterReady() { }
+		virtual void	OnEmitterBroadcastEvent(SBroadcastParams*) { }
 	};
 	using PopcornFXEmitterComponentEventsBus = AZ::EBus <PopcornFXEmitterComponentEvents>;
 

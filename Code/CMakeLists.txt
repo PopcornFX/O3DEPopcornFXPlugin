@@ -7,7 +7,7 @@ set(POPCORNFX_VERSION 2.11.2)
 set(POPCORNFX_LICENSE O3DE)
 
 # Uncomment this for O3DE development branch
-add_compile_definitions(O3DE_DEV)
+#add_compile_definitions(O3DE_DEV)
 
 ly_get_list_relative_pal_filename(pal_dir ${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME})
 

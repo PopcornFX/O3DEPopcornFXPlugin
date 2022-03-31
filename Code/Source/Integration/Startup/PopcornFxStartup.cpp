@@ -768,13 +768,16 @@ namespace PopcornFX {
 		else
 			configKernel.m_AddDefaultLogListeners = &AddDefaultLogListenersOverride_NoDefaultLogger;
 
+		CPKParticles::Config	particleConfig;
+
+		particleConfig.m_EnableBillboardingStats = true;
 		if (CPKKernel::Startup(engineVersion, configKernel) &&
 			CPKBaseObject::Startup(engineVersion, CPKBaseObject::Config()) &&
 			CPKEngineUtils::Startup(engineVersion, CPKEngineUtils::Config()) &&
 			CPKCompiler::Startup(engineVersion, CPKCompiler::Config()) &&
 			CPKImaging::Startup(engineVersion, CPKImaging::Config()) &&
 			CPKGeometrics::Startup(engineVersion, CPKGeometrics::Config()) &&
-			CPKParticles::Startup(engineVersion, CPKParticles::Config()) &&
+			CPKParticles::Startup(engineVersion, particleConfig) &&
 			ParticleToolbox::Startup() &&
 			CPKRenderHelpers::Startup(engineVersion, CPKRenderHelpers::Config()) &&
 			Kernel::CheckStaticConfigFlags(Kernel::g_BaseStaticConfig, SKernelConfigFlags()))

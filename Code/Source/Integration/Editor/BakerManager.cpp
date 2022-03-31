@@ -412,23 +412,21 @@ bool	CBakerManager::GatherDependencies(const AZStd::string &assetPath, AZStd::ve
 void	CBakerManager::LogBakerMessages(const CMessageStream &messages)
 {
 	PopcornFX::TArray<CString>	messageLines;
-	const char	*prefixStr = "[PopcornFX] ";
 	for (const CMessageStream::SMessage &msg : messages.Messages())
 	{
 		msg.m_Message.Split('\n', messageLines);
 		for (u32 j = 0; j < messageLines.Count(); j++)
 		{
-			const CString	&message = messageLines[j];
 			switch (msg.m_Level)
 			{
 			case	CMessageStream::Info:
-				AZ_TracePrintf(AssetBuilderSDK::InfoWindow, "%s%s", prefixStr, message.Data());
+				AZ_TracePrintf(AssetBuilderSDK::InfoWindow, "[PopcornFX] %s", messageLines[j].Data());
 				break;
 			case	CMessageStream::Warning:
-				AZ_TracePrintf(AssetBuilderSDK::WarningWindow, "%s%s", prefixStr, message.Data());
+				AZ_TracePrintf(AssetBuilderSDK::WarningWindow, "[PopcornFX] %s", messageLines[j].Data());
 				break;
 			case	CMessageStream::Error:
-				AZ_TracePrintf(AssetBuilderSDK::ErrorWindow, "%s%s", prefixStr, message.Data());
+				AZ_TracePrintf(AssetBuilderSDK::ErrorWindow, "[PopcornFX] %s", messageLines[j].Data());
 				break;
 			default:
 				PK_ASSERT_NOT_REACHED();
@@ -463,10 +461,8 @@ void	CBakerManager::_SetBuildVersion(const AZStd::string &platform)
 				CString	platformTags;
 				if (platform == AzFramework::PlatformPC)
 					platformTags = "windows, desktop";
-#if defined(O3DE_DEV) //for develop branch
 				else if (platform == AzFramework::PlatformLinux)
 					platformTags = "linux, desktop";
-#endif
 				else if (platform == AzFramework::PlatformMac)
 					platformTags = "macos, desktop";
 				else if (platform == AzFramework::PlatformAndroid)

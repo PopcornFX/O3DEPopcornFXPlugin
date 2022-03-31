@@ -73,13 +73,13 @@ namespace PopcornFX
 			Float3,
 			AZ::Vector3,
 			AZ::Vector3(0.0f),
-			AZ::Vector3(payloadValue->m_ValueFloat[0], payloadValue->m_ValueFloat[0], payloadValue->m_ValueFloat[2]));
+			AZ::Vector3(payloadValue->m_ValueFloat[0], payloadValue->m_ValueFloat[1], payloadValue->m_ValueFloat[2]));
 
 		SCRIPT_CANVAS_EXTRACT_PAYLOAD_FUNCTION_NODE("{E114C0FD-983E-42C2-9DFF-D33A8FD4EF74}",
 			Float4,
 			AZ::Vector4,
 			AZ::Vector4(0.0f),
-			AZ::Vector4(payloadValue->m_ValueFloat[0], payloadValue->m_ValueFloat[0], payloadValue->m_ValueFloat[2], payloadValue->m_ValueFloat[3]));
+			AZ::Vector4(payloadValue->m_ValueFloat[0], payloadValue->m_ValueFloat[1], payloadValue->m_ValueFloat[2], payloadValue->m_ValueFloat[3]));
 
 		SCRIPT_CANVAS_EXTRACT_PAYLOAD_FUNCTION_NODE("{593D33D7-6467-4930-BD3C-169669F884A5}",
 			Int,
@@ -115,7 +115,7 @@ namespace PopcornFX
 			Orientation,
 			AZ::Quaternion,
 			AZ::Quaternion::CreateIdentity(),
-			AZ::Quaternion(payloadValue->m_ValueFloat[0], payloadValue->m_ValueFloat[0], payloadValue->m_ValueFloat[2], payloadValue->m_ValueFloat[3]));
+			AZ::Quaternion(payloadValue->m_ValueFloat[0], payloadValue->m_ValueFloat[1], payloadValue->m_ValueFloat[2], payloadValue->m_ValueFloat[3]));
 		
 		///////////////////////////////////////////////////////////////
 		using Registrar = ScriptCanvas::RegistrarGeneric
