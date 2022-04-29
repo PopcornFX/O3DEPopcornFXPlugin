@@ -4,8 +4,8 @@
     "license": "Community",
     "license_url": "https://www.popcornfx.com/popcornfx-community-license",
     "origin": "Persistant Studios - popcornfx.com",
-    "version": "2.12.1",
-    "last_updated": "2022-04-14",
+    "version": "2.12.2",
+    "last_updated": "2022-04-28",
     "type": "Code",
     "summary": "The PopcornFX Gem provides real-time FX solution for particle effects.",
     "canonical_tags": [
