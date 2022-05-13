@@ -3,7 +3,7 @@
 # https://www.popcornfx.com/terms-and-conditions/
 #----------------------------------------------------------------------------
 
-set(POPCORNFX_VERSION 2.9.21)
+set(POPCORNFX_VERSION 2.9.22)
 set(POPCORNFX_LICENSE O3DE)
 
 # Uncomment this for O3DE development branch
