@@ -93,7 +93,7 @@ void	*CImageResourceHandler::Load(	const CResourceManager	*resourceManager,
 		return null;
 	}
 
-#if defined(O3DE_DEV)
+#if PK_O3DE_MAJOR_VERSION >= 2205
 	AZStd::span<const uint8_t>			imgData = streamingImageAsset->GetSubImageData(0, 0);
 #else
 	AZStd::array_view<uint8_t>			imgData = streamingImageAsset->GetSubImageData(0, 0);

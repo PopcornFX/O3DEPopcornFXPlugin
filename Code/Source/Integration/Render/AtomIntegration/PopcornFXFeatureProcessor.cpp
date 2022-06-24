@@ -12,7 +12,7 @@
 #include <Atom/RPI.Public/Scene.h>
 
 #include <Atom/Feature/RenderCommon.h>
-#if !defined(O3DE_DEV)
+#if PK_O3DE_MAJOR_VERSION == 2111
 #include <Atom/Feature/ReflectionProbe/ReflectionProbeFeatureProcessor.h>
 #endif
 
@@ -130,7 +130,7 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 		AZ::RHI::DrawPacketBuilder::DrawRequest	materialDr;
 		materialDr.m_listTag = pkfxDrawCall.m_MaterialDrawList;
 		materialDr.m_pipelineState = pkfxDrawCall.m_MaterialPipelineState.get();
-#if defined(O3DE_DEV)
+#if PK_O3DE_MAJOR_VERSION >= 2205
 		materialDr.m_streamBufferViews = AZStd::span<const AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
 																						pkfxDrawCall.m_VertexInputs.Count());
 #else
@@ -145,7 +145,7 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 		dpBuilder.AddDrawItem(materialDr);
 	}
 
-#if defined(O3DE_DEV)
+#if PK_O3DE_MAJOR_VERSION >= 2205
 	AZStd::span<const AZ::RHI::StreamBufferView>	depthVtxInput;
 #else
 	AZStd::array_view<AZ::RHI::StreamBufferView>	depthVtxInput;
@@ -154,7 +154,7 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 	if (pkfxDrawCall.m_RendererType == Renderer_Billboard ||
 		pkfxDrawCall.m_RendererType == Renderer_Mesh)
 	{
-#if defined(O3DE_DEV)
+#if PK_O3DE_MAJOR_VERSION >= 2205
 		depthVtxInput = AZStd::span<const AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
 																		pkfxDrawCall.m_VertexInputs.Count());
 #else
@@ -164,7 +164,7 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 	}
 	else
 	{
-#if defined(O3DE_DEV)
+#if PK_O3DE_MAJOR_VERSION >= 2205
 		depthVtxInput = AZStd::span<const AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
 																		1);
 #else
@@ -228,7 +228,7 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 		AZ::RHI::ShaderInputImageIndex reflectionCubeMapImageIndex = objectSrg->FindShaderInputImageIndex(reflectionCubeMapImageName);
 		AZ_Error("MeshDataInstance", reflectionCubeMapImageIndex.IsValid(), "Failed to find shader image index [%s]", reflectionCubeMapImageName.GetCStr());
 
-#if !defined(O3DE_DEV)
+#if PK_O3DE_MAJOR_VERSION == 2111
 //See : https://github.com/o3de/o3de/pull/7189 and https://github.com/o3de/o3de/issues/7434
 		AZ::Render::ReflectionProbeFeatureProcessor	*reflectionProbeFeatureProcessor = GetParentScene()->GetFeatureProcessor<AZ::Render::ReflectionProbeFeatureProcessor>();
 

@@ -10,7 +10,7 @@
 
 #include <PopcornFX/PopcornFXBus.h>
 
-#if defined(O3DE_DEV)
+#if PK_O3DE_MAJOR_VERSION >= 2205
 #include <LyShine/IDraw2d.h>
 #else
 #include <LyShine/Draw2d.h>

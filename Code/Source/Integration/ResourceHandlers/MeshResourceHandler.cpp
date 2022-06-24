@@ -96,7 +96,7 @@ void	*CMeshResourceHandler::Load(	const CResourceManager	*resourceManager,
 		return null;
 	}
 
-#if defined(O3DE_DEV)
+#if PK_O3DE_MAJOR_VERSION >= 2205
 	const AZStd::span<const u32>		srcIndices = mesh.GetIndexBufferTyped<u32>();
 	const AZStd::span<const CFloat3>	srcPositions = mesh.GetSemanticBufferTyped<CFloat3>(AZ::Name("POSITION"));
 	const AZStd::span<const CFloat3>	srcNormals = mesh.GetSemanticBufferTyped<CFloat3>(AZ::Name("NORMAL"));
