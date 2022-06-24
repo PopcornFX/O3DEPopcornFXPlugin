@@ -3,11 +3,10 @@
 # https://www.popcornfx.com/terms-and-conditions/
 #----------------------------------------------------------------------------
 
-set(POPCORNFX_VERSION 2.12.5)
+set(POPCORNFX_VERSION 2.12.6)
 set(POPCORNFX_LICENSE O3DE)
 
-if (${O3DE_DEVELOPMENT})
-    add_compile_definitions(O3DE_DEV)
+if (PK_O3DE_MAJOR_VERSION GREATER_EQUAL 2205)
     o3de_pal_dir(pal_dir ${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME} "${gem_restricted_path}" "${gem_path}" "${gem_name}")
 else()
     ly_get_list_relative_pal_filename(pal_dir ${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME} ${gem_restricted_path} ${gem_path} ${gem_name})
@@ -18,6 +17,9 @@ include(${pal_dir}/PAL_${PAL_PLATFORM_NAME_LOWERCASE}.cmake) #for PAL_TRAIT_POPC
 if(NOT PAL_TRAIT_POPCORNFX_SUPPORTED)
     return()
 endif()
+
+add_compile_definitions(PK_O3DE_MAJOR_VERSION=${PK_O3DE_MAJOR_VERSION})
+add_compile_definitions(PK_O3DE_PATCH_VERSION=${PK_O3DE_PATCH_VERSION})
 
 ly_add_target(
     NAME PopcornFX.Static STATIC
