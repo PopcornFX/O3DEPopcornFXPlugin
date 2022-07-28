@@ -34,3 +34,5 @@ PK_LOG_MODULE_DEFINE();
 #if defined(PK_WINDOWS)
 #	pragma warning( disable : 4266 )
 #endif
+
+#include <AzCore/PlatformIncl.h>

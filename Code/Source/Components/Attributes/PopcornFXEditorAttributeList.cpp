@@ -574,7 +574,7 @@ bool	PopcornFXEditorAttributeCategory::VersionConverter(AZ::SerializeContext &co
 
 void	PopcornFXEditorAttributeCategory::AddAttribute(AZ::EntityId entityId, const CParticleAttributeDeclaration *attrib, const SAttributesContainer::SAttrib &attribValue, AZ::u32 id)
 {
-	m_Attributes.push_back();
+	m_Attributes.push_back({});
 
 	size_t	attribId = m_Attributes.size() - 1;
 
@@ -585,7 +585,7 @@ void	PopcornFXEditorAttributeCategory::AddAttribute(AZ::EntityId entityId, const
 
 void	PopcornFXEditorAttributeCategory::AddSampler(AZ::EntityId entityId, const CParticleAttributeSamplerDeclaration *sampler, AZ::EntityId samplerValue, AZ::u32 id)
 {
-	m_Samplers.push_back();
+	m_Samplers.push_back({});
 
 	size_t	samplerId = m_Samplers.size() - 1;
 
@@ -783,7 +783,7 @@ CGuid	PopcornFXEditorAttributeList::_GetOrAddCategory(const CStringLocalized &ca
 
 	if (!catId.Valid())
 	{
-		m_AttributeCategories.push_back();
+		m_AttributeCategories.push_back({});
 		catId = m_AttributeCategories.size() - 1;
 		m_AttributeCategories[catId].SetName(catName.Data());
 	}

@@ -171,7 +171,7 @@ bool	PopcornFXAttributeList::Prepare(const CParticleAttributeList *defaultList)
 					// (Can result to superfluous copies, but, here, dont care, and prefer simpler code)
 					// Copy the refAttr/default to the back
 					// and make it the found one...
-					m_Attributes.push_back();
+					m_Attributes.push_back({});
 					found = m_Attributes.size() - 1;
 					m_Attributes[found].m_Name = attrName;
 					m_Attributes[found].m_Type = attrType;
@@ -252,7 +252,7 @@ bool	PopcornFXAttributeList::Prepare(const CParticleAttributeList *defaultList)
 				if (!found.Valid())
 				{
 					// (Can result to superfluous copies, but, here, dont care, and prefer simpler code)
-					m_Samplers.push_back();
+					m_Samplers.push_back({});
 					found = m_Samplers.size() - 1;
 					m_Samplers[found].m_Name = samplerName;
 					m_Samplers[found].m_Type = samplerType;
