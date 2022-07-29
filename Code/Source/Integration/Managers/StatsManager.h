@@ -7,6 +7,8 @@
 
 #if defined(O3DE_USE_PK)
 
+#undef DrawText
+
 #include <PopcornFX/PopcornFXBus.h>
 
 #include <pk_particles/include/ps_stats.h>
