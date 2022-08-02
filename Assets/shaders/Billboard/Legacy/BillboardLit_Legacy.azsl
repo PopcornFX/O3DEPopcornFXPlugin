@@ -35,8 +35,9 @@ struct VSOutput
     float3 m_emissiveColor : COLOR1;
     float m_alphaCursor : UV4;
     float4 m_clipPosition : UV5;
-
+#if !PK_O3DE_DEVELOPMENT_LIT
     float3 m_shadowCoords[ViewSrg::MaxCascadeCount] : UV6;
+#endif
 };
 
 VSOutput BillboardVS(VertexInput input)
@@ -54,13 +55,11 @@ VSOutput BillboardVS(VertexInput input)
 
     ComputeBillboardVertex(particleIdx, input.m_uv, vtxWorldPos, vtxNormal, vtxTangent, vtxUV0, vtxUV1, vtxTexFrameLerp);
 
+#if !PK_O3DE_DEVELOPMENT_LIT
     // directional light shadow 
     const uint shadowIndex = ViewSrg::m_shadowIndexDirectionalLight;
     if (o_enableShadows && shadowIndex < SceneSrg::m_directionalLightCount)
-#if 1 //development branch
         DirectionalLightShadow::GetShadowCoords(shadowIndex, vtxWorldPos, vtxNormal, output.m_shadowCoords);
-#else
-        DirectionalLightShadow::GetShadowCoords(shadowIndex, vtxWorldPos, output.m_shadowCoords);
 #endif
 
 
@@ -161,7 +160,9 @@ ForwardPassOutput BillboardFS(VSOutput input, bool isFrontFace : SV_IsFrontFace)
     // Compute lighting:
     return ComputeParticleLighting( input.m_worldPosition,
                                     input.m_position,
+#if !PK_O3DE_DEVELOPMENT_LIT
                                     input.m_shadowCoords,
+#endif
                                     vertexNormal,
                                     normal,
                                     tangent,
