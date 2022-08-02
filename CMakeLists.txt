@@ -3,7 +3,7 @@
 # https://www.popcornfx.com/terms-and-conditions/
 #----------------------------------------------------------------------------
 
-set(PK_O3DE_DEVELOPMENT OFF)
+set(PK_O3DE_DEVELOPMENT ON)
 
 if (${INSTALLED_ENGINE})
     o3de_read_json_key(o3de_build_number ${LY_ROOT_FOLDER}/engine.json "O3DEBuildNumber")
