@@ -779,7 +779,7 @@ namespace PopcornFX {
 
 	AZ::Vector2	PopcornFXEmitterEditorComponent::GetAttributeAsFloat2(AZ::u32 attribId)
 	{
-		AZ::Vector2						value;
+		AZ::Vector2						value(0.0f);
 		SAttributesContainer::SAttrib	attrib;
 		if (m_Emitter.GetAttribute(attribId, attrib))
 		{
@@ -791,7 +791,7 @@ namespace PopcornFX {
 
 	AZ::Vector3	PopcornFXEmitterEditorComponent::GetAttributeAsFloat3(AZ::u32 attribId)
 	{
-		AZ::Vector3						value;
+		AZ::Vector3						value(0.0f);
 		SAttributesContainer::SAttrib	attrib;
 		if (m_Emitter.GetAttribute(attribId, attrib))
 		{
@@ -804,7 +804,7 @@ namespace PopcornFX {
 
 	AZ::Vector4	PopcornFXEmitterEditorComponent::GetAttributeAsFloat4(AZ::u32 attribId)
 	{
-		AZ::Vector4						value;
+		AZ::Vector4						value(0.0f);
 		SAttributesContainer::SAttrib	attrib;
 		if (m_Emitter.GetAttribute(attribId, attrib))
 		{
