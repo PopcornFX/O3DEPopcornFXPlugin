@@ -58,8 +58,9 @@ struct VertexOutput
     float3 m_emissiveColor : COLOR1;
     float m_alphaCursor : UV2;
     float4 m_clipPosition : UV3;
-
+#if !PK_O3DE_DEVELOPMENT_LIT
     float3 m_shadowCoords[ViewSrg::MaxCascadeCount] : UV4;
+#endif
 };
 
 struct VertexOutputAtlasBlend
@@ -77,8 +78,9 @@ struct VertexOutputAtlasBlend
     float3 m_emissiveColor : COLOR1;
     float m_alphaCursor : UV4;
     float4 m_clipPosition : UV5;
-
+#if !PK_O3DE_DEVELOPMENT_LIT
     float3 m_shadowCoords[ViewSrg::MaxCascadeCount] : UV6;
+#endif
 };
 
 struct VertexOutputCorrectDeformation
@@ -96,8 +98,9 @@ struct VertexOutputCorrectDeformation
     float3 m_emissiveColor : COLOR1;
     float m_alphaCursor : UV4;
     float4 m_clipPosition : UV5;
-
+#if !PK_O3DE_DEVELOPMENT_LIT
     float3 m_shadowCoords[ViewSrg::MaxCascadeCount] : UV6;
+#endif
 };
 
 VertexOutput RibbonVS(VertexInput input)
@@ -128,13 +131,12 @@ VertexOutput RibbonVS(VertexInput input)
     output.m_tangent = input.m_tangent.xyz;
     output.m_bitangent = cross(input.m_tangent.xyz, input.m_normal) * input.m_tangent.w;
     output.m_worldPosition = input.m_position.xyz;
+
+#if !PK_O3DE_DEVELOPMENT_LIT
     // directional light shadow 
     const uint shadowIndex = ViewSrg::m_shadowIndexDirectionalLight;
     if (o_enableShadows && shadowIndex < SceneSrg::m_directionalLightCount)
-#if 1 //development branch
         DirectionalLightShadow::GetShadowCoords(shadowIndex, input.m_position.xyz, input.m_normal, output.m_shadowCoords);
-#else
-        DirectionalLightShadow::GetShadowCoords(shadowIndex, input.m_position.xyz, output.m_shadowCoords);
 #endif
 
     return output;
@@ -171,13 +173,12 @@ VertexOutputAtlasBlend RibbonVS_AtlasBlend(VertexInputAtlasBlend input)
     output.m_tangent = input.m_tangent.xyz;
     output.m_bitangent = cross(input.m_normal, input.m_tangent.xyz) * input.m_tangent.w;
     output.m_worldPosition = input.m_position.xyz;
+
+#if !PK_O3DE_DEVELOPMENT_LIT
     // directional light shadow 
     const uint shadowIndex = ViewSrg::m_shadowIndexDirectionalLight;
     if (o_enableShadows && shadowIndex < SceneSrg::m_directionalLightCount)
-#if 1 //development branch
         DirectionalLightShadow::GetShadowCoords(shadowIndex, input.m_position.xyz, input.m_normal, output.m_shadowCoords);
-#else
-        DirectionalLightShadow::GetShadowCoords(shadowIndex, input.m_position.xyz, output.m_shadowCoords);
 #endif
 
     return output;
@@ -214,13 +215,12 @@ VertexOutputCorrectDeformation RibbonVS_CorrectDeformation(VertexInputCorrectDef
     output.m_tangent = input.m_tangent.xyz;
     output.m_bitangent = cross(input.m_normal, input.m_tangent.xyz) * input.m_tangent.w;
     output.m_worldPosition = input.m_position.xyz;
+
+#if !PK_O3DE_DEVELOPMENT_LIT
     // directional light shadow 
     const uint shadowIndex = ViewSrg::m_shadowIndexDirectionalLight;
     if (o_enableShadows && shadowIndex < SceneSrg::m_directionalLightCount)
-#if 1 //development branch
         DirectionalLightShadow::GetShadowCoords(shadowIndex, input.m_position.xyz, input.m_normal, output.m_shadowCoords);
-#else
-        DirectionalLightShadow::GetShadowCoords(shadowIndex, input.m_position.xyz, output.m_shadowCoords);
 #endif
 
     return output;
@@ -267,7 +267,9 @@ ForwardPassOutput RibbonFS(VertexOutput input, bool isFrontFace : SV_IsFrontFace
     // Compute lighting:
     return ComputeParticleLighting( input.m_worldPosition,
                                     input.m_position,
+#if !PK_O3DE_DEVELOPMENT_LIT
                                     input.m_shadowCoords,
+#endif
                                     vertexNormal,
                                     normal,
                                     tangent,
@@ -325,7 +327,9 @@ ForwardPassOutput RibbonFS_AtlasBlend(VertexOutputAtlasBlend input, bool isFront
     // Compute lighting:
     return ComputeParticleLighting( input.m_worldPosition,
                                     input.m_position,
+#if !PK_O3DE_DEVELOPMENT_LIT
                                     input.m_shadowCoords,
+#endif
                                     vertexNormal,
                                     normal,
                                     tangent,
@@ -374,7 +378,9 @@ ForwardPassOutput RibbonFS_CorrectDeformation(VertexOutputCorrectDeformation inp
     // Compute lighting:
     return ComputeParticleLighting( input.m_worldPosition,
                                     input.m_position,
+#if !PK_O3DE_DEVELOPMENT_LIT
                                     input.m_shadowCoords,
+#endif
                                     vertexNormal,
                                     normal,
                                     tangent,
