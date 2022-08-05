@@ -49,6 +49,8 @@ namespace PopcornFX {
 		virtual AZStd::string					BakeSingleAsset(const AZStd::string &assetPath, const AZStd::string &outDir, const AZStd::string &platform) = 0;
 		virtual bool							GatherDependencies(const AZStd::string &assetPath, AZStd::vector<AZStd::string> &dependencies) = 0;
 		virtual void							PackChanged(const AZStd::string &packPath, const AZStd::string &libraryPath) = 0;
+		virtual void							SetPkProjPathCache(const AZStd::string &pkProjPath) = 0;
+		virtual AZStd::string					GetPkProjPathCache() = 0;
 #endif
 	};
 	using PopcornFXIntegrationBus = AZ::EBus<PopcornFXIntegrationRequests>;

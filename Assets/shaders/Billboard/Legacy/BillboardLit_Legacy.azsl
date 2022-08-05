@@ -5,11 +5,13 @@
 
 #include <scenesrg.srgi>
 #include <viewsrg.srgi>
-#include "../../Common/MaterialSrg.azsli"
 
+#define    PK_LIT_SHADER
+
+#include "../../Common/MaterialSrg.azsli"
 #include "../../Common/LightingHelper.azsli"
+
 // Billboarding shader:
-#define     PK_LIT_SHADER
 #include "../../Common/ComputeBillboardVertex.azsli"
 // Material:
 #include "../../Common/RendererFeatures.azsli"
@@ -119,7 +121,7 @@ ForwardPassOutput BillboardFS(VSOutput input, bool isFrontFace : SV_IsFrontFace)
     diffuseColor *= input.m_diffuseColor;
     diffuseColor.a = clamp(diffuseColor.a, 0, 1);
 
-	ApplyOpaqueMasked(diffuseColor.a);
+    ApplyOpaqueMasked(diffuseColor.a);
 
     // Emissive:
     float4 emissiveColor = float4(0, 0, 0, 0);
@@ -132,7 +134,7 @@ ForwardPassOutput BillboardFS(VSOutput input, bool isFrontFace : SV_IsFrontFace)
     float3 normal = vertexNormal;
     const float3  tangent = normalize(input.m_tangent);
     const float3  bitangent = normalize(input.m_bitangent);
-	
+
     // Normal map:
     if (HasOneRendererFlags(Has_NormalMap))
     {

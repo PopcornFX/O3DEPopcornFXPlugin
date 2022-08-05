@@ -6,10 +6,9 @@
 #include <scenesrg.srgi>
 #include <viewsrg.srgi>
 
-#define     PK_LIT_SHADER
+#define    PK_LIT_SHADER
 
 #include "../../Common/MaterialSrg.azsli"
-
 #include "../../Common/LightingHelper.azsli"
 
 // Renderer:

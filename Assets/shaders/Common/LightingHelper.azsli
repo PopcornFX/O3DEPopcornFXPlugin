@@ -170,11 +170,11 @@ ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
         float iblExposureFactor = pow(2.0, SceneSrg::m_iblExposure);
         if(useDiffuseIbl)
         {
-  		  fwdOut.m_diffuseColor = float4(1,1,1,1);
-  		  fwdOut.m_diffuseColor.rgb =  surface.albedo*iblExposureFactor * SceneSrg::m_diffuseEnvMap.Sample(SceneSrg::m_samplerEnv, GetCubemapCoords(normal)).rgb * lightingData.diffuseAmbientOcclusion;
+          fwdOut.m_diffuseColor = float4(1,1,1,1);
+          fwdOut.m_diffuseColor.rgb =  surface.albedo*iblExposureFactor * SceneSrg::m_diffuseEnvMap.Sample(SceneSrg::m_samplerEnv, GetCubemapCoords(normal)).rgb * lightingData.diffuseAmbientOcclusion;
         }
 
-	}
-	*/
-    return fwdOut;	
+    }
+*/
+    return fwdOut;
 }
