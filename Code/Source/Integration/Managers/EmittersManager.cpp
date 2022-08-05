@@ -48,7 +48,7 @@ AZ::EntityId	CEmittersManager::SpawnEmitterEntityAtLocation(const AZStd::string 
 
 StandaloneEmitter	*CEmittersManager::SpawnEffectById(const AZ::Data::AssetId &assetId, const PopcornFX::SpawnParams &spawnParams)
 {
-	m_Emitters.push_back();
+	m_Emitters.push_back({});
 	AZStd::list<StandaloneEmitter>::iterator it = --m_Emitters.end(); //Get last elem
 	StandaloneEmitter	*standaloneEmitter = &(*it);
 

@@ -45,7 +45,7 @@ namespace PopcornFX {
 
 	void	PopcornFXBroadcastNodeable::OnEmitterBroadcastEvent(PopcornFX::SBroadcastParams *params)
 	{
-		SCRIPT_CANVAS_PERFORMANCE_SCOPE_LATENT(GetScriptCanvasId(), GetAssetId());
+		//SCRIPT_CANVAS_PERFORMANCE_SCOPE_LATENT(GetScriptCanvasId(), GetAssetId());
 
 		if (params->m_EventName == m_EventName)
 			CallBroadcast();

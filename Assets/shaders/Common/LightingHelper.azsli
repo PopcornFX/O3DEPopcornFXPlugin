@@ -22,10 +22,14 @@
 #include <Atom/Features/PBR/Decals.azsli>
 #include <Atom/Features/ColorManagement/TransformColor.azsli>
 
+#define    PK_O3DE_DEVELOPMENT_LIT 0
+
 // Helper function to compute forward lighting output for particles:
 ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
 											float4 position,
+#if !PK_O3DE_DEVELOPMENT_LIT
 											float3 shadowCoords[ViewSrg::MaxCascadeCount],
+#endif
 											float3 vertexNormal,
 											float3 normal,
 											float3 tangent,
@@ -84,9 +88,11 @@ ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
     // Light iterator
     lightingData.tileIterator.Init(position, PassSrg::m_lightListRemapped, PassSrg::m_tileLightData);
     lightingData.Init(surface.position, surface.normal, surface.roughnessLinear);
-    
+
+#if !PK_O3DE_DEVELOPMENT_LIT
     // Directional light shadow coordinates
     lightingData.shadowCoords = shadowCoords;
+#endif
 
     // ------- Emissive -------
 
@@ -117,7 +123,11 @@ ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
     ApplyDecals(lightingData.tileIterator, surface);
 
     // Apply Direct Lighting
+#if PK_O3DE_DEVELOPMENT_LIT
+    ApplyDirectLighting(surface, lightingData, position);
+#else
     ApplyDirectLighting(surface, lightingData);
+#endif
 
     // Apply Image Based Lighting (IBL)
     ApplyIBL(surface, lightingData);
@@ -160,11 +170,11 @@ ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
         float iblExposureFactor = pow(2.0, SceneSrg::m_iblExposure);
         if(useDiffuseIbl)
         {
-  		  fwdOut.m_diffuseColor = float4(1,1,1,1);
-  		  fwdOut.m_diffuseColor.rgb =  surface.albedo*iblExposureFactor * SceneSrg::m_diffuseEnvMap.Sample(SceneSrg::m_samplerEnv, GetCubemapCoords(normal)).rgb * lightingData.diffuseAmbientOcclusion;
+          fwdOut.m_diffuseColor = float4(1,1,1,1);
+          fwdOut.m_diffuseColor.rgb =  surface.albedo*iblExposureFactor * SceneSrg::m_diffuseEnvMap.Sample(SceneSrg::m_samplerEnv, GetCubemapCoords(normal)).rgb * lightingData.diffuseAmbientOcclusion;
         }
 
-	}
-	*/
-    return fwdOut;	
+    }
+*/
+    return fwdOut;
 }

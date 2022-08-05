@@ -18,6 +18,8 @@ AZ_PUSH_DISABLE_WARNING(4251 4800, "-Wunknown-warning-option") // disable warnin
 
 #include <QString>
 
+#include "Integration/PopcornFXIntegrationBus.h"
+
 AZ_POP_DISABLE_WARNING
 
 // Helpers copied over from ImagePreviewer.cpp
@@ -79,7 +81,10 @@ void PopcornFXEffectPreviewer::Display(const AzToolsFramework::AssetBrowser::Ass
 void PopcornFXEffectPreviewer::DisplayProduct(const AzToolsFramework::AssetBrowser::ProductAssetBrowserEntry *product)
 {
 	AZStd::string	thumbnailPath;
-	PopcornFX::GetThumbnailPathForAsset(product->GetFullPath(), thumbnailPath);
+	AZStd::string	pkProjPathCache;
+	PopcornFX::PopcornFXIntegrationBus::BroadcastResult(pkProjPathCache, &PopcornFX::PopcornFXIntegrationBus::Handler::GetPkProjPathCache);
+	PopcornFX::GetThumbnailPathForAsset(product->GetFullPath(), thumbnailPath, pkProjPathCache);
+	PopcornFX::PopcornFXIntegrationBus::Broadcast(&PopcornFX::PopcornFXIntegrationBus::Handler::SetPkProjPathCache, pkProjPathCache);
 
 	CreateAndDisplayTextureItemAsync(
 	[thumbnailPath]
@@ -96,7 +101,10 @@ void PopcornFXEffectPreviewer::DisplayProduct(const AzToolsFramework::AssetBrows
 void PopcornFXEffectPreviewer::DisplaySource(const AzToolsFramework::AssetBrowser::SourceAssetBrowserEntry *source)
 {
 	AZStd::string	thumbnailPath;
-	PopcornFX::GetThumbnailPathForAsset(source->GetFullPath(), thumbnailPath);
+	AZStd::string	pkProjPathCache;
+	PopcornFX::PopcornFXIntegrationBus::BroadcastResult(pkProjPathCache, &PopcornFX::PopcornFXIntegrationBus::Handler::GetPkProjPathCache);
+	PopcornFX::GetThumbnailPathForAsset(source->GetFullPath(), thumbnailPath, pkProjPathCache);
+	PopcornFX::PopcornFXIntegrationBus::Broadcast(&PopcornFX::PopcornFXIntegrationBus::Handler::SetPkProjPathCache, pkProjPathCache);
 
 	CreateAndDisplayTextureItemAsync(
 	[thumbnailPath]

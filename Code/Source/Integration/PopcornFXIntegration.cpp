@@ -376,7 +376,19 @@ bool	PopcornFXIntegration::LoadEffect(PopcornFXAsset *asset, const char *assetPa
 	if (product != null)
 	{
 		if (ChangePackIFN(product->GetFullPath().c_str(), File::DefaultFileSystem(), rootPath, libraryPath, false))
+		{
+			AZStd::string	oldRootPath;
+			AZStd::string	oldLibraryPath;
+			if (LoadPackPathFromJson(oldRootPath, oldLibraryPath))
+			{
+				if (!oldRootPath.empty())
+				{
+					AZ_Error("PopcornFX", false, "The effect '%s' is not part of the pack '%s'.\n If you want to change the current pack delete the popcornfx_pack.json file at the root of your project and restart the O3DE Editor.", assetPath, oldRootPath.c_str());
+					return false;
+				}
+			}
 			PackChanged(rootPath, libraryPath);
+		}
 	}
 	else
 	{

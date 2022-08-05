@@ -100,7 +100,9 @@ namespace PopcornFX
 				AZStd::string	dummy;
 				if (!GetProjectSettings(path, rootPath, dummy))
 					return "";
-				if (folderPath.starts_with(rootPath))
+
+				const AZ::IO::PathView pathView(folderPath);
+				if (pathView.IsRelativeTo(AZ::IO::PathView(rootPath)))
 					return path;
 			}
 		}
@@ -150,27 +152,27 @@ namespace PopcornFX
 		return false;
 	}
 	
-	void	GetThumbnailPathForAsset(const AZStd::string &assetPath, AZStd::string &outThumbnailPath)
+	void	GetThumbnailPathForAsset(const AZStd::string &assetPath, AZStd::string &outThumbnailPath, AZStd::string &inOutPkProjPath)
 	{
-#if 1
-	(void)assetPath;
-	(void)outThumbnailPath;
-#else
-		const AZStd::string pkProjPath = FindMatchingPkproj(assetPath);
+		const bool pkProjCacheEmpty = inOutPkProjPath.empty();
+		if (pkProjCacheEmpty)
+		{
+			inOutPkProjPath = FindMatchingPkproj(assetPath);
+		}
 
-		if (!pkProjPath.empty())
+		if (!inOutPkProjPath.empty())
 		{
 			AZStd::string	rootDir;
-			if (GetProjectSettingsThumbnailsPath(pkProjPath, rootDir, outThumbnailPath))
+			if (GetProjectSettingsThumbnailsPath(inOutPkProjPath, rootDir, outThumbnailPath))
 			{
-				const CString	pkProjFolder = CFilePath::StripFilename(pkProjPath.c_str());
+				const CString	pkProjFolder = CFilePath::StripFilename(inOutPkProjPath.c_str());
 				CString			filePath = assetPath.c_str();
 				CString			projectPath = CString::Format("%s/%s/", pkProjFolder.Data(), rootDir.c_str());
 	
 				CFilePath::Purify(filePath);
 				CFilePath::Purify(projectPath);
 	
-				if (PK_VERIFY(filePath.StartsWith(projectPath)))
+				if (filePath.StartsWith(projectPath + "/"))
 				{
 					const CString	virtualFilePath = filePath.Extract(projectPath.Length() + 1, filePath.Length());
 					CString			thumbnailPath = CString::Format("%s/%s/%s.png", projectPath.Data(), outThumbnailPath.c_str(), virtualFilePath.Data());
@@ -178,9 +180,13 @@ namespace PopcornFX
 					CFilePath::Purify(thumbnailPath);
 					outThumbnailPath = thumbnailPath.Data();
 				}
+				else if (!pkProjCacheEmpty)
+				{
+					inOutPkProjPath.clear();
+					GetThumbnailPathForAsset(assetPath, outThumbnailPath, inOutPkProjPath);
+				}
 			}
 		}
-#endif
 	}
 	
 	bool	ChangePackWithPathIFN(	const AZStd::string &pkProjPath, IFileSystem *fileSystem,
@@ -254,7 +260,8 @@ namespace PopcornFX
 			AZ::StringFunc::Path::Normalize(folderPath);
 			folderPath = CFilePath::Relativize(projectPath.c_str(), folderPath.c_str()).Data();
 
-			if (folderPath.starts_with(rootPath))
+			const AZ::IO::PathView pathView(folderPath);
+			if (pathView.IsRelativeTo(AZ::IO::PathView(rootPath)))
 				return false;
 		}
 

@@ -42,10 +42,6 @@ bool	CRibbonBatchDrawer::AreRenderersCompatible(const CRendererDataBase *rendere
 bool	CRibbonBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass)
 {
 	PK_SCOPEDPROFILE();
-	PK_ASSERT(!allocBuffers.m_DrawRequests.Empty());
-	PK_ASSERT(allocBuffers.m_DrawRequests.Count() == allocBuffers.m_RendererCaches.Count());
-	PK_ASSERT((allocBuffers.m_TotalVertexCount > 0 && allocBuffers.m_TotalIndexCount > 0) || allocBuffers.m_TotalParticleCount > 0);
-	PK_ASSERT(allocBuffers.m_DrawRequests.First() != null);
 
 	if (m_RenderContext == null)
 	{

@@ -90,6 +90,8 @@ namespace PopcornFX {
 		virtual AZStd::string				BakeSingleAsset(const AZStd::string &assetPath, const AZStd::string &outDir, const AZStd::string &platform) override;
 		virtual bool						GatherDependencies(const AZStd::string &assetPath, AZStd::vector<AZStd::string> &dependencies) override;
 		virtual void						PackChanged(const AZStd::string &packPath, const AZStd::string &libraryPath) override;
+		virtual void						SetPkProjPathCache(const AZStd::string &pkProjPath) override { m_PkProjPathCache = pkProjPath; }
+		virtual AZStd::string				GetPkProjPathCache() override { return m_PkProjPathCache; }
 #endif
 		//////////////////////////////////////////////////////////////////////////
 
@@ -189,6 +191,7 @@ namespace PopcornFX {
 		CWindManager				m_WindManager;
 #if defined(POPCORNFX_EDITOR)
 		CBakerManager				m_BakerManager;
+		AZStd::string				m_PkProjPathCache;
 #endif
 		AZStd::mutex				m_ParticleQualityLock;
 
