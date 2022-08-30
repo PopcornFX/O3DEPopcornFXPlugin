@@ -16,10 +16,11 @@
 
 #if defined(POPCORNFX_EDITOR)
 #include "Editor/PackLoader.h"
-#include <AzToolsFramework/AssetBrowser/AssetBrowserEntry.h>
 #endif //POPCORNFX_EDITOR
 
 #include <AzCore/Console/IConsole.h>
+#include <AzCore/StringFunc/StringFunc.h>
+#include <AzCore/Utils/Utils.h>
 
 #include "Components/Emitter/PopcornFXEmitterRuntime.h"
 
@@ -369,31 +370,27 @@ void	PopcornFXIntegration::DestroyEffect(StandaloneEmitter *emitter)
 bool	PopcornFXIntegration::LoadEffect(PopcornFXAsset *asset, const char *assetPath, const AZ::u8 *assetData, const AZ::IO::SizeType assetDataSize, [[maybe_unused]] const AZ::Data::AssetId &assetId)
 {
 #if defined(POPCORNFX_EDITOR)
+	AZStd::string	assetFullPath;
+	AZ::IO::FixedMaxPath projectPath = AZ::Utils::GetProjectPath();
+	AZ::StringFunc::Path::Join(projectPath.c_str(), assetPath, assetFullPath);
+
 	AZStd::string	rootPath = m_PackPath;
 	AZStd::string	libraryPath;
 
-	AzToolsFramework::AssetBrowser::ProductAssetBrowserEntry	*product = AzToolsFramework::AssetBrowser::ProductAssetBrowserEntry::GetProductByAssetId(assetId);
-	if (product != null)
+	AZ_Printf("PopcornFX", "FullPath: %s", assetFullPath.c_str());
+	if (ChangePackIFN(assetFullPath.c_str(), File::DefaultFileSystem(), rootPath, libraryPath, false))
 	{
-		if (ChangePackIFN(product->GetFullPath().c_str(), File::DefaultFileSystem(), rootPath, libraryPath, false))
+		AZStd::string	oldRootPath;
+		AZStd::string	oldLibraryPath;
+		if (LoadPackPathFromJson(oldRootPath, oldLibraryPath))
 		{
-			AZStd::string	oldRootPath;
-			AZStd::string	oldLibraryPath;
-			if (LoadPackPathFromJson(oldRootPath, oldLibraryPath))
+			if (!oldRootPath.empty())
 			{
-				if (!oldRootPath.empty())
-				{
-					AZ_Error("PopcornFX", false, "The effect '%s' is not part of the pack '%s'.\n If you want to change the current pack delete the popcornfx_pack.json file at the root of your project and restart the O3DE Editor.", assetPath, oldRootPath.c_str());
-					return false;
-				}
+				AZ_Error("PopcornFX", false, "The effect '%s' is not part of the pack '%s'.\n If you want to change the current pack delete the popcornfx_pack.json file at the root of your project and restart the O3DE Editor.", assetPath, oldRootPath.c_str());
+				return false;
 			}
-			PackChanged(rootPath, libraryPath);
 		}
-	}
-	else
-	{
-		AZ_Error("PopcornFX", false, "PopcornFXAssetHandler: Unable to get product asset for %s", assetPath);
-		return false;
+		PackChanged(rootPath, libraryPath);
 	}
 #endif //POPCORNFX_EDITOR
 
