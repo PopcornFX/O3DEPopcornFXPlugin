@@ -367,7 +367,7 @@ void	PopcornFXIntegration::DestroyEffect(StandaloneEmitter *emitter)
 // AZ::Data::PopcornFXLoadBus::Handler
 ////////////////////////////////////////////////////////////////////////
 
-bool	PopcornFXIntegration::LoadEffect(PopcornFXAsset *asset, const char *assetPath, const AZ::u8 *assetData, const AZ::IO::SizeType assetDataSize, [[maybe_unused]] const AZ::Data::AssetId &assetId)
+bool	PopcornFXIntegration::LoadEffect(PopcornFXAsset *asset, const char *assetPath, const AZ::u8 *assetData, const AZ::IO::SizeType assetDataSize)
 {
 #if defined(POPCORNFX_EDITOR)
 	AZStd::string	assetFullPath;
