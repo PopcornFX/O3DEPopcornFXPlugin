@@ -21,9 +21,5 @@
         "CullMode" : "None"
     },
 
-    "CompilerHints" : { 
-        "DisableOptimizations" : false
-    },
-
     "DrawList" : "depth"
 }
