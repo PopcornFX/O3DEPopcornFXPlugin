@@ -377,7 +377,6 @@ bool	PopcornFXIntegration::LoadEffect(PopcornFXAsset *asset, const char *assetPa
 	AZStd::string	rootPath = m_PackPath;
 	AZStd::string	libraryPath;
 
-	AZ_Printf("PopcornFX", "FullPath: %s", assetFullPath.c_str());
 	if (ChangePackIFN(assetFullPath.c_str(), File::DefaultFileSystem(), rootPath, libraryPath, false))
 	{
 		AZStd::string	oldRootPath;
