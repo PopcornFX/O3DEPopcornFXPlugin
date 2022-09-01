@@ -35,10 +35,6 @@
         "CullMode" : "None"
     },
 
-    "CompilerHints" : { 
-        "DisableOptimizations" : false
-    },
-
     "ProgramSettings":
     {
       "EntryPoints":

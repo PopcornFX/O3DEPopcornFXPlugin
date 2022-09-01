@@ -22,12 +22,12 @@
 #include <Atom/Features/PBR/Decals.azsli>
 #include <Atom/Features/ColorManagement/TransformColor.azsli>
 
-#define    PK_O3DE_DEVELOPMENT_LIT 0
+#define    PK_O3DE_NEW_LIT 1
 
 // Helper function to compute forward lighting output for particles:
 ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
 											float4 position,
-#if !PK_O3DE_DEVELOPMENT_LIT
+#if !PK_O3DE_NEW_LIT
 											float3 shadowCoords[ViewSrg::MaxCascadeCount],
 #endif
 											float3 vertexNormal,
@@ -89,7 +89,7 @@ ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
     lightingData.tileIterator.Init(position, PassSrg::m_lightListRemapped, PassSrg::m_tileLightData);
     lightingData.Init(surface.position, surface.normal, surface.roughnessLinear);
 
-#if !PK_O3DE_DEVELOPMENT_LIT
+#if !PK_O3DE_NEW_LIT
     // Directional light shadow coordinates
     lightingData.shadowCoords = shadowCoords;
 #endif
@@ -123,7 +123,7 @@ ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
     ApplyDecals(lightingData.tileIterator, surface);
 
     // Apply Direct Lighting
-#if PK_O3DE_DEVELOPMENT_LIT
+#if PK_O3DE_NEW_LIT
     ApplyDirectLighting(surface, lightingData, position);
 #else
     ApplyDirectLighting(surface, lightingData);

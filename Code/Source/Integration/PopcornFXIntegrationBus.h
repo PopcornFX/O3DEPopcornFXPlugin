@@ -66,7 +66,7 @@ namespace PopcornFX {
 		// Public functions
 		virtual ~PopcornFXLoadRequests() {}
 
-		virtual bool							LoadEffect(PopcornFXAsset *asset, const char *assetPath, const AZ::u8 *assetData, const AZ::IO::SizeType assetDataSize, const AZ::Data::AssetId &assetId) = 0;
+		virtual bool							LoadEffect(PopcornFXAsset *asset, const char *assetPath, const AZ::u8 *assetData, const AZ::IO::SizeType assetDataSize) = 0;
 		virtual void							UnloadEffect(PopcornFXAsset *asset) = 0;
 	};
 	using PopcornFXLoadBus = AZ::EBus<PopcornFXLoadRequests>;

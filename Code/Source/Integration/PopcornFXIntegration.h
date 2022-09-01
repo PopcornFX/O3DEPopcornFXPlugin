@@ -75,7 +75,7 @@ namespace PopcornFX {
 
 		//////////////////////////////////////////////////////////////////////////
 		// AZ::Data::PopcornFXLoadBus::Handler
-		virtual bool						LoadEffect(PopcornFXAsset *asset, const char *assetPath, const AZ::u8 *assetData, const AZ::IO::SizeType assetDataSize, const AZ::Data::AssetId &assetId) override;
+		virtual bool						LoadEffect(PopcornFXAsset *asset, const char *assetPath, const AZ::u8 *assetData, const AZ::IO::SizeType assetDataSize) override;
 		virtual void						UnloadEffect(PopcornFXAsset *asset) override;
 		//////////////////////////////////////////////////////////////////////////
 

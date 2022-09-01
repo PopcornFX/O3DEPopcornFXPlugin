@@ -62,7 +62,7 @@ namespace PopcornFX {
 		stream->Read(size, assetData.data());
 
 		bool loaded = false;
-		PopcornFX::PopcornFXLoadBus::BroadcastResult(loaded, &PopcornFX::PopcornFXLoadBus::Handler::LoadEffect, popcornFXAsset, assetPath, assetData.data(), size, asset.GetId());
+		PopcornFX::PopcornFXLoadBus::BroadcastResult(loaded, &PopcornFX::PopcornFXLoadBus::Handler::LoadEffect, popcornFXAsset, assetPath, assetData.data(), size);
 
 		return loaded ? AZ::Data::AssetHandler::LoadResult::LoadComplete : AZ::Data::AssetHandler::LoadResult::Error;
 	}
