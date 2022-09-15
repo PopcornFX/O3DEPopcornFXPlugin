@@ -81,8 +81,6 @@ namespace PopcornFX {
 
 		if (auto *serializeContext = azrtti_cast<AZ::SerializeContext*>(context))
 		{
-			serializeContext->ClassDeprecate("PopcornFXEmitterSettings", "{F01BC02D-E58B-44DD-A93E-60398D6E9B0D}");
-
 			// Serializer:
 			serializeContext->Class<PopcornFXEmitterEditorComponent, AzToolsFramework::Components::EditorComponentBase>()
 				->Version(1)
