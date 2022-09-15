@@ -58,7 +58,7 @@ struct VertexOutput
     float3 m_emissiveColor : COLOR1;
     float m_alphaCursor : UV2;
     float4 m_clipPosition : UV3;
-#if !PK_O3DE_DEVELOPMENT_LIT
+#if !PK_O3DE_NEW_LIT
     float3 m_shadowCoords[ViewSrg::MaxCascadeCount] : UV4;
 #endif
 };
@@ -78,7 +78,7 @@ struct VertexOutputAtlasBlend
     float3 m_emissiveColor : COLOR1;
     float m_alphaCursor : UV4;
     float4 m_clipPosition : UV5;
-#if !PK_O3DE_DEVELOPMENT_LIT
+#if !PK_O3DE_NEW_LIT
     float3 m_shadowCoords[ViewSrg::MaxCascadeCount] : UV6;
 #endif
 };
@@ -98,7 +98,7 @@ struct VertexOutputCorrectDeformation
     float3 m_emissiveColor : COLOR1;
     float m_alphaCursor : UV4;
     float4 m_clipPosition : UV5;
-#if !PK_O3DE_DEVELOPMENT_LIT
+#if !PK_O3DE_NEW_LIT
     float3 m_shadowCoords[ViewSrg::MaxCascadeCount] : UV6;
 #endif
 };
@@ -132,7 +132,7 @@ VertexOutput RibbonVS(VertexInput input)
     output.m_bitangent = cross(input.m_tangent.xyz, input.m_normal) * input.m_tangent.w;
     output.m_worldPosition = input.m_position.xyz;
 
-#if !PK_O3DE_DEVELOPMENT_LIT
+#if !PK_O3DE_NEW_LIT
     // directional light shadow 
     const uint shadowIndex = ViewSrg::m_shadowIndexDirectionalLight;
     if (o_enableShadows && shadowIndex < SceneSrg::m_directionalLightCount)
@@ -174,7 +174,7 @@ VertexOutputAtlasBlend RibbonVS_AtlasBlend(VertexInputAtlasBlend input)
     output.m_bitangent = cross(input.m_normal, input.m_tangent.xyz) * input.m_tangent.w;
     output.m_worldPosition = input.m_position.xyz;
 
-#if !PK_O3DE_DEVELOPMENT_LIT
+#if !PK_O3DE_NEW_LIT
     // directional light shadow 
     const uint shadowIndex = ViewSrg::m_shadowIndexDirectionalLight;
     if (o_enableShadows && shadowIndex < SceneSrg::m_directionalLightCount)
@@ -216,7 +216,7 @@ VertexOutputCorrectDeformation RibbonVS_CorrectDeformation(VertexInputCorrectDef
     output.m_bitangent = cross(input.m_normal, input.m_tangent.xyz) * input.m_tangent.w;
     output.m_worldPosition = input.m_position.xyz;
 
-#if !PK_O3DE_DEVELOPMENT_LIT
+#if !PK_O3DE_NEW_LIT
     // directional light shadow 
     const uint shadowIndex = ViewSrg::m_shadowIndexDirectionalLight;
     if (o_enableShadows && shadowIndex < SceneSrg::m_directionalLightCount)
@@ -267,7 +267,7 @@ ForwardPassOutput RibbonFS(VertexOutput input, bool isFrontFace : SV_IsFrontFace
     // Compute lighting:
     return ComputeParticleLighting( input.m_worldPosition,
                                     input.m_position,
-#if !PK_O3DE_DEVELOPMENT_LIT
+#if !PK_O3DE_NEW_LIT
                                     input.m_shadowCoords,
 #endif
                                     vertexNormal,
@@ -327,7 +327,7 @@ ForwardPassOutput RibbonFS_AtlasBlend(VertexOutputAtlasBlend input, bool isFront
     // Compute lighting:
     return ComputeParticleLighting( input.m_worldPosition,
                                     input.m_position,
-#if !PK_O3DE_DEVELOPMENT_LIT
+#if !PK_O3DE_NEW_LIT
                                     input.m_shadowCoords,
 #endif
                                     vertexNormal,
@@ -378,7 +378,7 @@ ForwardPassOutput RibbonFS_CorrectDeformation(VertexOutputCorrectDeformation inp
     // Compute lighting:
     return ComputeParticleLighting( input.m_worldPosition,
                                     input.m_position,
-#if !PK_O3DE_DEVELOPMENT_LIT
+#if !PK_O3DE_NEW_LIT
                                     input.m_shadowCoords,
 #endif
                                     vertexNormal,

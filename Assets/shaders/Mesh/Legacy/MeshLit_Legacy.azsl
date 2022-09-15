@@ -45,7 +45,7 @@ struct VertexOutput
     float2 m_texCoord0 : UV1;
     float m_alphaCursor : UV2;
     float4 m_clipPosition : UV3;
-#if !PK_O3DE_DEVELOPMENT_LIT
+#if !PK_O3DE_NEW_LIT
     float3 m_shadowCoords[ViewSrg::MaxCascadeCount] : UV4;
 #endif
 };
@@ -60,7 +60,7 @@ VertexOutput MeshVS(VertexInput input)
     float4      vtxWorldPos = mul(mat, float4(input.m_position.xyz, 1));
     float3      vtxNormal = mul(mat, input.m_normal.xyz);
 
-#if !PK_O3DE_DEVELOPMENT_LIT
+#if !PK_O3DE_NEW_LIT
     // directional light shadow 
     const uint shadowIndex = ViewSrg::m_shadowIndexDirectionalLight;
     if (o_enableShadows && shadowIndex < SceneSrg::m_directionalLightCount)
@@ -133,7 +133,7 @@ ForwardPassOutput MeshFS(VertexOutput input, bool isFrontFace : SV_IsFrontFace)
     // Compute lighting:
     return ComputeParticleLighting( input.m_worldPosition,
                                     input.m_position,
-#if !PK_O3DE_DEVELOPMENT_LIT
+#if !PK_O3DE_NEW_LIT
                                     input.m_shadowCoords,
 #endif
                                     vertexNormal,
