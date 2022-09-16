@@ -93,7 +93,10 @@ namespace PopcornFX {
 
 	void	PopcornFXSystemComponent::Init()
 	{
-		PopcornFXLibrary::InitNodeRegistry(ScriptCanvas::GetNodeRegistry().Get());
+		if (ScriptCanvas::GetNodeRegistry().IsConstructed())
+		{
+			PopcornFXLibrary::InitNodeRegistry(ScriptCanvas::GetNodeRegistry().Get());
+		}
 	}
 
 	void	PopcornFXSystemComponent::Activate()

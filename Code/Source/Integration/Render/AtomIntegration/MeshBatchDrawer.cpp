@@ -114,7 +114,7 @@ bool	CMeshBatchDrawer::MapBuffers(SRenderContext &ctx, const SRendererBatchDrawP
 {
 	AZ_UNUSED(ctx);
 	const u32									particleCount = drawPass.m_TotalParticleCount;
-	const u32									drawRequestsCount = drawPass.m_DrawRequests.Count();
+	[[maybe_unused]] const u32									drawRequestsCount = drawPass.m_DrawRequests.Count();
 	CRenderManager								*renderManager = m_RenderContext->m_RenderManager;
 	const CParticleBuffers::SViewIndependent	&viewIndependent = GetCurBuffers().m_ViewIndependent;
 
@@ -178,7 +178,7 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchDra
 
 	const u32									particleCount = drawPass.m_TotalParticleCount;
 	const SRendererBatchDrawPass_Mesh_CPUBB		*meshDrawPass = static_cast<const SRendererBatchDrawPass_Mesh_CPUBB*>(&drawPass);
-	const u32									drawRequestsCount = drawPass.m_DrawRequests.Count();
+	[[maybe_unused]] const u32					drawRequestsCount = drawPass.m_DrawRequests.Count();
 	const CParticleBuffers::SViewIndependent	&viewIndependent = GetCurBuffers().m_ViewIndependent;
 	const CAtomRendererCache					*rendererCache = static_cast<const CAtomRendererCache*>(toEmit.m_RendererCaches.First().Get());
 
