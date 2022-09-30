@@ -5,7 +5,14 @@
 
 #include <scenesrg.srgi>
 #include <viewsrg.srgi>
+
+#include "../../Common/PopcornOptions.azsli"
+#if PK_O3DE_NEW_PBR
+#include <Atom/Features/Pipeline/Forward/ForwardPassSrg.azsli>
+#else
 #include <Atom/Features/PBR/ForwardPassSrg.azsli>
+#endif
+
 #include "../../Common/MaterialSrg.azsli"
 
 // Billboarding shader:

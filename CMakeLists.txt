@@ -3,7 +3,7 @@
 # https://www.popcornfx.com/terms-and-conditions/
 #----------------------------------------------------------------------------
 
-set(PK_O3DE_DEVELOPMENT ON)
+set(PK_O3DE_DEVELOPMENT OFF)
 
 if (${INSTALLED_ENGINE})
     o3de_read_json_key(o3de_build_number ${LY_ROOT_FOLDER}/engine.json "O3DEBuildNumber")
@@ -57,13 +57,15 @@ if (PK_O3DE_MAJOR_VERSION GREATER 2205)
     pk_patch_file("\"BlendState\"" "\"GlobalTargetBlendState\"" ${gem_path}/Assets/shaders/Billboard/Default/BillboardDistortion.shader)
     pk_patch_file("\"BlendState\"" "\"GlobalTargetBlendState\"" ${gem_path}/Assets/shaders/Ribbon/Default/RibbonDistortion.shader)
     pk_patch_file("\"BlendState\"" "\"GlobalTargetBlendState\"" ${gem_path}/Assets/shaders/PostProcess/DistortionPostProcess.shader)
-    pk_patch_file("PK_O3DE_NEW_LIT 0" "PK_O3DE_NEW_LIT 1" ${gem_path}/Assets/shaders/Common/LightingHelper.azsli)
+    pk_patch_file("PK_O3DE_NEW_LIT 0" "PK_O3DE_NEW_LIT 1" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
+    pk_patch_file("PK_O3DE_NEW_PBR 0" "PK_O3DE_NEW_PBR 1" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
 else ()
     pk_patch_file("\"GlobalTargetBlendState\"" "\"BlendState\"" ${gem_path}/Assets/shaders/Billboard/Default/Billboard.shader)
     pk_patch_file("\"GlobalTargetBlendState\"" "\"BlendState\"" ${gem_path}/Assets/shaders/Billboard/Default/BillboardDistortion.shader)
     pk_patch_file("\"GlobalTargetBlendState\"" "\"BlendState\"" ${gem_path}/Assets/shaders/Ribbon/Default/RibbonDistortion.shader)
     pk_patch_file("\"GlobalTargetBlendState\"" "\"BlendState\"" ${gem_path}/Assets/shaders/PostProcess/DistortionPostProcess.shader)
-    pk_patch_file("PK_O3DE_NEW_LIT 1" "PK_O3DE_NEW_LIT 0" ${gem_path}/Assets/shaders/Common/LightingHelper.azsli)
+    pk_patch_file("PK_O3DE_NEW_LIT 1" "PK_O3DE_NEW_LIT 0" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
+    pk_patch_file("PK_O3DE_NEW_PBR 1" "PK_O3DE_NEW_PBR 0" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
 endif ()
 
 add_subdirectory(Code)
