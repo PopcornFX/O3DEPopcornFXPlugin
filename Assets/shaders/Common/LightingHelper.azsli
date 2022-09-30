@@ -22,7 +22,7 @@
 #include <Atom/Features/PBR/Decals.azsli>
 #include <Atom/Features/ColorManagement/TransformColor.azsli>
 
-#define    PK_O3DE_NEW_LIT 1
+#define    PK_O3DE_NEW_LIT 0
 
 // Helper function to compute forward lighting output for particles:
 ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
