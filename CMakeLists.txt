@@ -3,6 +3,10 @@
 # https://www.popcornfx.com/terms-and-conditions/
 #----------------------------------------------------------------------------
 
+#Must be set manually, for now we can't detect if we are on the stablization or development branch
+set(PK_O3DE_STABILIZATION OFF)
+
+#Set automatically if the o3de_version is equal to 0.1.0.0
 set(PK_O3DE_DEVELOPMENT OFF)
 
 if (${INSTALLED_ENGINE})
@@ -12,11 +16,12 @@ if (${INSTALLED_ENGINE})
     endif()
 else()
     o3de_read_json_key(o3de_version ${LY_ROOT_FOLDER}/engine.json "O3DEVersion")
-    if (o3de_version STREQUAL "0.1.0.0")
+    if (NOT ${PK_O3DE_STABILIZATION} AND o3de_version STREQUAL "0.1.0.0")
         set(PK_O3DE_DEVELOPMENT ON)
-        set(o3de_build_number "2205.0")
+        set(o3de_build_number "2210.0")
     else ()
-        set(o3de_build_number "2205.0")
+        set(o3de_build_number "2210.0")
+        #set(o3de_build_number "2205.0")
         #set(o3de_build_number "2111.2")
         #set(o3de_build_number "2111.1")
     endif()
@@ -52,13 +57,20 @@ function(pk_patch_file old_string new_string path)
     file(WRITE ${path} "${shader_content}")
 endfunction()
 
-if (PK_O3DE_MAJOR_VERSION GREATER 2205)
+if (PK_O3DE_MAJOR_VERSION GREATER 2210)
     pk_patch_file("\"BlendState\"" "\"GlobalTargetBlendState\"" ${gem_path}/Assets/shaders/Billboard/Default/Billboard.shader)
     pk_patch_file("\"BlendState\"" "\"GlobalTargetBlendState\"" ${gem_path}/Assets/shaders/Billboard/Default/BillboardDistortion.shader)
     pk_patch_file("\"BlendState\"" "\"GlobalTargetBlendState\"" ${gem_path}/Assets/shaders/Ribbon/Default/RibbonDistortion.shader)
     pk_patch_file("\"BlendState\"" "\"GlobalTargetBlendState\"" ${gem_path}/Assets/shaders/PostProcess/DistortionPostProcess.shader)
     pk_patch_file("PK_O3DE_NEW_LIT 0" "PK_O3DE_NEW_LIT 1" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
     pk_patch_file("PK_O3DE_NEW_PBR 0" "PK_O3DE_NEW_PBR 1" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
+elseif (PK_O3DE_MAJOR_VERSION EQUAL 2210)
+    pk_patch_file("\"BlendState\"" "\"GlobalTargetBlendState\"" ${gem_path}/Assets/shaders/Billboard/Default/Billboard.shader)
+    pk_patch_file("\"BlendState\"" "\"GlobalTargetBlendState\"" ${gem_path}/Assets/shaders/Billboard/Default/BillboardDistortion.shader)
+    pk_patch_file("\"BlendState\"" "\"GlobalTargetBlendState\"" ${gem_path}/Assets/shaders/Ribbon/Default/RibbonDistortion.shader)
+    pk_patch_file("\"BlendState\"" "\"GlobalTargetBlendState\"" ${gem_path}/Assets/shaders/PostProcess/DistortionPostProcess.shader)
+    pk_patch_file("PK_O3DE_NEW_LIT 0" "PK_O3DE_NEW_LIT 1" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
+    pk_patch_file("PK_O3DE_NEW_PBR 1" "PK_O3DE_NEW_PBR 0" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
 else ()
     pk_patch_file("\"GlobalTargetBlendState\"" "\"BlendState\"" ${gem_path}/Assets/shaders/Billboard/Default/Billboard.shader)
     pk_patch_file("\"GlobalTargetBlendState\"" "\"BlendState\"" ${gem_path}/Assets/shaders/Billboard/Default/BillboardDistortion.shader)
