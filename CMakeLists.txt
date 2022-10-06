@@ -3,27 +3,29 @@
 # https://www.popcornfx.com/terms-and-conditions/
 #----------------------------------------------------------------------------
 
-#Must be set manually, for now we can't detect if we are on the stablization or development branch
-set(PK_O3DE_STABILIZATION OFF)
+#List of supported O3DE versions, uncomment one of the line to force the version
+#set(PK_O3DE_ENGINE_VERSION "2210.0")
+#set(PK_O3DE_ENGINE_VERSION "2205.0")
+#set(PK_O3DE_ENGINE_VERSION "2111.2")
+#set(PK_O3DE_ENGINE_VERSION "2111.1")
 
-#Set automatically if the o3de_version is equal to 0.1.0.0
-set(PK_O3DE_DEVELOPMENT OFF)
+#Latest supported O3DE version
+set(PK_O3DE_ENGINE_VERSION_LATEST "2210.0")
 
-if (${INSTALLED_ENGINE})
+if (${PK_O3DE_ENGINE_VERSION})
+    set(o3de_build_number ${PK_O3DE_ENGINE_VERSION})
+elseif (${INSTALLED_ENGINE})
     o3de_read_json_key(o3de_build_number ${LY_ROOT_FOLDER}/engine.json "O3DEBuildNumber")
     if (o3de_build_number STREQUAL "" OR o3de_build_number STREQUAL "0")
-        message(FATAL_ERROR "Invalid O3DEBuildNumber from 'engine.json'")
+        message(FATAL_ERROR "Invalid O3DEBuildNumber in 'engine.json'. Please set PK_O3DE_ENGINE_VERSION in the PopcornFX CMakeLists.txt.")
     endif()
 else()
     o3de_read_json_key(o3de_version ${LY_ROOT_FOLDER}/engine.json "O3DEVersion")
-    if (NOT ${PK_O3DE_STABILIZATION} AND o3de_version STREQUAL "0.1.0.0")
+    if (o3de_version STREQUAL "0.1.0.0")
         set(PK_O3DE_DEVELOPMENT ON)
-        set(o3de_build_number "2210.0")
+        set(o3de_build_number ${PK_O3DE_ENGINE_VERSION_LATEST})
     else ()
-        set(o3de_build_number "2210.0")
-        #set(o3de_build_number "2205.0")
-        #set(o3de_build_number "2111.2")
-        #set(o3de_build_number "2111.1")
+        message(FATAL_ERROR "Could not determine the engine version using O3DEVersion in 'engine.json'. Please set PK_O3DE_ENGINE_VERSION in the PopcornFX CMakeLists.txt.")
     endif()
 endif()
 
