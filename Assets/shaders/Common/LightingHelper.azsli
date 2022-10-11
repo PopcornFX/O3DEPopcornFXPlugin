@@ -5,7 +5,13 @@
 
 #pragma once
 
+#include "PopcornOptions.azsli"
+
+#if PK_O3DE_NEW_PBR
+#include <Atom/Features/Pipeline/Forward/ForwardPassOutput.azsli>
+#else
 #include <Atom/Features/PBR/ForwardPassOutput.azsli>
+#endif
 #include <Atom/Features/PBR/AlphaUtils.azsli>
 #include <Atom/Features/PBR/LightingOptions.azsli>
 
@@ -16,13 +22,15 @@
 #include <Atom/RPI/TangentSpace.azsli>
 
 #include <Atom/Features/PBR/DefaultObjectSrg.azsli>
+#if PK_O3DE_NEW_PBR
+#include <Atom/Features/Pipeline/Forward/ForwardPassSrg.azsli>
+#else
 #include <Atom/Features/PBR/ForwardPassSrg.azsli>
+#endif
 
 #include <Atom/Features/PBR/Lighting/StandardLighting.azsli>
 #include <Atom/Features/PBR/Decals.azsli>
 #include <Atom/Features/ColorManagement/TransformColor.azsli>
-
-#define    PK_O3DE_NEW_LIT 0
 
 // Helper function to compute forward lighting output for particles:
 ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,

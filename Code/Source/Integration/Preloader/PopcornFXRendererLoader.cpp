@@ -237,11 +237,12 @@ PGeometryCache	PopcornFXRendererLoader::FindGeometryCache(const CString &path) c
 
 void	_SetMeshInfos(PAtomRendererCache rendererCache, const PGeometryCache geometryCache)
 {
-	rendererCache->m_MeshCount = geometryCache->m_PerGeometryViews.Count();
-	rendererCache->m_GlobalMeshBound = geometryCache->m_GlobalBounds;
+	rendererCache->m_PerLODMeshCount.Resize(1);
+	rendererCache->m_PerLODMeshCount[0] = geometryCache->m_PerGeometryViews.Count();
+	rendererCache->m_GlobalMeshBounds = geometryCache->m_GlobalBounds;
 
-	rendererCache->m_SubMeshBounds.Resize(rendererCache->m_MeshCount);
-	for (u32 i = 0; i < rendererCache->m_MeshCount ; i++)
+	rendererCache->m_SubMeshBounds.Resize(rendererCache->m_PerLODMeshCount[0]);
+	for (u32 i = 0; i < rendererCache->m_PerLODMeshCount[0] ; i++)
 		rendererCache->m_SubMeshBounds[i] = geometryCache->m_PerGeometryViews[i].m_Bounds;
 }
 
