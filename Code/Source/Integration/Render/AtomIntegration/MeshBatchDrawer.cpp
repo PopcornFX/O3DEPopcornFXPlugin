@@ -9,7 +9,7 @@
 
 #if defined(O3DE_USE_PK)
 
-#include <pk_render_helpers/include/basic_renderer_properties/rh_basic_renderer_properties.h>
+#include <pk_render_helpers/include/render_features/rh_features_basic.h>
 #include <pk_particles/include/Renderers/ps_renderer_feature_fields.h>
 
 namespace PopcornFX {
