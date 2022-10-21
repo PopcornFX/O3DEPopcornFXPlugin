@@ -4,8 +4,10 @@
     "license": "Community",
     "license_url": "https://www.popcornfx.com/popcornfx-community-license",
     "origin": "Persistant Studios - popcornfx.com",
-    "version": "2.14.0",
-    "last_updated": "2022-10-11",
+    "repo_uri": "https://downloads.popcornfx.com/o3de-repo",
+    "origin_uri": "https://downloads.popcornfx.com/o3de-repo/PopcornFX-2.14/O3DE_PopcornFXGem_v2.14.1_Win64_Linux64_Mac64.zip",
+    "version": "2.14.1",
+    "last_updated": "2022-10-21",
     "type": "Code",
     "summary": "The PopcornFX Gem provides real-time FX solution for particle effects.",
     "canonical_tags": [
