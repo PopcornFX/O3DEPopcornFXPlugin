@@ -920,6 +920,79 @@ void	PopcornFXIntegration::SetBakingThreadpool()
 	Scheduler::SetThreadPool(pool);
 }
 
+#define EXTRACT_PAYLOAD_IMPLEM(TYPE_NAME, TYPE, DEFAULT_VALUE, VALUE)\
+AZStd::tuple<TYPE, bool> PopcornFXIntegration::ExtractPayload##TYPE_NAME(const AZStd::string &payloadName)\
+{\
+	const PopcornFX::SPayloadValue	*payloadValue;\
+	PopcornFX::PopcornFXIntegrationBus::BroadcastResult(payloadValue, &PopcornFX::PopcornFXIntegrationBus::Handler::GetCurrentPayloadValue, payloadName);\
+	if (payloadValue == null)\
+	{\
+		AZ_Warning("PopcornFX", false, "Payload %s not found", payloadName.c_str());\
+		return AZStd::tuple<TYPE, bool>(DEFAULT_VALUE, false);\
+	}\
+	return AZStd::tuple<TYPE, bool>(VALUE, true);\
+}\
+
+EXTRACT_PAYLOAD_IMPLEM(
+	Float,
+	float,
+	0.0f,
+	payloadValue->m_ValueFloat[0]);
+
+EXTRACT_PAYLOAD_IMPLEM(
+	Float2,
+	AZ::Vector2,
+	AZ::Vector2(0.0f),
+	AZ::Vector2(payloadValue->m_ValueFloat[0], payloadValue->m_ValueFloat[1]));
+
+EXTRACT_PAYLOAD_IMPLEM(
+	Float3,
+	AZ::Vector3,
+	AZ::Vector3(0.0f),
+	AZ::Vector3(payloadValue->m_ValueFloat[0], payloadValue->m_ValueFloat[1], payloadValue->m_ValueFloat[2]));
+
+EXTRACT_PAYLOAD_IMPLEM(
+	Float4,
+	AZ::Vector4,
+	AZ::Vector4(0.0f),
+	AZ::Vector4(payloadValue->m_ValueFloat[0], payloadValue->m_ValueFloat[1], payloadValue->m_ValueFloat[2], payloadValue->m_ValueFloat[3]));
+
+EXTRACT_PAYLOAD_IMPLEM(
+	Int,
+	AZ::u32,
+	0,
+	payloadValue->m_ValueInt[0]);
+
+EXTRACT_PAYLOAD_IMPLEM(
+	Int2,
+	AZ::Vector2,
+	AZ::Vector2(0.0f),
+	AZ::Vector2(static_cast<float>(payloadValue->m_ValueInt[0]), static_cast<float>(payloadValue->m_ValueInt[1])));
+
+EXTRACT_PAYLOAD_IMPLEM(
+	Int3,
+	AZ::Vector3,
+	AZ::Vector3(0.0f),
+	AZ::Vector3(static_cast<float>(payloadValue->m_ValueInt[0]), static_cast<float>(payloadValue->m_ValueInt[1]), static_cast<float>(payloadValue->m_ValueInt[2])));
+
+EXTRACT_PAYLOAD_IMPLEM(
+	Int4,
+	AZ::Vector4,
+	AZ::Vector4(0.0f),
+	AZ::Vector4(static_cast<float>(payloadValue->m_ValueInt[0]), static_cast<float>(payloadValue->m_ValueInt[1]), static_cast<float>(payloadValue->m_ValueInt[2]), static_cast<float>(payloadValue->m_ValueInt[3])));
+
+EXTRACT_PAYLOAD_IMPLEM(
+	Bool,
+	bool,
+	false,
+	payloadValue->m_ValueBool[0]);
+
+EXTRACT_PAYLOAD_IMPLEM(
+	Orientation,
+	AZ::Quaternion,
+	AZ::Quaternion::CreateIdentity(),
+	AZ::Quaternion(payloadValue->m_ValueFloat[0], payloadValue->m_ValueFloat[1], payloadValue->m_ValueFloat[2], payloadValue->m_ValueFloat[3]));
+
 }
 
 #endif //O3DE_USE_PK

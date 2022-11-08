@@ -12,7 +12,6 @@
 #include <ScriptCanvas/Libraries/Libraries.h>
 
 #include "PopcornFXBroadcastNodeable.h"
-#include "PopcornFXExtractPayloadNodes.h"
 
 namespace PopcornFX {
 
@@ -36,26 +35,17 @@ namespace PopcornFX {
 					;
 			}
 		}
-
-		if (AZ::BehaviorContext* behaviorContext = azrtti_cast<AZ::BehaviorContext*>(reflection))
-		{
-			SCRIPT_CANVAS_GENERICS_TO_VM(ExtractPayloadNodes::Registrar, ExtractPayloadNodes::ExtractPayload, behaviorContext, ExtractPayloadNodes::k_categoryName);
-		}
 	}
 
 	void	PopcornFXLibrary::InitNodeRegistry(ScriptCanvas::NodeRegistry &nodeRegistry)
 	{
-		ExtractPayloadNodes::Registrar::AddToRegistry<PopcornFXLibrary>(nodeRegistry);
 		ScriptCanvas::Library::AddNodeToRegistry<PopcornFXLibrary, Nodes::PopcornFXBroadcastNodeableNode>(nodeRegistry);
 	}
 
 	AZStd::vector<AZ::ComponentDescriptor*>	PopcornFXLibrary::GetComponentDescriptors()
 	{
 		AZStd::vector<AZ::ComponentDescriptor*> descriptors;
-
-		ExtractPayloadNodes::Registrar::AddDescriptors(descriptors);
 		descriptors.push_back(Nodes::PopcornFXBroadcastNodeableNode::CreateDescriptor());
-
 		return descriptors;
 	}
 

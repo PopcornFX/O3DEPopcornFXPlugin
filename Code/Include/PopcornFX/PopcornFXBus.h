@@ -264,6 +264,18 @@ namespace PopcornFX
 
 		// Change threadpool
 		virtual void						SetBakingThreadpool() = 0;
+
+		// Extract Payloads
+		virtual AZStd::tuple<float, bool>			ExtractPayloadFloat(const AZStd::string &payloadName) = 0;
+		virtual AZStd::tuple<AZ::Vector2, bool>		ExtractPayloadFloat2(const AZStd::string &payloadName) = 0;
+		virtual AZStd::tuple<AZ::Vector3, bool>		ExtractPayloadFloat3(const AZStd::string &payloadName) = 0;
+		virtual AZStd::tuple<AZ::Vector4, bool>		ExtractPayloadFloat4(const AZStd::string &payloadName) = 0;
+		virtual AZStd::tuple<AZ::u32, bool>			ExtractPayloadInt(const AZStd::string &payloadName) = 0;
+		virtual AZStd::tuple<AZ::Vector2, bool>		ExtractPayloadInt2(const AZStd::string &payloadName) = 0;
+		virtual AZStd::tuple<AZ::Vector3, bool>		ExtractPayloadInt3(const AZStd::string &payloadName) = 0;
+		virtual AZStd::tuple<AZ::Vector4, bool>		ExtractPayloadInt4(const AZStd::string &payloadName) = 0;
+		virtual AZStd::tuple<bool, bool>			ExtractPayloadBool(const AZStd::string &payloadName) = 0;
+		virtual AZStd::tuple<AZ::Quaternion, bool>	ExtractPayloadOrientation(const AZStd::string &payloadName) = 0;
 	};
 	using PopcornFXRequestBus = AZ::EBus<PopcornFXRequests>;
 

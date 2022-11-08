@@ -95,7 +95,6 @@ set(FILES
     Source/ScriptCanvas/PopcornFXBroadcastNodeable.cpp
     Source/ScriptCanvas/PopcornFXBroadcastNodeable.h
     Source/ScriptCanvas/PopcornFXBroadcastNodeable.ScriptCanvasNodeable.xml
-    Source/ScriptCanvas/PopcornFXExtractPayloadNodes.h
     Source/ScriptCanvas/PopcornFXLibrary.cpp
     Source/ScriptCanvas/PopcornFXLibrary.h
     Source/PopcornFXSystemComponent.cpp
