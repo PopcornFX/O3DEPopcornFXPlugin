@@ -6,15 +6,15 @@
         "AssetPaths": [
             {
                 "Name": "DistortionParentTemplate",
-                "Path": "Passes/DistortionParent.pass"
+                "Path": "passes/DistortionParent.pass"
             },
             {
                 "Name": "DistortionPostProcessPassTemplate",
-                "Path": "Passes/DistortionPostProcess.pass"
+                "Path": "passes/DistortionPostProcess.pass"
             },
             {
                 "Name": "DistortionAccumulationPassTemplate",
-                "Path": "Passes/DistortionAccumulation.pass"
+                "Path": "passes/DistortionAccumulation.pass"
             }
         ]
     }

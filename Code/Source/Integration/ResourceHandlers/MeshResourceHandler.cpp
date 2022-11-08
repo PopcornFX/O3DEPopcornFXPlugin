@@ -160,7 +160,7 @@ void	*CMeshResourceHandler::Load(	const CResourceManager	*resourceManager,
 	{
 		dstNormals = vstream.Normals();
 		PK_RELEASE_ASSERT(!dstNormals.Empty());
-		PK_RELEASE_ASSERT(Mem::IsAligned<0x10>(dstNormals.Data()) & Mem::IsAligned<0x10>(dstNormals.Stride()));
+		PK_RELEASE_ASSERT(Mem::IsAligned<0x10>(dstNormals.Data()) && Mem::IsAligned<0x10>(dstNormals.Stride()));
 	}
 
 	TStridedMemoryView<CFloat2>	dstUvs;
@@ -175,7 +175,7 @@ void	*CMeshResourceHandler::Load(	const CResourceManager	*resourceManager,
 	{
 		dstTangents = vstream.Tangents();
 		PK_RELEASE_ASSERT(!dstTangents.Empty());
-		PK_RELEASE_ASSERT(Mem::IsAligned<0x10>(dstTangents.Data()) & Mem::IsAligned<0x10>(dstTangents.Stride()));
+		PK_RELEASE_ASSERT(Mem::IsAligned<0x10>(dstTangents.Data()) && Mem::IsAligned<0x10>(dstTangents.Stride()));
 	}
 
 	TStridedMemoryView<CFloat4>	dstColors;

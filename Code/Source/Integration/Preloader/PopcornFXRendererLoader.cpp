@@ -498,7 +498,7 @@ void	PopcornFXRendererLoader::_OnShaderVariantsReloaded(const AZ::Data::AssetId 
 		return;
 	}
 
-	bool	variantFound = false;
+	//bool	variantFound = false;
 
 	for (const SAssetDependencies::SCaches &cache : dependencies->m_Caches)
 	{
@@ -539,7 +539,7 @@ void	PopcornFXRendererLoader::_OnShaderVariantsReloaded(const AZ::Data::AssetId 
 			AZ::RHI::ConstPtr<AZ::RHI::PipelineState>	&pipelineStateSlot = _GetPipelineStateSlot(cache.m_Type, *pipelineStateCache);
 			pipelineStateSlot = _CreatePipelineStateCache(*shader, shaderVariant, cache.m_Type, cache.m_PipelineStateKey);
 			(*pipelineStateCache)->m_Modified = true;
-			variantFound = true;
+			//variantFound = true;
 		}
 	}
 	/*
