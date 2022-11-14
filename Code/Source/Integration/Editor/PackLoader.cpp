@@ -13,6 +13,7 @@
 #include <AzFramework/IO/LocalFileIO.h>
 #include <AzFramework/FileFunc/FileFunc.h>
 #include <AzCore/std/function/function_template.h>
+#include <AzCore/std/string/conversions.h>
 
 #include <pk_kernel/include/kr_file.h>
 #include <pk_kernel/include/kr_resources.h>
@@ -101,6 +102,8 @@ namespace PopcornFX
 				if (!GetProjectSettings(path, rootPath, dummy))
 					return "";
 
+				AZStd::to_lower(rootPath.begin(), rootPath.end());
+				AZStd::to_lower(folderPath.begin(), folderPath.end());
 				const AZ::IO::PathView pathView(folderPath);
 				if (pathView.IsRelativeTo(AZ::IO::PathView(rootPath)))
 					return path;
@@ -260,6 +263,8 @@ namespace PopcornFX
 			AZ::StringFunc::Path::Normalize(folderPath);
 			folderPath = CFilePath::Relativize(projectPath.c_str(), folderPath.c_str()).Data();
 
+			AZStd::to_lower(rootPath.begin(), rootPath.end());
+			AZStd::to_lower(folderPath.begin(), folderPath.end());
 			const AZ::IO::PathView pathView(folderPath);
 			if (pathView.IsRelativeTo(AZ::IO::PathView(rootPath)))
 				return false;
