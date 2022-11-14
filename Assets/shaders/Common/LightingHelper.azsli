@@ -29,6 +29,9 @@
 #endif
 
 #include <Atom/Features/PBR/Lighting/StandardLighting.azsli>
+#if PK_O3DE_NEW_PBR
+#include <Atom/Features/PBR/Lights/IblForward.azsli>
+#endif
 #include <Atom/Features/PBR/Decals.azsli>
 #include <Atom/Features/ColorManagement/TransformColor.azsli>
 
@@ -138,7 +141,11 @@ ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
 #endif
 
     // Apply Image Based Lighting (IBL)
+#if PK_O3DE_NEW_PBR
+    ApplyIblForward(surface, lightingData);
+#else
     ApplyIBL(surface, lightingData);
+#endif
 
     // Finalize Lighting
     lightingData.FinalizeLighting();

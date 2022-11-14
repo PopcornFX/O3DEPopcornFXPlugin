@@ -166,6 +166,18 @@ namespace PopcornFX {
 		virtual float						GetLODBias() override;
 		virtual void						SetLODBias(float bias) override;
 		virtual void						SetBakingThreadpool() override;
+
+		virtual AZStd::tuple<float, bool>			ExtractPayloadFloat(const AZStd::string &payloadName) override;
+		virtual AZStd::tuple<AZ::Vector2, bool>		ExtractPayloadFloat2(const AZStd::string &payloadName) override;
+		virtual AZStd::tuple<AZ::Vector3, bool>		ExtractPayloadFloat3(const AZStd::string &payloadName) override;
+		virtual AZStd::tuple<AZ::Vector4, bool>		ExtractPayloadFloat4(const AZStd::string &payloadName) override;
+		virtual AZStd::tuple<AZ::u32, bool>			ExtractPayloadInt(const AZStd::string &payloadName) override;
+		virtual AZStd::tuple<AZ::Vector2, bool>		ExtractPayloadInt2(const AZStd::string &payloadName) override;
+		virtual AZStd::tuple<AZ::Vector3, bool>		ExtractPayloadInt3(const AZStd::string &payloadName) override;
+		virtual AZStd::tuple<AZ::Vector4, bool>		ExtractPayloadInt4(const AZStd::string &payloadName) override;
+		virtual AZStd::tuple<bool, bool>			ExtractPayloadBool(const AZStd::string &payloadName) override;
+		virtual AZStd::tuple<AZ::Quaternion, bool>	ExtractPayloadOrientation(const AZStd::string &payloadName) override;
+
 		////////////////////////////////////////////////////////////////////////
 		void								_LoadPassTemplateMappings();
 		AZ::RPI::PassSystemInterface::OnReadyLoadTemplatesEvent::Handler m_LoadTemplatesHandler;

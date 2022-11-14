@@ -59,6 +59,16 @@ namespace PopcornFX {
 				->Event("IsEffectsPreloadingDone", &PopcornFXRequestBus::Events::IsEffectsPreloadingDone)
 				->Event("SpawnEmitterAtLocation", &PopcornFXRequestBus::Events::SpawnEmitterAtLocation)
 				->Event("SpawnEmitterEntityAtLocation", &PopcornFXRequestBus::Events::SpawnEmitterEntityAtLocation)
+				->Event("ExtractPayloadFloat", &PopcornFXRequestBus::Events::ExtractPayloadFloat)
+				->Event("ExtractPayloadFloat2", &PopcornFXRequestBus::Events::ExtractPayloadFloat2)
+				->Event("ExtractPayloadFloat3", &PopcornFXRequestBus::Events::ExtractPayloadFloat3)
+				->Event("ExtractPayloadFloat4", &PopcornFXRequestBus::Events::ExtractPayloadFloat4)
+				->Event("ExtractPayloadInt", &PopcornFXRequestBus::Events::ExtractPayloadInt)
+				->Event("ExtractPayloadInt2", &PopcornFXRequestBus::Events::ExtractPayloadInt2)
+				->Event("ExtractPayloadInt3", &PopcornFXRequestBus::Events::ExtractPayloadInt3)
+				->Event("ExtractPayloadInt4", &PopcornFXRequestBus::Events::ExtractPayloadInt4)
+				->Event("ExtractPayloadBool", &PopcornFXRequestBus::Events::ExtractPayloadBool)
+				->Event("ExtractPayloadOrientation", &PopcornFXRequestBus::Events::ExtractPayloadOrientation)
 				;
 
 			behaviorContext->EBus<PopcornFXProfilerRequestBus>("PopcornFXProfilerRequestBus")
