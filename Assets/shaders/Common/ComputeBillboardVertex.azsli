@@ -135,10 +135,13 @@ void        ComputeBillboardVertex(   in uint particleIdx
         {
             case BB_ScreenAligned:
             {
-                tangent0 = GetMatrixAxisX(billboardingMatrix) * size.x;
-                tangent1 = GetMatrixAxisY(billboardingMatrix) * size.y;
+                tangent0 = GetMatrixAxisX(billboardingMatrix);
+                tangent1 = GetMatrixAxisY(billboardingMatrix);
                 planeNormal = GetMatrixAxisZ(billboardingMatrix);
                 RotateTangents(particleIdx, tangent0, tangent1);
+                // Apply radius after rotation, otherwise float2 sizes are incorrect
+                tangent0 *= size.x;
+                tangent1 *= size.y;
                 break;
             }
             case BB_ViewposAligned:
@@ -148,10 +151,12 @@ void        ComputeBillboardVertex(   in uint particleIdx
                 const float3  upAxis = UP_VECTOR + 0.01f * dot(UP_VECTOR, camToParticle) * DEPTH_VECTOR;
         
                 tangent0 = normalize(cross(camToParticle, upAxis));
-                tangent1 = cross(tangent0, camToParticle) * size.y;
-                tangent0 *= size.x;
+                tangent1 = cross(tangent0, camToParticle);
                 planeNormal = -camToParticle;
                 RotateTangents(particleIdx, tangent0, tangent1);
+                // Apply radius after rotation, otherwise float2 sizes are incorrect
+                tangent0 *= size.x;
+                tangent1 *= size.y;
                 break;
             }
             case BB_AxisAligned:
@@ -186,12 +191,13 @@ void        ComputeBillboardVertex(   in uint particleIdx
         
                 tangent0 = ComputeTangent1(axis_nrm, axis_fwd);
                 tangent1 = cross(tangent0, axis_nrm);
-                tangent0 *= size.x;
-                tangent1 *= size.y;
                 planeNormal = normalize(axis_nrm);
         
                 // Specific to planar aligned quads, flip X
                 RotateTangents(particleIdx, tangent0, tangent1);
+                // Apply radius after rotation, otherwise float2 sizes are incorrect
+                tangent0 *= size.x;
+                tangent1 *= size.y;
                 tangent0 = -tangent0;
                 break;
             }
