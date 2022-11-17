@@ -94,15 +94,42 @@ if(PAL_TRAIT_BUILD_HOST_TOOLS)
         AUTORCC
         FILES_CMAKE
             popcornfx_editor_files.cmake
+        COMPILE_DEFINITIONS
+            PRIVATE
+                QT_NO_KEYWORDS
+                POPCORNFX_EDITOR
         INCLUDE_DIRECTORIES
             PRIVATE
                 Source
                 .
             PUBLIC
                 Include
+        BUILD_DEPENDENCIES
+            PRIVATE
+                AZ::AzToolsFramework
+                Gem::PopcornFX.Static
+        RUNTIME_DEPENDENCIES
+            Gem::LmbrCentral.Editor
+    )
+
+    ly_create_alias(NAME PopcornFX.Tools NAMESPACE Gem TARGETS Gem::PopcornFX.Editor)
+
+    # by naming this target PopcornFX.Builders it ensures that it is loaded
+    # in any pipeline tools (Like Asset Processor, AssetBuilder, etc)
+    ly_add_target(
+        NAME PopcornFX.Builders GEM_MODULE
+        NAMESPACE Gem
+        FILES_CMAKE
+            popcornfx_builder_files.cmake
         COMPILE_DEFINITIONS
             PRIVATE
-                POPCORNFX_EDITOR
+                POPCORNFX_BUILDER
+        INCLUDE_DIRECTORIES
+            PRIVATE
+                Source
+                .
+            PUBLIC
+                Include
         BUILD_DEPENDENCIES
             PRIVATE
                 AZ::AssetBuilderSDK
@@ -112,7 +139,7 @@ if(PAL_TRAIT_BUILD_HOST_TOOLS)
         RUNTIME_DEPENDENCIES
             Gem::LmbrCentral.Editor
     )
-
-    ly_create_alias(NAME PopcornFX.Builders NAMESPACE Gem TARGETS Gem::PopcornFX.Editor)
-    ly_create_alias(NAME PopcornFX.Tools NAMESPACE Gem TARGETS Gem::PopcornFX.Editor)
+    
+    #Since the project manager doesn't build Builders target, manually add an Editor dependency on the Builders target for now
+    ly_add_dependencies(Editor PopcornFX.Builders)
 endif()

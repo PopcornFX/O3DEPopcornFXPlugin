@@ -48,7 +48,10 @@
                     "PassData": {
                         "$type": "RasterPassData",
                         "PipelineViewTag": "MainCamera",
-                        "DrawListTag": "DistortionAccumulation"
+                        "DrawListTag": "DistortionAccumulation",
+                        "PassSrgShaderAsset": {
+                            "FilePath": "Shaders/ForwardPassSrg.shader"
+                        }
                     }
                 },
                 {

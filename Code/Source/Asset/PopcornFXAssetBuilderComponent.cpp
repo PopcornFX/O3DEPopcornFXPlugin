@@ -7,7 +7,7 @@
 
 #include <AzCore/Serialization/EditContext.h>
 #include "PopcornFXAssetBuilderComponent.h"
-#include "PopcornFX/PopcornFXBus.h"
+#include "Integration/PopcornFXIntegrationBus.h"
 
 namespace PopcornFX {
 
@@ -81,7 +81,7 @@ void	PopcornFXBuilderComponent::Activate()
 	m_PKBuilder.BusConnect(builderDescriptor.m_busId);
 
 	AssetBuilderSDK::AssetBuilderBus::Broadcast(&AssetBuilderSDK::AssetBuilderBusTraits::RegisterBuilderInformation, builderDescriptor);
-	PopcornFXRequestBus::Broadcast(&PopcornFXRequestBus::Events::SetBakingThreadpool);
+	PopcornFX::PopcornFXIntegrationBus::Broadcast(&PopcornFX::PopcornFXIntegrationBus::Handler::SetBakingThreadpool);
 }
 
 void	PopcornFXBuilderComponent::Deactivate()

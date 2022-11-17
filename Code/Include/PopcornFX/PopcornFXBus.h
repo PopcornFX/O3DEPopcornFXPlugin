@@ -262,9 +262,6 @@ namespace PopcornFX
 		virtual float						GetLODBias() = 0;
 		virtual void						SetLODBias(float bias) = 0;
 
-		// Change threadpool
-		virtual void						SetBakingThreadpool() = 0;
-
 		// Extract Payloads
 		virtual AZStd::tuple<float, bool>			ExtractPayloadFloat(const AZStd::string &payloadName) = 0;
 		virtual AZStd::tuple<AZ::Vector2, bool>		ExtractPayloadFloat2(const AZStd::string &payloadName) = 0;

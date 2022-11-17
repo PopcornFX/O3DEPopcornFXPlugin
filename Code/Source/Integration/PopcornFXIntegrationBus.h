@@ -45,9 +45,12 @@ namespace PopcornFX {
 		virtual bool							RegisterToBroadcast(AZ::EntityId entityId, const AZStd::string &eventName) = 0;
 		virtual bool							UnregisterToBroadcast(AZ::EntityId entityId, const AZStd::string &eventName) = 0;
 		virtual const SPayloadValue				*GetCurrentPayloadValue(const AZStd::string &payloadName) const = 0;
-#if defined(POPCORNFX_EDITOR)
+#if defined(POPCORNFX_BUILDER)
 		virtual AZStd::string					BakeSingleAsset(const AZStd::string &assetPath, const AZStd::string &outDir, const AZStd::string &platform) = 0;
 		virtual bool							GatherDependencies(const AZStd::string &assetPath, AZStd::vector<AZStd::string> &dependencies) = 0;
+		virtual void							SetBakingThreadpool() = 0;
+#endif
+#if defined(POPCORNFX_EDITOR)
 		virtual void							PackChanged(const AZStd::string &packPath, const AZStd::string &libraryPath) = 0;
 		virtual void							SetPkProjPathCache(const AZStd::string &pkProjPath) = 0;
 		virtual AZStd::string					GetPkProjPathCache() = 0;

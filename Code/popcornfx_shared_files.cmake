@@ -97,8 +97,6 @@ set(FILES
     Source/ScriptCanvas/PopcornFXBroadcastNodeable.ScriptCanvasNodeable.xml
     Source/ScriptCanvas/PopcornFXLibrary.cpp
     Source/ScriptCanvas/PopcornFXLibrary.h
-    Source/PopcornFXSystemComponent.cpp
-    Source/PopcornFXSystemComponent.h
     Source/Integration/PopcornFXStartUpdate.cpp
     Source/Integration/PopcornFXStartUpdate.h
     Source/Integration/PopcornFXStopUpdate.cpp

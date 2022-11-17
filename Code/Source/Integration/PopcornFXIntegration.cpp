@@ -16,18 +16,19 @@
 
 #if defined(POPCORNFX_EDITOR)
 #include "Editor/PackLoader.h"
-#endif //POPCORNFX_EDITOR
-
-#include <AzCore/Console/IConsole.h>
 #include <AzCore/StringFunc/StringFunc.h>
 #include <AzCore/Utils/Utils.h>
+#endif //POPCORNFX_EDITOR
+
+#if defined(POPCORNFX_BUILDER)
+#include <pk_kernel/include/kr_thread_pool_default.h>
+#include <pk_kernel/include/kr_caps_cpu.h>
+#endif //POPCORNFX_BUILDER
+
+#include <AzCore/Console/IConsole.h>
 
 #include "Components/Emitter/PopcornFXEmitterRuntime.h"
 
-#include <pk_kernel/include/kr_thread_pool_default.h>
-#include <pk_kernel/include/kr_caps_cpu.h>
-
-#include <Atom/RPI.Public/FeatureProcessorFactory.h>
 #include <Atom/RPI.Public/RPISystemInterface.h>
 #include <Atom/RPI.Public/Scene.h>
 #include <Integration/Render/AtomIntegration/PopcornFXFeatureProcessor.h>
@@ -147,9 +148,6 @@ void	PopcornFXIntegration::Activate()
 	AzToolsFramework::EditorLegacyGameModeNotificationBus::Handler::BusConnect();
 #endif
 	_SetEnabled(true);
-	AZ::RPI::FeatureProcessorFactory	*factory = AZ::RPI::FeatureProcessorFactory::Get();
-	if (factory != null)
-		factory->RegisterFeatureProcessorWithInterface<CPopcornFXFeatureProcessor, CPopcornFXFeatureProcessorInterface>();
 }
 
 void	PopcornFXIntegration::Deactivate()
@@ -220,14 +218,14 @@ void	PopcornFXIntegration::_SetEnabled(bool enable)
 			return;
 		if (!PopcornRegisterPlugins(EPlugin_CompilerBackendVM))
 			return;
-#if defined(POPCORNFX_EDITOR)
+#if defined(POPCORNFX_BUILDER)
 		if (!PK_VERIFY(m_BakerManager.Activate()))
 			return;
 #endif
 	}
 	else
 	{
-#if defined(POPCORNFX_EDITOR)
+#if defined(POPCORNFX_BUILDER)
 		m_BakerManager.Deactivate();
 #endif
 		File::DefaultFileSystem()->UnmountAllPacks();
@@ -331,16 +329,6 @@ void	PopcornFXIntegration::OnCrySystemInitialized(ISystem &system, const SSystem
 
 		PK_VERIFY(_ActivateManagers());
 	}
-
-	// setup handler for load pass template mappings
-	m_LoadTemplatesHandler = AZ::RPI::PassSystemInterface::OnReadyLoadTemplatesEvent::Handler([this]() { this->_LoadPassTemplateMappings(); });
-	AZ::RPI::PassSystemInterface::Get()->ConnectEvent(m_LoadTemplatesHandler);
-}
-
-void	PopcornFXIntegration::_LoadPassTemplateMappings()
-{
-	const char	*passTemplatesFile = "passes/PKPassTemplates.azasset";
-	AZ::RPI::PassSystemInterface::Get()->LoadPassTemplateMappings(passTemplatesFile);
 }
 
 void	PopcornFXIntegration::OnCrySystemShutdown(ISystem &system)
@@ -479,7 +467,25 @@ const SPayloadValue	*PopcornFXIntegration::GetCurrentPayloadValue(const AZStd::s
 	return m_BroadcastManager.GetCurrentPayloadValue(payloadName);
 }
 
-#if defined(POPCORNFX_EDITOR)
+#if defined(POPCORNFX_BUILDER)
+
+void	PopcornFXIntegration::SetBakingThreadpool()
+{
+	bool								success = true;
+	CThreadManager::EPriority			workersPriority = CThreadManager::Priority_BackgroundLow;
+	PopcornFX::PWorkerThreadPool		pool = PK_NEW(PopcornFX::CWorkerThreadPool);
+
+	if (PK_VERIFY(pool != null))
+	{
+		u32		processorCount = 1;
+		success = pool->AddFullAffinityWorkers(processorCount, CPU::Caps().ProcessAffinity(), workersPriority);
+		if (!success)
+			return;
+		pool->StartWorkers();
+	}
+	Scheduler::SetThreadPool(pool);
+}
+
 AZStd::string	PopcornFXIntegration::BakeSingleAsset(const AZStd::string &assetPath, const AZStd::string &outDir, const AZStd::string &platform)
 {
 	return m_BakerManager.BakeSingleAsset(assetPath, outDir, platform, m_WindManager);
@@ -489,7 +495,9 @@ bool	PopcornFXIntegration::GatherDependencies(const AZStd::string &assetPath, AZ
 {
 	return m_BakerManager.GatherDependencies(assetPath, dependencies, m_WindManager);
 }
+#endif
 
+#if defined(POPCORNFX_EDITOR)
 void	PopcornFXIntegration::PackChanged(const AZStd::string &packPath, const AZStd::string &libraryPath)
 {
 	if (!LoadPackPathFromJson(m_PackPath, m_LibraryPath) ||
@@ -901,23 +909,6 @@ void	PopcornFXIntegration::SetLODBias(float bias)
 	{
 		mediumCollection->SetLODBias(bias);
 	}
-}
-
-void	PopcornFXIntegration::SetBakingThreadpool()
-{
-	bool								success = true;
-	CThreadManager::EPriority			workersPriority = CThreadManager::Priority_BackgroundLow;
-	PopcornFX::PWorkerThreadPool		pool = PK_NEW(PopcornFX::CWorkerThreadPool);
-
-	if (PK_VERIFY(pool != null))
-	{
-		u32		processorCount = 1;
-		success = pool->AddFullAffinityWorkers(processorCount, CPU::Caps().ProcessAffinity(), workersPriority);
-		if (!success)
-			return;
-		pool->StartWorkers();
-	}
-	Scheduler::SetThreadPool(pool);
 }
 
 #define EXTRACT_PAYLOAD_IMPLEM(TYPE_NAME, TYPE, DEFAULT_VALUE, VALUE)\
