@@ -21,6 +21,17 @@ endif()
 add_compile_definitions(PK_O3DE_MAJOR_VERSION=${PK_O3DE_MAJOR_VERSION})
 add_compile_definitions(PK_O3DE_PATCH_VERSION=${PK_O3DE_PATCH_VERSION})
 
+# The PopcornFX.API target declares the common interface that users of this gem can depend on in their targets without requiring linking.
+ly_add_target(
+    NAME PopcornFX.API INTERFACE
+    NAMESPACE Gem
+    FILES_CMAKE
+        popcornfx_api_files.cmake
+    INCLUDE_DIRECTORIES
+        INTERFACE
+            Include
+)
+
 ly_add_target(
     NAME PopcornFX.Static STATIC
     NAMESPACE Gem
