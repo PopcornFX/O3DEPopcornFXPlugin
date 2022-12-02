@@ -87,25 +87,6 @@ void	CRenderManager::SetPackPath(const AZStd::string &packPath)
 
 void	CRenderManager::StartUpdate(CParticleMediumCollection *mediumCollection, const SSceneViews *sceneViews)
 {
-	// Activate distortion passes. We can have several if we have several pipelines.
-	// Replace this with a callback when pipeline is recreated if possible
-	// or change the pass json to be active by default.
-
-	AZStd::vector<AZ::RPI::Pass*>	distortionPasses;
-	AZ::RPI::PassFilter				passFilter = AZ::RPI::PassFilter::CreateWithPassName(AZ::Name("DistortionPass"), m_FeatureProcessor->GetParentScene());
-	AZ::RPI::PassSystemInterface::Get()->ForEachPass(passFilter, [&distortionPasses](AZ::RPI::Pass *pass) -> AZ::RPI::PassFilterExecutionFlow
-	{
-		distortionPasses.push_back(pass);
-		return AZ::RPI::PassFilterExecutionFlow::ContinueVisitingPasses;
-	});
-
-	AZ_ErrorOnce("PopcornFX", distortionPasses.size() == 0, "RenderManager.cpp: could not find distortion pass.");
-	for (auto pass : distortionPasses)
-	{
-		if (!pass->IsEnabled())
-			pass->SetEnabled(true);
-	}
-
 	if (sceneViews->m_Views.Empty())
 		return;
 

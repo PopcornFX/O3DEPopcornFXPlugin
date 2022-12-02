@@ -6,10 +6,16 @@
 #include "PopcornFX_precompiled.h"
 #include "PopcornFXFeatureProcessor.h"
 #include "Integration/PopcornFXUtils.h"
+
 #include <pk_kernel/include/kr_profiler.h>
+
 #include <Atom/RPI.Public/View.h>
 #include <Atom/RHI/DrawPacketBuilder.h>
 #include <Atom/RPI.Public/Scene.h>
+
+#include <Atom/RPI.Reflect/Asset/AssetUtils.h>
+#include <Atom/RPI.Public/Pass/PassFilter.h>
+#include <Atom/RPI.Public/RenderPipeline.h>
 
 #include <Atom/Feature/RenderCommon.h>
 #if PK_O3DE_MAJOR_VERSION == 2111
@@ -38,11 +44,14 @@ CPopcornFXFeatureProcessor::CPopcornFXFeatureProcessor()
 void	CPopcornFXFeatureProcessor::Activate()
 {
 	m_RenderManager.SetFeatureProcessor(this);
+
+	EnableSceneNotification();
+
 }
 
 void	CPopcornFXFeatureProcessor::Deactivate()
 {
-
+	DisableSceneNotification();
 }
 
 void	CPopcornFXFeatureProcessor::Simulate(const SimulatePacket &packet)
@@ -257,6 +266,172 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 	}
 
 	return dpBuilder.End();
+}
+
+#if PK_O3DE_MAJOR_VERSION > 2210
+void CPopcornFXFeatureProcessor::OnRenderPipelineChanged(	AZ::RPI::RenderPipeline *renderPipeline,
+															AZ::RPI::SceneNotification::RenderPipelineChangeType changeType)
+{
+	if (changeType == AZ::RPI::SceneNotification::RenderPipelineChangeType::PassChanged)
+		UpdateDistortionRenderPassBindings(renderPipeline);
+}
+
+void	CPopcornFXFeatureProcessor::AddRenderPasses(AZ::RPI::RenderPipeline *renderPipeline)
+{
+	AddDistortionRenderPass(renderPipeline);
+}
+#else
+void	CPopcornFXFeatureProcessor::OnRenderPipelinePassesChanged(AZ::RPI::RenderPipeline *renderPipeline)
+{
+	UpdateDistortionRenderPassBindings(renderPipeline);
+}
+
+void	CPopcornFXFeatureProcessor::OnRenderPipelineAdded(AZ::RPI::RenderPipelinePtr renderPipeline)
+{
+	AddDistortionRenderPass(renderPipeline.get());
+}
+#endif
+
+void	CPopcornFXFeatureProcessor::AddDistortionRenderPass(AZ::RPI::RenderPipeline *renderPipeline)
+{
+	// Only add DistortionParentPass if TransparentPass exists
+	if (!renderPipeline->FindFirstPass(AZ::Name("TransparentPass")))
+	{
+		AZ_Error("PopcornFX", false, "Failed to find TransparentPass to add the distortion pass");
+		return;
+	}
+
+	// Get the pass request if it's not loaded
+	if (!m_passRequestAsset)
+	{
+		const char *passRequestAssetFilePath = "Passes/DistortionPassRequest.azasset";
+		m_passRequestAsset = AZ::RPI::AssetUtils::LoadAssetByProductPath<AZ::RPI::AnyAsset>(
+			passRequestAssetFilePath, AZ::RPI::AssetUtils::TraceLevel::Warning);
+
+	}
+
+	const AZ::RPI::PassRequest *passRequest = nullptr;
+	if (m_passRequestAsset->IsReady())
+	{
+		passRequest = m_passRequestAsset->GetDataAs<AZ::RPI::PassRequest>();
+	}
+
+	// Return if the pass to be created already exists
+	AZ::RPI::PassFilter	passFilter = AZ::RPI::PassFilter::CreateWithPassName(passRequest->m_passName, renderPipeline);
+	AZ::RPI::Pass		*pass = AZ::RPI::PassSystemInterface::Get()->FindFirstPass(passFilter);
+	if (pass)
+	{
+		return;
+	}
+
+	// Create the pass
+	AZ::RPI::Ptr<AZ::RPI::Pass>	distortionParentPass = AZ::RPI::PassSystemInterface::Get()->CreatePassFromRequest(passRequest);
+	if (!distortionParentPass)
+	{
+		AZ_Error("PopcornFX", false, "Create PopcornFX distortion parent pass from pass request failed");
+		return;
+	}
+
+	// Insert the DistortionParentPass after TransparentPass
+	bool	success = renderPipeline->AddPassAfter(distortionParentPass, AZ::Name("TransparentPass"));
+	// only create pass resources if it was success
+	if (!success)
+	{
+		AZ_Error("PopcornFX", false, "Add the PopcornFX distortion parent pass to render pipeline [%s] failed", renderPipeline->GetId().GetCStr());
+	}
+}
+
+void	CPopcornFXFeatureProcessor::UpdateDistortionRenderPassBindings(AZ::RPI::RenderPipeline* renderPipeline)
+{
+#if 1
+	// same as DiffuseProbeGridFeatureProcessor::OnRenderPipelineChanged
+	// change the attachment on the DeferredFogPass pass to use the output of the distortion pass
+	AZ::RPI::PassFilter	deferredFogPassFilter = AZ::RPI::PassFilter::CreateWithPassName(AZ::Name("DeferredFogPass"), renderPipeline);
+	AZ::RPI::Pass		*deferredFogPass = AZ::RPI::PassSystemInterface::Get()->FindFirstPass(deferredFogPassFilter);
+	AZ::RPI::PassFilter	distortionPassFilter = AZ::RPI::PassFilter::CreateWithPassName(AZ::Name("DistortionPass"), renderPipeline);
+	AZ::RPI::Pass		*distortionPass = AZ::RPI::PassSystemInterface::Get()->FindFirstPass(distortionPassFilter);
+
+	if (distortionPass != null && distortionPass->GetOutputCount())
+	{
+		if (deferredFogPass != null)
+		{
+			AZ::RPI::PassAttachmentBinding	&distortionBinding = distortionPass->GetOutputBinding(0);
+			AZ::RPI::PassAttachmentBinding	*deferredFogBinding = deferredFogPass->FindAttachmentBinding(AZ::Name("RenderTargetInputOutput"));
+			if (deferredFogBinding)
+			{
+#if 0
+				// Doesn't work, overridden by Pass::UpdateConnectedBindings
+				//deferredFogBinding->SetAttachment(distortionBinding.GetAttachment());
+#else
+				// Update the connection instead
+				deferredFogBinding->m_connectedBinding = &distortionBinding;
+#endif
+				distortionPass->SetEnabled(true);
+		}
+			else
+			{
+				AZ_Error("PopcornFX", false, "Failed to find RenderTargetInputOutput in DeferredFogPass to bind the distortion pass");
+			}
+		}
+		else
+		{
+			AZ_Error("PopcornFX", false, "Failed to find DeferredFogPass to bind the distortion pass");
+		}
+	}
+#else
+	//Replace the bindings of all passes after the distortion pass 
+	AZ::Name	distortionPassName("DistortionPass");
+	AZ::RPI::Ptr<AZ::RPI::Pass>	distortionPass = renderPipeline->FindFirstPass(distortionPassName);
+	if (!distortionPass)
+		return;
+
+	AZ::RPI::PassAttachmentBinding	*distortionInputBinding = distortionPass->FindAttachmentBinding(AZ::Name("InputColor"));
+	if (distortionInputBinding == null || distortionPass->GetOutputCount() == 0)
+	{
+		AZ_Error("PopcornFX", false, "Failed to input/output bindings for %s.", distortionPassName.GetCStr());
+		return;
+	}
+
+	PK_ASSERT(distortionPass->GetParent() != null);
+
+	AZ::RPI::ParentPass				*parentPass = distortionPass->GetParent();
+	AZ::RPI::Pass::ChildPassIndex	passIndex = parentPass->FindChildPassIndex(distortionPassName);
+	auto							children = parentPass->GetChildren();
+	AZ::RPI::PassAttachmentBinding	*distortionOutputBinding = &distortionPass->GetOutputBinding(0);
+	bool							outputConnected = false;
+
+	for (u32 i = passIndex.GetIndex() + 1; i < children.size(); ++i)
+	{
+		AZ::RPI::Ptr<AZ::RPI::Pass>	pass = children[i];
+
+		for (uint32_t iBinding = 0; iBinding < pass->GetInputCount(); ++iBinding)
+		{
+			AZ::RPI::PassAttachmentBinding	&binding = pass->GetInputBinding(iBinding);
+			if (binding.m_connectedBinding == distortionInputBinding->m_connectedBinding)
+			{
+				outputConnected = true;
+				binding.m_connectedBinding = distortionOutputBinding;
+			}
+
+		}
+		for (uint32_t iBinding = 0; iBinding < pass->GetInputOutputCount(); ++iBinding)
+		{
+			AZ::RPI::PassAttachmentBinding	&binding = pass->GetInputOutputBinding(iBinding);
+			if (binding.m_connectedBinding == distortionInputBinding->m_connectedBinding)
+			{
+				outputConnected = true;
+				binding.m_connectedBinding = distortionOutputBinding;
+			}
+		}
+	}
+
+	if (!outputConnected)
+	{
+		AZ_Error("PopcornFX", false, "Failed to connect %s output.", distortionPassName.GetCStr());
+		return;
+	}
+	distortionPass->SetEnabled(true);
+#endif
 }
 
 void	CPopcornFXFeatureProcessor::Init(CParticleMediumCollection *medCol, const SSceneViews *views)

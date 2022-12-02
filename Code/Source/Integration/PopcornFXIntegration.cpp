@@ -18,6 +18,7 @@
 #include "Editor/PackLoader.h"
 #include <AzCore/StringFunc/StringFunc.h>
 #include <AzCore/Utils/Utils.h>
+#include <AzCore/IO/FileIO.h>
 #endif //POPCORNFX_EDITOR
 
 #if defined(POPCORNFX_BUILDER)
@@ -325,6 +326,27 @@ void	PopcornFXIntegration::OnCrySystemInitialized(ISystem &system, const SSystem
 					PackChanged(m_PackPath, m_LibraryPath);
 			}
 		}
+
+		//Copy the PopcornVectors.preset into the project if it doesn't exists
+		const AZStd::string	srcPresetFolderPath = "@gemroot:PopcornFX@/Config/AtomImageBuilder/";
+		const AZStd::string	dstPresetFolderPath = "@projectroot@/Config/AtomImageBuilder/";
+		const AZStd::string	presetName = "PopcornVectors.preset";
+		AZ::IO::FileIOBase	*fileIO = AZ::IO::FileIOBase::GetInstance();
+
+		if (!fileIO->Exists(dstPresetFolderPath.c_str()))
+		{
+			fileIO->CreatePath(dstPresetFolderPath.c_str());
+		}
+		const AZStd::string	dstPresetAssetPath = dstPresetFolderPath + presetName;
+		if (!fileIO->Exists(dstPresetAssetPath.c_str()))
+		{
+			const AZStd::string	srcPresetAssetPath = srcPresetFolderPath + presetName;
+			if (!fileIO->Copy(srcPresetAssetPath.c_str(), dstPresetAssetPath.c_str()))
+			{
+				AZ_Error("PopcornFX", false, "Failed to copy \"%s\" to \"%s\"", srcPresetAssetPath.c_str(), dstPresetAssetPath.c_str());
+			}
+		}
+
 #endif
 
 		PK_VERIFY(_ActivateManagers());

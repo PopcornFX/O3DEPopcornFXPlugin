@@ -166,7 +166,7 @@ namespace PopcornFX {
 #if !defined(POPCORNFX_BUILDER)
 	void	PopcornFXSystemComponent::LoadPassTemplateMappings()
 	{
-		const char	*passTemplatesFile = "passes/PKPassTemplates.azasset";
+		const char	*passTemplatesFile = "Passes/PKPassTemplates.azasset";
 		AZ::RPI::PassSystemInterface::Get()->LoadPassTemplateMappings(passTemplatesFile);
 	}
 #endif

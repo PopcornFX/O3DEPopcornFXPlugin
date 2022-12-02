@@ -49,7 +49,7 @@ set(FILES
     # Distortion:
     shaders/PostProcess/DistortionPostProcess.azsl
     shaders/PostProcess/DistortionPostProcess.shader
-    passes/DistortionParent.pass
-    passes/DistortionAccumulation.pass
-    passes/DistortionPostProcess.pass
+    Passes/DistortionParent.pass
+    Passes/DistortionAccumulation.pass
+    Passes/DistortionPostProcess.pass
 ) 
