@@ -14,6 +14,7 @@
 #if defined(PK_USE_PHYSX)
 	#include <AzFramework/Physics/PhysicsScene.h>
 	#include <AzFramework/Physics/ShapeConfiguration.h>
+	#include <AzCore/Interface/Interface.h>
 	#include <AzCore/std/smart_ptr/make_shared.h>
 	#if RESOLVE_MATERIAL_PROPERTIES
 	#include <AzFramework/Physics/Material.h>

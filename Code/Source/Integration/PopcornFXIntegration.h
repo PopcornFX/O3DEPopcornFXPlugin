@@ -26,12 +26,13 @@
 #include "Managers/StatsManager.h"
 #include "Managers/WindManager.h"
 
-#include <Atom/RPI.Public/Pass/PassSystemInterface.h>
-
 #if defined(POPCORNFX_EDITOR)
 #include <AzToolsFramework/Entity/EditorEntityContextBus.h>
-#include "Editor/BakerManager.h"
 #endif //POPCORNFX_EDITOR
+
+#if defined(POPCORNFX_BUILDER)
+#include "Editor/BakerManager.h"
+#endif //POPCORNFX_BUILDER
 
 namespace PopcornFX {
 
@@ -86,9 +87,12 @@ namespace PopcornFX {
 		virtual bool						RegisterToBroadcast(AZ::EntityId entityId, const AZStd::string &eventName) override;
 		virtual bool						UnregisterToBroadcast(AZ::EntityId entityId, const AZStd::string &eventName) override;
 		virtual const SPayloadValue			*GetCurrentPayloadValue(const AZStd::string &payloadName) const override;
-#if defined(POPCORNFX_EDITOR)
+#if defined(POPCORNFX_BUILDER)
+		virtual void						SetBakingThreadpool() override;
 		virtual AZStd::string				BakeSingleAsset(const AZStd::string &assetPath, const AZStd::string &outDir, const AZStd::string &platform) override;
 		virtual bool						GatherDependencies(const AZStd::string &assetPath, AZStd::vector<AZStd::string> &dependencies) override;
+#endif
+#if defined(POPCORNFX_EDITOR)
 		virtual void						PackChanged(const AZStd::string &packPath, const AZStd::string &libraryPath) override;
 		virtual void						SetPkProjPathCache(const AZStd::string &pkProjPath) override { m_PkProjPathCache = pkProjPath; }
 		virtual AZStd::string				GetPkProjPathCache() override { return m_PkProjPathCache; }
@@ -165,7 +169,6 @@ namespace PopcornFX {
 		virtual void						EffectSetTeleportThisFrame(StandaloneEmitter *emitter) override;
 		virtual float						GetLODBias() override;
 		virtual void						SetLODBias(float bias) override;
-		virtual void						SetBakingThreadpool() override;
 
 		virtual AZStd::tuple<float, bool>			ExtractPayloadFloat(const AZStd::string &payloadName) override;
 		virtual AZStd::tuple<AZ::Vector2, bool>		ExtractPayloadFloat2(const AZStd::string &payloadName) override;
@@ -201,8 +204,10 @@ namespace PopcornFX {
 		CBroadcastManager			m_BroadcastManager;
 		CStatsManager				m_StatsManager;
 		CWindManager				m_WindManager;
-#if defined(POPCORNFX_EDITOR)
+#if defined(POPCORNFX_BUILDER)
 		CBakerManager				m_BakerManager;
+#endif
+#if defined(POPCORNFX_EDITOR)
 		AZStd::string				m_PkProjPathCache;
 #endif
 		AZStd::mutex				m_ParticleQualityLock;

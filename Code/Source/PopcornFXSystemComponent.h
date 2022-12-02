@@ -7,18 +7,19 @@
 
 #include <AzCore/Component/Component.h>
 #include <AzCore/EBus/EBus.h>
-#include <AzCore/Asset/AssetManagerBus.h>
-#include <AzCore/Asset/AssetManager.h>
 
 #if defined(O3DE_USE_PK)
 #include "Integration/PopcornFXIntegration.h"
+#endif
+
+#if !defined(POPCORNFX_BUILDER)
+#include <Atom/RPI.Public/Pass/PassSystemInterface.h>
 #endif
 
 namespace PopcornFX {
 
 	class PopcornFXSystemComponent
 		: public AZ::Component
-		, private AZ::Data::AssetManagerNotificationBus::Handler
 	{
 	public:
 		AZ_COMPONENT(PopcornFXSystemComponent, "{684942CB-7746-44EF-BB4E-6D045915A624}");
@@ -48,6 +49,11 @@ namespace PopcornFX {
 
 #if defined(O3DE_USE_PK)
 		PopcornFXIntegration	m_Integration;
+#endif
+
+#if !defined(POPCORNFX_BUILDER)
+		void	LoadPassTemplateMappings();
+		AZ::RPI::PassSystemInterface::OnReadyLoadTemplatesEvent::Handler m_LoadTemplatesHandler;
 #endif
 	};
 

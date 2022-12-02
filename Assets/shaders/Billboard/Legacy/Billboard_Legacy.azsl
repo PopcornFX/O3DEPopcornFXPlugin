@@ -101,7 +101,7 @@ PixelOutput BillboardFS(VertexOutput input)
     {
         float3 clipPos = input.m_clipPosition.xyz / input.m_clipPosition.w;
         float fade = GetSoftParticleFade(clipPos);
-        diffuseColor.a *= fade;
+        diffuseColor *= fade;
         emissiveColor.a *= fade;
     }
 

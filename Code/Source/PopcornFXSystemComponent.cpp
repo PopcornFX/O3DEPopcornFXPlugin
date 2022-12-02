@@ -123,7 +123,16 @@ namespace PopcornFX {
 			assetCatalog->AddExtension("pkfx");
 		}
 
-		AZ::Data::AssetManagerNotificationBus::Handler::BusConnect();
+#if !defined(POPCORNFX_BUILDER)
+		// setup handler for load pass template mappings
+		m_LoadTemplatesHandler = AZ::RPI::PassSystemInterface::OnReadyLoadTemplatesEvent::Handler([this]() { this->LoadPassTemplateMappings(); });
+		AZ::RPI::PassSystemInterface::Get()->ConnectEvent(m_LoadTemplatesHandler);
+
+		// Register feature processor
+		AZ::RPI::FeatureProcessorFactory	*factory = AZ::RPI::FeatureProcessorFactory::Get();
+		AZ_Assert(factory, "Cannot get the factory system.");
+		factory->RegisterFeatureProcessorWithInterface<CPopcornFXFeatureProcessor, CPopcornFXFeatureProcessorInterface>();
+#endif
 
 #if defined(O3DE_USE_PK)
 		const AzFramework::CommandLine	*commandLine = null;
@@ -146,10 +155,19 @@ namespace PopcornFX {
 		}
 #endif
 
+#if !defined(POPCORNFX_BUILDER)
+		m_LoadTemplatesHandler.Disconnect();
+#endif
+
 		// AssetHandler's destructor calls Unregister()
 		m_AssetHandlers.clear();
-
-		AZ::Data::AssetManagerNotificationBus::Handler::BusDisconnect();
 	}
 
+#if !defined(POPCORNFX_BUILDER)
+	void	PopcornFXSystemComponent::LoadPassTemplateMappings()
+	{
+		const char	*passTemplatesFile = "Passes/PKPassTemplates.azasset";
+		AZ::RPI::PassSystemInterface::Get()->LoadPassTemplateMappings(passTemplatesFile);
+	}
+#endif
 }

@@ -36,6 +36,16 @@ public:
 	void		Deactivate() override;
 	void		Simulate(const SimulatePacket &packet) override;
 	void		Render(const RenderPacket &packet) override;
+#if PK_O3DE_MAJOR_VERSION > 2210
+	void		OnRenderPipelineChanged(AZ::RPI::RenderPipeline *renderPipeline, AZ::RPI::SceneNotification::RenderPipelineChangeType changeType) override;
+	void		AddRenderPasses(AZ::RPI::RenderPipeline *renderPipeline) override;
+#else
+	void		OnRenderPipelinePassesChanged(AZ::RPI::RenderPipeline *renderPipeline) override;
+	void		OnRenderPipelineAdded(AZ::RPI::RenderPipelinePtr renderPipeline) override;
+#endif
+
+	void	AddDistortionRenderPass(AZ::RPI::RenderPipeline* renderPipeline);
+	void	UpdateDistortionRenderPassBindings(AZ::RPI::RenderPipeline* renderPipeline);
 
 	void	Init(CParticleMediumCollection *medCol, const SSceneViews *views);
 
@@ -52,6 +62,7 @@ private:
 	CRenderManager												m_RenderManager;
 	const SSceneViews											*m_SceneViews = null;
 	CParticleMediumCollection									*m_MediumCollection = null;
+	AZ::Data::Asset<AZ::RPI::AnyAsset>							m_passRequestAsset;
 };
 
 //----------------------------------------------------------------------------

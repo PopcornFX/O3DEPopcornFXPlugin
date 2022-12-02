@@ -16,9 +16,11 @@
 #include "Components/Samplers/PopcornFXSamplerTextEditorComponent.h"
 #include "Components/Helpers/PopcornFXHelperLoopEmitterEditorComponent.h"
 #include "Components/Helpers/PopcornFXHelperProfilerEditorComponent.h"
-#include "Asset/PopcornFXAssetBuilderComponent.h"
 #include "PopcornFXPreviewersSystemComponent.h"
+#elif defined(POPCORNFX_BUILDER)
+#include "Asset/PopcornFXAssetBuilderComponent.h"
 #endif
+
 #include "Components/Attributes/TrackView/PopcornFXTrackViewAttributeGameComponent.h"
 #include "Components/Emitter/PopcornFXEmitterGameComponent.h"
 #include "Components/Samplers/PopcornFXSamplerAnimTrackGameComponent.h"
@@ -56,7 +58,6 @@ namespace PopcornFX {
 #endif // POPCORNFX_EDITOR
 				//-------- Emitter Folder
 #if defined(POPCORNFX_EDITOR)
-				PopcornFXBuilderComponent::CreateDescriptor(),
 				PopcornFXEmitterEditorComponent::CreateDescriptor(),
 #endif // POPCORNFX_EDITOR
 				PopcornFXEmitterGameComponent::CreateDescriptor(),
@@ -81,6 +82,9 @@ namespace PopcornFX {
 				PopcornFXHelperLoopEmitterGameComponent::CreateDescriptor(),
 				PopcornFXHelperProfilerGameComponent::CreateDescriptor(),
 				//--------
+#if defined(POPCORNFX_BUILDER)
+				PopcornFXBuilderComponent::CreateDescriptor(),
+#endif // POPCORNFX_BUILDER
 			});
 
 			//-------- ScriptCanvas Folder
