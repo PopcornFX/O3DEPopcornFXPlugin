@@ -78,6 +78,8 @@ bool	CRibbonBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBatchD
 
 	for (auto &pipelineCache : m_PipelineCaches)
 		pipelineCache.InitFromRendererCacheIFN(rendererCache);
+	if (rendererCache->m_CachesModified)
+		_UnflagModifiedCaches(drawPass.m_RendererCaches);
 
 	{
 		PK_NAMEDSCOPEDPROFILE("CAtomBillboardingBatchPolicy::AllocBuffers Alloc additional inputs");
@@ -260,12 +262,6 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchD
 	AZ_UNUSED(ctx);
 	SAtomRenderContext::SDrawCall		dc;
 
-	for (const auto &pipelineCache : m_PipelineCaches)
-	{
-		if (!pipelineCache.IsInitialized())
-			return true;
-	}
-
 	const SRendererBatchDrawPass_Ribbon_CPUBB	*ribbonDrawPass = static_cast<const SRendererBatchDrawPass_Ribbon_CPUBB*>(&drawPass);
 	const u32									particleCount = drawPass.m_TotalParticleCount;
 	const u32									vertexCount = ribbonDrawPass->m_TotalVertexCount;
@@ -278,7 +274,7 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchD
 		return false;
 
 	dc.m_RendererType = Renderer_Ribbon;
-	if (!PK_VERIFY(m_PipelineCaches.Count() == 1))
+	if (!PK_VERIFY(m_PipelineCaches.Count() == 1 && m_PipelineCaches[0].IsInitialized()))
 		return false;
 
 	// Position:

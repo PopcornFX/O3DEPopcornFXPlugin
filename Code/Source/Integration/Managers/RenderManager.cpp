@@ -59,7 +59,6 @@ void	CRenderManager::Activate(CParticleMediumCollection *mediumCollection, const
 	m_BufferPool->SetName(AZ::Name("PopcornFXParticlesBufferPool"));
 	AZ::RHI::ResultCode resultCode = m_BufferPool->Init(*rhiSystem->GetDevice(), dynamicPoolDescriptor);
 
-	m_RenderBatchFactory.SetRenderManager(this);
 	if (resultCode != AZ::RHI::ResultCode::Success)
 	{
 		AZ_Error("DynamicPrimitiveProcessor", false, "Failed to initialize AuxGeom dynamic primitive buffer pool");
@@ -87,6 +86,8 @@ void	CRenderManager::SetPackPath(const AZStd::string &packPath)
 
 void	CRenderManager::StartUpdate(CParticleMediumCollection *mediumCollection, const SSceneViews *sceneViews)
 {
+	m_RenderBatchFactory.UpdatePendingRendererCache();
+
 	if (sceneViews->m_Views.Empty())
 		return;
 

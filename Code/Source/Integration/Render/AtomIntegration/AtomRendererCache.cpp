@@ -190,6 +190,60 @@ bool	SMaterialCacheKey::operator == (const SMaterialCacheKey &oth) const
 
 //----------------------------------------------------------------------------
 //
+//	CParentCache
+//
+//----------------------------------------------------------------------------
+
+void	CParentCache::UpdateRendererCaches() const
+{
+	PK_SCOPEDLOCK_READ(m_Lock);
+	for (CAtomRendererCache *rendererCache : m_RendererCaches)
+	{
+		UpdateRendererCache(rendererCache);
+	}
+}
+
+//----------------------------------------------------------------------------
+//
+//	CPipelineStateCache
+//
+//----------------------------------------------------------------------------
+
+void	CPipelineStateCache::UpdateRendererCache(CAtomRendererCache *rendererCache) const
+{
+	rendererCache->m_CachesModified = true;
+}
+
+//----------------------------------------------------------------------------
+//
+//	CMaterialCache
+//
+//----------------------------------------------------------------------------
+
+void	CMaterialCache::UpdateRendererCache(CAtomRendererCache *rendererCache) const
+{
+	rendererCache->m_CachesModified = true;
+}
+
+//----------------------------------------------------------------------------
+//
+//	CGeometryCache
+//
+//----------------------------------------------------------------------------
+
+void	CGeometryCache::UpdateRendererCache(CAtomRendererCache *rendererCache) const
+{
+	rendererCache->m_PerLODMeshCount.Resize(1);
+	rendererCache->m_PerLODMeshCount[0] = m_PerGeometryViews.Count();
+	rendererCache->m_GlobalMeshBounds = m_GlobalBounds;
+
+	rendererCache->m_SubMeshBounds.Resize(rendererCache->m_PerLODMeshCount[0]);
+	for (u32 i = 0; i < rendererCache->m_PerLODMeshCount[0] ; i++)
+		rendererCache->m_SubMeshBounds[i] = m_PerGeometryViews[i].m_Bounds;
+}
+
+//----------------------------------------------------------------------------
+//
 //	SParticleMaterialBasicDesc
 //
 //----------------------------------------------------------------------------
@@ -598,7 +652,7 @@ void	SParticleMaterialBasicDesc::_ResetRendererFlags()
 
 CAtomRendererCache::CAtomRendererCache()
 :	m_RendererType(Renderer_Invalid)
-,	m_CacheFactory(null)
+,	m_CachesModified(false)
 {
 }
 
@@ -606,6 +660,16 @@ CAtomRendererCache::CAtomRendererCache()
 
 CAtomRendererCache::~CAtomRendererCache()
 {
+	for (PParentCache &cache : m_Caches)
+	{
+		if (cache != null)
+		{
+			PK_SCOPEDLOCK_WRITE(cache->m_Lock);
+			CGuid	id = cache->m_RendererCaches.IndexOf(this);
+			if (PK_VERIFY(id.Valid()))
+				cache->m_RendererCaches.Remove(id);
+		}
+	}
 }
 
 //----------------------------------------------------------------------------

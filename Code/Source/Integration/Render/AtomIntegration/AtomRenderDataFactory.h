@@ -29,11 +29,8 @@ public:
 	PRendererCacheBase		CreateRendererCache(const PRendererDataBase &renderer, const CParticleDescriptor *particleDesc);
 
 	void								SetPackPath(const char *path) { m_PackPath = CString(path); }
-	void								SetRenderManager(CRenderManager *renderManager) { m_RendererLoader.SetRenderManager(renderManager); }
 
-	PMaterialCache						FindMaterial(const SMaterialCacheKey &key) const;
-	PPipelineStateCache					FindPipelineState(const SPipelineStateCacheKey &key) const;
-	PGeometryCache						FindGeometryCache(const CString &path) const;
+	void								UpdatePendingRendererCache() { m_RendererLoader.UpdatePendingRendererCache(); }
 
 private:
 	CString										m_PackPath;

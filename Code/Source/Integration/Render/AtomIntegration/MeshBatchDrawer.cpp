@@ -59,11 +59,9 @@ bool	CMeshBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBatchDra
 		m_RenderContext = static_cast<SAtomRenderContext*>(&ctx);
 		PK_ASSERT(m_RenderContext != null);
 
-		m_GeometryCache = rendererCache->m_CacheFactory->FindGeometryCache(rendererCache->m_BasicDescription.m_MeshPath.ToString());
+		m_GeometryCache = static_cast<CGeometryCache*>(rendererCache->m_Caches[CAtomRendererCache::CacheType_Geometry].Get());
 		if (!PK_VERIFY(m_GeometryCache != null))
 			return false;
-		if (!m_GeometryCache->m_Modified) // not ready yet
-			return true;
 	}
 
 	++m_FrameIdx;
@@ -74,6 +72,8 @@ bool	CMeshBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBatchDra
 
 	for (auto &pipelineCache : m_PipelineCaches)
 		pipelineCache.InitFromRendererCacheIFN(rendererCache);
+	if (rendererCache->m_CachesModified)
+		_UnflagModifiedCaches(drawPass.m_RendererCaches);
 
 	{
 		PK_NAMEDSCOPEDPROFILE("CAtomBillboardingBatchPolicy::AllocBuffers Alloc additional inputs");
@@ -170,12 +170,6 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchDra
 	AZ_UNUSED(ctx);
 	SAtomRenderContext::SDrawCall		dc;
 
-	for (const auto &pipelineCache : m_PipelineCaches)
-	{
-		if (!pipelineCache.IsInitialized())
-			return true;
-	}
-
 	const u32									particleCount = drawPass.m_TotalParticleCount;
 	const SRendererBatchDrawPass_Mesh_CPUBB		*meshDrawPass = static_cast<const SRendererBatchDrawPass_Mesh_CPUBB*>(&drawPass);
 	[[maybe_unused]] const u32					drawRequestsCount = drawPass.m_DrawRequests.Count();
@@ -187,8 +181,13 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchDra
 
 	dc.m_RendererType = Renderer_Mesh;
 
-	if (!PK_VERIFY(m_GeometryCache != null))
+	if (!PK_VERIFY(m_GeometryCache != null && m_PipelineCaches.Count() == m_GeometryCache->m_PerGeometryViews.Count()))
 		return false;
+	for (const auto &pipelineCache : m_PipelineCaches)
+	{
+		if (!PK_VERIFY(pipelineCache.IsInitialized()))
+			return false;
+	}
 
 	u32		particleOffset = 0;
 	const bool	meshAtlas = rendererCache->m_BasicDescription.m_UseMeshAtlas;

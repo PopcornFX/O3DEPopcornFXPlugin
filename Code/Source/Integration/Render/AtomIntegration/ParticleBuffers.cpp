@@ -236,6 +236,19 @@ namespace PopcornFX {
 	}
 
 	//----------------------------------------------------------------------------
+
+	void	CBatchDrawerCommon::_UnflagModifiedCaches(const TArray<PRendererCacheBase> &rendererCaches)
+	{
+		for (PRendererCacheBase cache : rendererCaches)
+		{
+			CAtomRendererCache *atomCache = static_cast<CAtomRendererCache*>(cache.Get());
+			if (!PK_VERIFY(atomCache != null))
+				continue;
+			atomCache->m_CachesModified = false;
+		}
+	}
+
+	//----------------------------------------------------------------------------
 }
 
 #endif //O3DE_USE_PK

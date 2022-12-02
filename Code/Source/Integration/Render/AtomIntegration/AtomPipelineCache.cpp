@@ -31,24 +31,26 @@ CAtomPipelineCache::~CAtomPipelineCache()
 bool	CAtomPipelineCache::InitFromRendererCacheIFN(const CAtomRendererCache *rendererCache)
 {
 	PK_SCOPEDPROFILE();
-	PPipelineStateCache		pipelineStateCache = rendererCache->m_CacheFactory->FindPipelineState(rendererCache->m_BasicDescription.m_PipelineStateKey);
-	PMaterialCache			materialCache = rendererCache->m_CacheFactory->FindMaterial(rendererCache->m_BasicDescription.m_MaterialKey);
+
+	if (m_IsInitialized && !rendererCache->m_CachesModified)
+		return true;
+
+	m_IsInitialized = false;
+
+	CPipelineStateCache	*pipelineStateCache = static_cast<CPipelineStateCache*>(rendererCache->m_Caches[CAtomRendererCache::CacheType_PipelineState].Get());
+	CMaterialCache		*materialCache = static_cast<CMaterialCache*>(rendererCache->m_Caches[CAtomRendererCache::CacheType_Material].Get());
 
 	if (!PK_VERIFY(pipelineStateCache != null && materialCache != null))
 		return false;
 
-	PK_SCOPEDLOCK_WRITE(materialCache->m_Lock);
-	PK_SCOPEDLOCK_WRITE(pipelineStateCache->m_Lock);
+	PK_SCOPEDLOCK_READ(materialCache->m_Lock);
+	PK_SCOPEDLOCK_READ(pipelineStateCache->m_Lock);
 
-	if (m_IsInitialized && !pipelineStateCache->m_Modified && !materialCache->m_Modified)
-		return true;
+	PK_ASSERT(materialCache->m_PendingAssets.empty());
+	PK_ASSERT(pipelineStateCache->m_PendingAssets.empty());
 
-	m_IsInitialized = false;
-	pipelineStateCache->m_Modified = false;
-	materialCache->m_Modified = false;
-
-	if (pipelineStateCache->m_MaterialPipelineState == null || pipelineStateCache->m_MaterialShader == null)
-		return true;
+	if (!PK_VERIFY(pipelineStateCache->m_MaterialPipelineState != null && pipelineStateCache->m_MaterialShader != null))
+		return false;
 
 	// Only handle billboard renderers for now:
 	if (rendererCache->m_RendererType != Renderer_Billboard && rendererCache->m_RendererType != Renderer_Ribbon && rendererCache->m_RendererType != Renderer_Mesh)
@@ -126,45 +128,45 @@ bool	CAtomPipelineCache::InitFromRendererCacheIFN(const CAtomRendererCache *rend
 	// Now we bind the associated textures:
 	if (rendererCache->m_BasicDescription.HasOneRendererFlags(RendererFlags::Has_Diffuse))
 	{
-		if (materialCache->m_DiffuseMap == null)
-			return true;
+		if (!PK_VERIFY(materialCache->m_DiffuseMap != null))
+			return false;
 		SetMaterialSrgTexture(DiffuseMap_ShaderRead, materialCache->m_DiffuseMap->GetImageView());
 	}
 	if (rendererCache->m_BasicDescription.HasOneRendererFlags(RendererFlags::Has_DiffuseRamp))
 	{
-		if (materialCache->m_DiffuseRampMap == null)
-			return true;
+		if (!PK_VERIFY(materialCache->m_DiffuseMap != null))
+			return false;
 		SetMaterialSrgTexture(DiffuseRampMap_ShaderRead, materialCache->m_DiffuseRampMap->GetImageView());
 	}
 	if (rendererCache->m_BasicDescription.HasOneRendererFlags(RendererFlags::Has_Emissive))
 	{
-		if (materialCache->m_EmissiveMap == null)
-			return true;
+		if (!PK_VERIFY(materialCache->m_EmissiveMap != null))
+			return false;
 		SetMaterialSrgTexture(EmissiveMap_ShaderRead, materialCache->m_EmissiveMap->GetImageView());
 	}
 	if (rendererCache->m_BasicDescription.HasOneRendererFlags(RendererFlags::Has_EmissiveRamp))
 	{
-		if (materialCache->m_EmissiveRampMap == null)
-			return true;
+		if (!PK_VERIFY(materialCache->m_EmissiveRampMap != null))
+			return false;
 		SetMaterialSrgTexture(EmissiveRampMap_ShaderRead, materialCache->m_EmissiveRampMap->GetImageView());
 	}
 	if (rendererCache->m_BasicDescription.HasOneRendererFlags(RendererFlags::Has_AnimBlend_MotionVectors))
 	{
-		if (materialCache->m_MotionVectorsMap == null)
-			return true;
+		if (!PK_VERIFY(materialCache->m_MotionVectorsMap != null))
+			return false;
 		SetMaterialSrgTexture(MotionVectorsMap_ShaderRead, materialCache->m_MotionVectorsMap->GetImageView());
 		SetMaterialSrgConstantValue(MotionVectorsScale_ShaderRead, rendererCache->m_BasicDescription.m_MotionVectorsScale);
 	}
 	if (rendererCache->m_BasicDescription.HasOneRendererFlags(RendererFlags::Has_AlphaRemap))
 	{
-		if (materialCache->m_AlphaMap == null)
-			return true;
+		if (!PK_VERIFY(materialCache->m_AlphaMap != null))
+			return false;
 		SetMaterialSrgTexture(AlphaMap_ShaderRead, materialCache->m_AlphaMap->GetImageView());
 	}
 	if (rendererCache->m_BasicDescription.HasOneRendererFlags(RendererFlags::Has_Distortion))
 	{
-		if (materialCache->m_DistortionMap == null)
-			return true;
+		if (!PK_VERIFY(materialCache->m_DistortionMap != null))
+			return false;
 		SetMaterialSrgTexture(DistortionMap_ShaderRead, materialCache->m_DistortionMap->GetImageView());
 	}
 
@@ -172,8 +174,8 @@ bool	CAtomPipelineCache::InitFromRendererCacheIFN(const CAtomRendererCache *rend
 	{
 		if (rendererCache->m_BasicDescription.HasOneRendererFlags(RendererFlags::Has_NormalMap))
 		{
-			if (materialCache->m_NormalMap == null)
-				return true;
+			if (!PK_VERIFY(materialCache->m_NormalMap != null))
+				return false;
 			SetMaterialSrgTexture(NormalMap_ShaderRead, materialCache->m_NormalMap->GetImageView());
 		}
 		SetMaterialSrgConstantValue(Roughness_ShaderRead, rendererCache->m_BasicDescription.m_Roughness);
@@ -191,8 +193,11 @@ bool	CAtomPipelineCache::InitFromRendererCacheIFN(const CAtomRendererCache *rend
 	if (!m_MaterialSrg->IsQueuedForCompile())
 		m_MaterialSrg->Compile();
 
-	// Create the object SRG
-	m_ObjectSrg = _CreateShaderResourceGroup(pipelineStateCache->m_MaterialShader, "ObjectSrg");
+	if (rendererCache->m_RendererType == Renderer_Mesh)
+	{
+		// Create the object SRG
+		m_ObjectSrg = _CreateShaderResourceGroup(pipelineStateCache->m_MaterialShader, "ObjectSrg");
+	}
 
 	m_IsInitialized = true;
 	return true;

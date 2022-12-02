@@ -35,9 +35,13 @@ PopcornFXRendererLoader::~PopcornFXRendererLoader()
 
 //----------------------------------------------------------------------------
 
-bool	PopcornFXRendererLoader::AddMaterialToCreate(const SMaterialCacheKey &materialCacheKey, const SPipelineStateCacheKey &pipelineCacheKey)
+bool	PopcornFXRendererLoader::AddMaterialToCreate(const PAtomRendererCache &rendererCache)
 {
 	PK_SCOPEDLOCK(m_Lock);
+
+	const SMaterialCacheKey			&materialCacheKey = rendererCache->m_BasicDescription.m_MaterialKey;
+	const SPipelineStateCacheKey	&pipelineCacheKey = rendererCache->m_BasicDescription.m_PipelineStateKey;
+
 	// Find or create the caches:
 	bool					materialCacheExist = false;
 	PMaterialCache			materialCache = _GetOrCreateMaterialCache(materialCacheKey, materialCacheExist);
@@ -47,9 +51,9 @@ bool	PopcornFXRendererLoader::AddMaterialToCreate(const SMaterialCacheKey &mater
 	if (!PK_VERIFY(materialCache != null && pipelineStateCache != null))
 		return false;
 
-	SAssetDependencies::SCaches		currentCaches;
-	currentCaches.m_MaterialKey = materialCacheKey;
-	currentCaches.m_PipelineStateKey = pipelineCacheKey;
+	SAssetDependencies::SCache	currentCache;
+	currentCache.m_MaterialKey = materialCacheKey;
+	currentCache.m_PipelineStateKey = pipelineCacheKey;
 
 	// Load the material resources:
 	if (!materialCacheExist)
@@ -57,50 +61,50 @@ bool	PopcornFXRendererLoader::AddMaterialToCreate(const SMaterialCacheKey &mater
 		// Load the textures:
 		if (materialCacheKey.m_DiffuseMapPath.Valid())
 		{
-			currentCaches.m_Type = AssetType_DiffuseMap;
-			if (!PK_VERIFY(_AddTextureToLoad(materialCacheKey.m_DiffuseMapPath.ToStringData(), currentCaches)))
+			currentCache.m_Type = AssetType_DiffuseMap;
+			if (!PK_VERIFY(_AddTextureToLoad(materialCacheKey.m_DiffuseMapPath.ToStringData(), currentCache, materialCache)))
 				return false;
 		}
 		if (materialCacheKey.m_DiffuseRampMapPath.Valid())
 		{
-			currentCaches.m_Type = AssetType_DiffuseRampMap;
-			if (!PK_VERIFY(_AddTextureToLoad(materialCacheKey.m_DiffuseRampMapPath.ToStringData(), currentCaches)))
+			currentCache.m_Type = AssetType_DiffuseRampMap;
+			if (!PK_VERIFY(_AddTextureToLoad(materialCacheKey.m_DiffuseRampMapPath.ToStringData(), currentCache, materialCache)))
 				return false;
 		}
 		if (materialCacheKey.m_EmissiveMapPath.Valid())
 		{
-			currentCaches.m_Type = AssetType_EmissiveMap;
-			if (!PK_VERIFY(_AddTextureToLoad(materialCacheKey.m_EmissiveMapPath.ToStringData(), currentCaches)))
+			currentCache.m_Type = AssetType_EmissiveMap;
+			if (!PK_VERIFY(_AddTextureToLoad(materialCacheKey.m_EmissiveMapPath.ToStringData(), currentCache, materialCache)))
 				return false;
 		}
 		if (materialCacheKey.m_EmissiveRampMapPath.Valid())
 		{
-			currentCaches.m_Type = AssetType_EmissiveRampMap;
-			if (!PK_VERIFY(_AddTextureToLoad(materialCacheKey.m_EmissiveRampMapPath.ToStringData(), currentCaches)))
+			currentCache.m_Type = AssetType_EmissiveRampMap;
+			if (!PK_VERIFY(_AddTextureToLoad(materialCacheKey.m_EmissiveRampMapPath.ToStringData(), currentCache, materialCache)))
 				return false;
 		}
 		if (materialCacheKey.m_NormalMapPath.Valid())
 		{
-			currentCaches.m_Type = AssetType_NormalMap;
-			if (!PK_VERIFY(_AddTextureToLoad(materialCacheKey.m_NormalMapPath.ToStringData(), currentCaches)))
+			currentCache.m_Type = AssetType_NormalMap;
+			if (!PK_VERIFY(_AddTextureToLoad(materialCacheKey.m_NormalMapPath.ToStringData(), currentCache, materialCache)))
 				return false;
 		}
 		if (materialCacheKey.m_MotionVectorsMapPath.Valid())
 		{
-			currentCaches.m_Type = AssetType_MotionVectorsMap;
-			if (!PK_VERIFY(_AddTextureToLoad(materialCacheKey.m_MotionVectorsMapPath.ToStringData(), currentCaches)))
+			currentCache.m_Type = AssetType_MotionVectorsMap;
+			if (!PK_VERIFY(_AddTextureToLoad(materialCacheKey.m_MotionVectorsMapPath.ToStringData(), currentCache, materialCache)))
 				return false;
 		}
 		if (materialCacheKey.m_AlphaMapPath.Valid())
 		{
-			currentCaches.m_Type = AssetType_AlphaMap;
-			if (!PK_VERIFY(_AddTextureToLoad(materialCacheKey.m_AlphaMapPath.ToStringData(), currentCaches)))
+			currentCache.m_Type = AssetType_AlphaMap;
+			if (!PK_VERIFY(_AddTextureToLoad(materialCacheKey.m_AlphaMapPath.ToStringData(), currentCache, materialCache)))
 				return false;
 		}
 		if (materialCacheKey.m_DistortionMapPath.Valid())
 		{
-			currentCaches.m_Type = AssetType_DistortionMap;
-			if (!PK_VERIFY(_AddTextureToLoad(materialCacheKey.m_DistortionMapPath.ToStringData(), currentCaches)))
+			currentCache.m_Type = AssetType_DistortionMap;
+			if (!PK_VERIFY(_AddTextureToLoad(materialCacheKey.m_DistortionMapPath.ToStringData(), currentCache, materialCache)))
 				return false;
 		}
 	}
@@ -110,8 +114,8 @@ bool	PopcornFXRendererLoader::AddMaterialToCreate(const SMaterialCacheKey &mater
 	{
 		// Actual shader:
 		const char	*shaderPathPtr = GetPopornFXUsedShaderPath(pipelineCacheKey.m_UsedShader);
-		currentCaches.m_Type = AssetType_MaterialShader;
-		if (!PK_VERIFY(_AddShaderToLoad(shaderPathPtr, currentCaches)))
+		currentCache.m_Type = AssetType_MaterialShader;
+		if (!PK_VERIFY(_AddShaderToLoad(shaderPathPtr, currentCache, pipelineStateCache)))
 			return false;
 
 		// For opaque particles:
@@ -143,21 +147,62 @@ bool	PopcornFXRendererLoader::AddMaterialToCreate(const SMaterialCacheKey &mater
 		{
 			if (pipelineCacheKey.m_BlendMode == BlendMode::Solid || pipelineCacheKey.m_BlendMode == BlendMode::Masked)
 			{
-				currentCaches.m_Type = AssetType_OpaqueDepthShader;
-				if (!PK_VERIFY(_AddShaderToLoad(opaqueDepthPass, currentCaches)))
+				currentCache.m_Type = AssetType_OpaqueDepthShader;
+				if (!PK_VERIFY(_AddShaderToLoad(opaqueDepthPass, currentCache, pipelineStateCache)))
 					return false;
 			}
 			else
 			{
-				currentCaches.m_Type = AssetType_TransparentDepthMinShader;
-				if (!PK_VERIFY(_AddShaderToLoad(minDepthPass, currentCaches)))
+				currentCache.m_Type = AssetType_TransparentDepthMinShader;
+				if (!PK_VERIFY(_AddShaderToLoad(minDepthPass, currentCache, pipelineStateCache)))
 					return false;
-				currentCaches.m_Type = AssetType_TransparentDepthMaxShader;
-				if (!PK_VERIFY(_AddShaderToLoad(maxDepthPass, currentCaches)))
+				currentCache.m_Type = AssetType_TransparentDepthMaxShader;
+				if (!PK_VERIFY(_AddShaderToLoad(maxDepthPass, currentCache, pipelineStateCache)))
 					return false;
 			}
 		}
 	}
+
+	if (!_LinkAndUpdateRendererCacheIFP(rendererCache, materialCache, CAtomRendererCache::CacheType_Material))
+		return false;
+	if (!_LinkAndUpdateRendererCacheIFP(rendererCache, pipelineStateCache, CAtomRendererCache::CacheType_PipelineState))
+		return false;
+
+	return true;
+}
+
+//----------------------------------------------------------------------------
+
+bool	PopcornFXRendererLoader::AddGeometryToCreate(const PAtomRendererCache &rendererCache)
+{
+	PK_SCOPEDLOCK(m_Lock);
+
+	const CString	&path = rendererCache->m_BasicDescription.m_MeshPath.ToString();
+	if (!PK_VERIFY(path != null))
+		return false;
+
+	// Find or create the caches:
+	bool					geometryCacheExist = false;
+	PGeometryCache			geometryCache = _GetOrCreateGeometryCache(path, geometryCacheExist);
+
+	if (!PK_VERIFY(geometryCache != null))
+		return false;
+
+	if (!geometryCacheExist)
+	{
+		SAssetDependencies::SCache	currentCache;
+		currentCache.m_GeometryPath = path;
+		currentCache.m_Type = AssetType_Geometry;
+
+		// Create a dependency between model and geometry cache
+		// and queue load of the model and add
+		if (!_AddGeometryToLoad(path.Data(), currentCache, geometryCache))
+			return false;
+	}
+
+	if (!_LinkAndUpdateRendererCacheIFP(rendererCache, geometryCache, CAtomRendererCache::CacheType_Geometry))
+		return false;
+
 	return true;
 }
 
@@ -205,49 +250,6 @@ void	PopcornFXRendererLoader::OnShaderVariantReinitialized(const AZ::RPI::Shader
 
 //----------------------------------------------------------------------------
 
-PMaterialCache		PopcornFXRendererLoader::FindMaterial(const SMaterialCacheKey &key) const
-{
-	const PMaterialCache	*materialCache = m_Materials.Find(key);
-	if (materialCache == null)
-		return null;
-	return *materialCache;
-}
-
-//----------------------------------------------------------------------------
-
-PPipelineStateCache	PopcornFXRendererLoader::FindPipelineState(const SPipelineStateCacheKey &key) const
-{
-	const PPipelineStateCache	*pipelineStateCache = m_PipelineStates.Find(key);
-	if (pipelineStateCache == null)
-		return null;
-	return *pipelineStateCache;
-}
-
-//----------------------------------------------------------------------------
-
-PGeometryCache	PopcornFXRendererLoader::FindGeometryCache(const CString &path) const
-{
-	const PGeometryCache	*geometryCache = m_GeometryCaches.Find(path);
-	if (geometryCache == null)
-		return null;
-	return *geometryCache;
-}
-
-//----------------------------------------------------------------------------
-
-void	_SetMeshInfos(PAtomRendererCache rendererCache, const PGeometryCache geometryCache)
-{
-	rendererCache->m_PerLODMeshCount.Resize(1);
-	rendererCache->m_PerLODMeshCount[0] = geometryCache->m_PerGeometryViews.Count();
-	rendererCache->m_GlobalMeshBounds = geometryCache->m_GlobalBounds;
-
-	rendererCache->m_SubMeshBounds.Resize(rendererCache->m_PerLODMeshCount[0]);
-	for (u32 i = 0; i < rendererCache->m_PerLODMeshCount[0] ; i++)
-		rendererCache->m_SubMeshBounds[i] = geometryCache->m_PerGeometryViews[i].m_Bounds;
-}
-
-//----------------------------------------------------------------------------
-
 void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData> asset)
 {
 	PK_SCOPEDLOCK(m_Lock);
@@ -263,14 +265,16 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 
 		if (!PK_VERIFY(shader != null))
 			return;
-		for (const SAssetDependencies::SCaches &cache : dependencies->m_Caches)
+
+		if (!AZ::RPI::ShaderReloadNotificationBus::MultiHandler::BusIsConnectedId(shaderAsset.GetId()))
+			AZ::RPI::ShaderReloadNotificationBus::MultiHandler::BusConnect(shaderAsset.GetId());
+
+		for (const SAssetDependencies::SCache &cache : dependencies->m_Caches)
 		{
 			const PPipelineStateCache	*pipelineStateCache = m_PipelineStates.Find(cache.m_PipelineStateKey);
 
 			if (pipelineStateCache != null && *pipelineStateCache != null)
 			{
-				AZ::RPI::ShaderReloadNotificationBus::MultiHandler::BusConnect(shaderAsset.GetId());
-
 				PK_SCOPEDLOCK_WRITE((*pipelineStateCache)->m_Lock);
 
 				AZ::Data::Instance<AZ::RPI::Shader>		&shaderSlot = _GetShaderSlot(cache.m_Type, *pipelineStateCache);
@@ -306,7 +310,10 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 
 				AZ::RHI::ConstPtr<AZ::RHI::PipelineState>	&pipelineStateSlot = _GetPipelineStateSlot(cache.m_Type, *pipelineStateCache);
 				pipelineStateSlot = _CreatePipelineStateCache(*shader, shaderVariant, cache.m_Type, cache.m_PipelineStateKey);
-				(*pipelineStateCache)->m_Modified = true;
+
+				if (!PK_VERIFY(m_ModifiedCaches.PushBack(*pipelineStateCache).Valid()))
+					return;
+				_RemovePendingCacheDependencyIFN(*pipelineStateCache, asset.GetId());
 			}
 		}
 	}
@@ -314,7 +321,7 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 	{
 		// Material texture loaded:
 		AZ::Data::Asset<AZ::RPI::StreamingImageAsset>	streamingImgAsset = AZ::Data::Asset<AZ::RPI::StreamingImageAsset>(dependencies->m_AssetRef);
-		for (const SAssetDependencies::SCaches &cache : dependencies->m_Caches)
+		for (const SAssetDependencies::SCache &cache : dependencies->m_Caches)
 		{
 			const PMaterialCache	*materialCache = m_Materials.Find(cache.m_MaterialKey);
 
@@ -324,7 +331,10 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 
 				AZ::Data::Instance<AZ::RPI::StreamingImage> &streamingImageSlot = _GetStreamingImageSlot(cache.m_Type, *materialCache);
 				streamingImageSlot = AZ::RPI::StreamingImage::FindOrCreate(streamingImgAsset);
-				(*materialCache)->m_Modified = true;
+
+				if (!PK_VERIFY(m_ModifiedCaches.PushBack(*materialCache).Valid()))
+					return;
+				_RemovePendingCacheDependencyIFN(*materialCache, asset.GetId());
 			}
 		}
 	}
@@ -332,8 +342,10 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 	{
 		// Dependency: geometry cache. Will hold actual mesh data
 		// We should have only one geometryCache dependency per model asset
+		PK_ASSERT(dependencies->m_Caches.Count() == 1);
+
 		PGeometryCache	geometryCache = null;
-		for (const SAssetDependencies::SCaches &cache : dependencies->m_Caches)
+		for (const SAssetDependencies::SCache &cache : dependencies->m_Caches)
 		{
 			PGeometryCache *found = m_GeometryCaches.Find(cache.m_GeometryPath);
 
@@ -451,19 +463,9 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 
 				geometryCache->m_PerGeometryViews[meshIndex].m_IndexBuffer = mesh.m_indexBufferView;
 			}
-			geometryCache->m_Modified = true;
-
-			// Dependency: rendererCache(s) using this model.
-			// Will update the rendercaches with mesh bbox and mesh count
-			TArray<PAtomRendererCache> *rendererCaches = m_RendererCacheDependencies.Find(asset.GetId());
-			if (rendererCaches != null && geometryCache != null)
-			{
-				for (PAtomRendererCache rendererCache : *rendererCaches)
-				{
-					_SetMeshInfos(rendererCache, geometryCache);
-				}
-				rendererCaches->Clean();
-			}
+			if (!PK_VERIFY(m_ModifiedCaches.PushBack(geometryCache).Valid()))
+				return;
+			_RemovePendingCacheDependencyIFN(geometryCache, asset.GetId());
 		}
 	}
 }
@@ -500,7 +502,7 @@ void	PopcornFXRendererLoader::_OnShaderVariantsReloaded(const AZ::Data::AssetId 
 
 	//bool	variantFound = false;
 
-	for (const SAssetDependencies::SCaches &cache : dependencies->m_Caches)
+	for (const SAssetDependencies::SCache &cache : dependencies->m_Caches)
 	{
 		const PPipelineStateCache	*pipelineStateCache = m_PipelineStates.Find(cache.m_PipelineStateKey);
 
@@ -538,7 +540,9 @@ void	PopcornFXRendererLoader::_OnShaderVariantsReloaded(const AZ::Data::AssetId 
 
 			AZ::RHI::ConstPtr<AZ::RHI::PipelineState>	&pipelineStateSlot = _GetPipelineStateSlot(cache.m_Type, *pipelineStateCache);
 			pipelineStateSlot = _CreatePipelineStateCache(*shader, shaderVariant, cache.m_Type, cache.m_PipelineStateKey);
-			(*pipelineStateCache)->m_Modified = true;
+			if (!PK_VERIFY(m_ModifiedCaches.PushBack(*pipelineStateCache).Valid()))
+				return;
+			_RemovePendingCacheDependencyIFN(*pipelineStateCache, shaderId);
 			//variantFound = true;
 		}
 	}
@@ -695,7 +699,7 @@ AZ::RHI::ConstPtr<AZ::RHI::PipelineState>	PopcornFXRendererLoader::_CreatePipeli
 
 //----------------------------------------------------------------------------
 
-bool	PopcornFXRendererLoader::SAssetDependencies::SCaches::operator == (const SCaches &oth) const
+bool	PopcornFXRendererLoader::SAssetDependencies::SCache::operator == (const SCache &oth) const
 {
 	return	m_MaterialKey == oth.m_MaterialKey &&
 			m_PipelineStateKey == oth.m_PipelineStateKey &&
@@ -770,28 +774,42 @@ AZ::Data::Instance<AZ::RPI::StreamingImage> &PopcornFXRendererLoader::_GetStream
 
 //----------------------------------------------------------------------------
 
-bool	PopcornFXRendererLoader::_AddTextureToLoad(const char *texturePath, const SAssetDependencies::SCaches &currentCaches)
+bool	PopcornFXRendererLoader::_AddTextureToLoad(	const char *texturePath,
+													const SAssetDependencies::SCache &currentCache,
+													const PParentCache &cache)
 {
 	if (!PK_VERIFY(texturePath != null))
 		return false;
-	const AZ::Data::AssetId	textureId = _LoadTexture(texturePath);
-	if (textureId.IsValid())
+
+	//Load Texture
+	AzFramework::AssetSystem::AssetStatus	status = AzFramework::AssetSystem::AssetStatus_Unknown;
+	EBUS_EVENT_RESULT(status, AzFramework::AssetSystemRequestBus, CompileAssetSync, texturePath);
+	if (status != AzFramework::AssetSystem::AssetStatus_Compiled)
+		CLog::Log(PK_ERROR, "Could not compile image at '%s'", texturePath);
+	AZ::Data::AssetId	streamingImageAssetId;
+	EBUS_EVENT_RESULT(streamingImageAssetId, AZ::Data::AssetCatalogRequestBus, GetAssetIdByPath, texturePath, azrtti_typeid<AZ::RPI::StreamingImageAsset>(), false);
+	if (!streamingImageAssetId.IsValid())
 	{
-		SAssetDependencies	*dependencies = _InsertAssetIFN(textureId, currentCaches);
-		if (!PK_VERIFY(dependencies != null))
-			return false;
-		dependencies->m_AssetRef = AZ::Data::AssetManager::Instance().GetAsset<AZ::RPI::StreamingImageAsset>(textureId, AZ::Data::AssetLoadBehavior::QueueLoad);
-		if (dependencies->m_AssetRef.IsReady())
-			PopcornFXRendererLoader::OnAssetReady(dependencies->m_AssetRef);
-		AZ::Data::AssetBus::MultiHandler::BusConnect(textureId);
-		return true;
+		CLog::Log(PK_ERROR, "Failed to get streaming image asset id with path '%s'", texturePath);
+		return false;
 	}
-	return false;
+
+	SAssetDependencies	*dependencies = _InsertAssetIFN(streamingImageAssetId, currentCache, cache);
+	if (!PK_VERIFY(dependencies != null))
+		return false;
+	dependencies->m_AssetRef = AZ::Data::AssetManager::Instance().GetAsset<AZ::RPI::StreamingImageAsset>(streamingImageAssetId, AZ::Data::AssetLoadBehavior::QueueLoad);
+	if (dependencies->m_AssetRef.IsReady())
+		PopcornFXRendererLoader::OnAssetReady(dependencies->m_AssetRef);
+	if (!AZ::Data::AssetBus::MultiHandler::BusIsConnectedId(streamingImageAssetId))
+		AZ::Data::AssetBus::MultiHandler::BusConnect(streamingImageAssetId);
+	return true;
 }
 
 //----------------------------------------------------------------------------
 
-bool	PopcornFXRendererLoader::_AddShaderToLoad(const char *shaderPathPtr, const SAssetDependencies::SCaches &currentCaches)
+bool	PopcornFXRendererLoader::_AddShaderToLoad(	const char *shaderPathPtr,
+													const SAssetDependencies::SCache &currentCache,
+													const PParentCache &cache)
 {
 	if (!PK_VERIFY(shaderPathPtr != null))
 		return false;
@@ -803,13 +821,50 @@ bool	PopcornFXRendererLoader::_AddShaderToLoad(const char *shaderPathPtr, const 
 		CLog::Log(PK_ERROR, "Could not load shader '%s'", shaderPathPtr);
 		return false;
 	}
-	SAssetDependencies	*dependencies = _InsertAssetIFN(shaderId, currentCaches);
+
+	SAssetDependencies	*dependencies = _InsertAssetIFN(shaderId, currentCache, cache);
 	if (!PK_VERIFY(dependencies != null))
 		return false;
 	dependencies->m_AssetRef = AZ::Data::AssetManager::Instance().GetAsset<AZ::RPI::ShaderAsset>(shaderId, AZ::Data::AssetLoadBehavior::QueueLoad);
 	if (dependencies->m_AssetRef.IsReady())
 		OnAssetReady(dependencies->m_AssetRef);
-	AZ::Data::AssetBus::MultiHandler::BusConnect(shaderId);
+	if (!AZ::Data::AssetBus::MultiHandler::BusIsConnectedId(shaderId))
+		AZ::Data::AssetBus::MultiHandler::BusConnect(shaderId);
+	return true;
+}
+
+//----------------------------------------------------------------------------
+
+bool	PopcornFXRendererLoader::_AddGeometryToLoad(const char *geometryPath,
+													const SAssetDependencies::SCache &currentCache,
+													const PParentCache &cache)
+{
+	AZ::Data::AssetId	assetId;
+
+	AzFramework::AssetSystem::AssetStatus	status = AzFramework::AssetSystem::AssetStatus_Unknown;
+	EBUS_EVENT_RESULT(status, AzFramework::AssetSystemRequestBus, CompileAssetSync, geometryPath);
+	if (status != AzFramework::AssetSystem::AssetStatus_Compiled)
+	{
+		CLog::Log(PK_ERROR, "Could not compile model at '%s'", geometryPath);
+		return false;
+	}
+	EBUS_EVENT_RESULT(assetId, AZ::Data::AssetCatalogRequestBus, GetAssetIdByPath, geometryPath, azrtti_typeid<AZ::RPI::Model>(), false);
+	if (!assetId.IsValid())
+	{
+		CLog::Log(PK_ERROR, "Failed to get model asset id with path '%s'", geometryPath);
+		return false;
+	}
+
+	SAssetDependencies	*dependencies = _InsertAssetIFN(assetId, currentCache, cache);
+	if (!PK_VERIFY(dependencies != null))
+		return false;
+	AZ::Data::Asset<AZ::RPI::ModelAsset>	modelAsset = AZ::Data::AssetManager::Instance().GetAsset<AZ::RPI::ModelAsset>(assetId, AZ::Data::AssetLoadBehavior::QueueLoad);
+	modelAsset.QueueLoad();
+	if (modelAsset.IsReady())
+		OnAssetReady(modelAsset);
+	if (!AZ::Data::AssetBus::MultiHandler::BusIsConnectedId(assetId))
+		AZ::Data::AssetBus::MultiHandler::BusConnect(assetId);
+
 	return true;
 }
 
@@ -831,53 +886,77 @@ AZ::Data::AssetId	PopcornFXRendererLoader::_LoadTexture(const CString &path)
 
 //----------------------------------------------------------------------------
 
-PopcornFXRendererLoader::SAssetDependencies	*PopcornFXRendererLoader::_InsertAssetIFN(const AZ::Data::AssetId &assetId, const SAssetDependencies::SCaches currentCaches)
+PopcornFXRendererLoader::SAssetDependencies	*PopcornFXRendererLoader::_InsertAssetIFN(	const AZ::Data::AssetId &assetId,
+																						const SAssetDependencies::SCache &currentCache,
+																						const PParentCache &cache)
 {
 	if (!assetId.IsValid())
 		return null;
 
+	//Insert the cache into the asset dependecies
 	SAssetDependencies	*dependencies = m_Assets.Find(assetId);
 	if (dependencies == null)
 	{
 		dependencies = m_Assets.Insert(assetId, SAssetDependencies());
 		if (!PK_VERIFY(dependencies != null))
 			return null;
-		if (!PK_VERIFY(dependencies->m_Caches.PushBack(currentCaches).Valid()))
+		if (!PK_VERIFY(dependencies->m_Caches.PushBack(currentCache).Valid()))
 			return null;
 	}
 	else
 	{
-		if (!dependencies->m_Caches.Contains(currentCaches) &&
-			!PK_VERIFY(dependencies->m_Caches.PushBack(currentCaches).Valid()))
+		if (!dependencies->m_Caches.Contains(currentCache) &&
+			!PK_VERIFY(dependencies->m_Caches.PushBack(currentCache).Valid()))
 			return null;
 	}
+
+	{
+		PK_SCOPEDLOCK_WRITE(cache->m_Lock);
+		cache->m_PendingAssets.push_back(assetId);
+	}
+
 	return dependencies;
 }
 
 //----------------------------------------------------------------------------
 
-// TODO: Merge with _InsertAsset
-bool PopcornFXRendererLoader::_InsertRendererCacheDependency(const AZ::Data::AssetId &assetId, const PAtomRendererCache &rendererCache)
+bool	PopcornFXRendererLoader::_LinkAndUpdateRendererCacheIFP(const PAtomRendererCache &rendererCache,
+																const PParentCache &cache,
+																CAtomRendererCache::ECacheType cacheType)
 {
-	if (!assetId.IsValid())
-		return false;
+	PK_SCOPEDLOCK_WRITE(cache->m_Lock);
 
-	TArray<PAtomRendererCache>	*dependencies = m_RendererCacheDependencies.Find(assetId);
-	if (dependencies == null)
+	if (!PK_VERIFY(cache->m_RendererCaches.PushBack(rendererCache.Get()).Valid()))
+		return false;
+	rendererCache->m_Caches[cacheType] = cache;
+
+	if (!cache->m_PendingAssets.empty())
 	{
-		dependencies = m_RendererCacheDependencies.Insert(assetId, TArray<PAtomRendererCache>());
-		if (!PK_VERIFY(dependencies != null))
-			return false;
-		if (!PK_VERIFY(dependencies->PushBack(rendererCache).Valid()))
+		rendererCache->m_ReadyForRender = false;
+		if (!m_PendingRendererCaches.Contains(rendererCache) &&
+			!PK_VERIFY(m_PendingRendererCaches.PushBack(rendererCache).Valid()))
 			return false;
 	}
-	else
+	else if (cacheType == CAtomRendererCache::CacheType_Geometry)
 	{
-		if (!dependencies->Contains(rendererCache) &&
-			!PK_VERIFY(dependencies->PushBack(rendererCache).Valid()))
-			return false;
+		// Cache already loaded, data is ready
+		cache->UpdateRendererCache(rendererCache.Get());
 	}
 	return true;
+}
+
+//----------------------------------------------------------------------------
+
+void	PopcornFXRendererLoader::_RemovePendingCacheDependencyIFN(const PParentCache &cache, AZ::Data::AssetId assetId)
+{
+	for (size_t i = 0; i < cache->m_PendingAssets.size(); i++)
+	{
+		if (cache->m_PendingAssets[i] == assetId)
+		{
+			cache->m_PendingAssets.erase(cache->m_PendingAssets.begin() + i);
+			break;
+		}
+	}
 }
 
 //----------------------------------------------------------------------------
@@ -926,82 +1005,65 @@ PMaterialCache		PopcornFXRendererLoader::_GetOrCreateMaterialCache(const SMateri
 
 //----------------------------------------------------------------------------
 
-AZ::Data::AssetId	_GetMeshAssetId(const CString &path)
+PGeometryCache		PopcornFXRendererLoader::_GetOrCreateGeometryCache(const CString &key, bool &exist)
 {
-	AZ::Data::AssetId	assetId;
+	PGeometryCache	geometryCache = null;
+	PGeometryCache	*found = m_GeometryCaches.Find(key);
 
-	AzFramework::AssetSystem::AssetStatus	status = AzFramework::AssetSystem::AssetStatus_Unknown;
-	EBUS_EVENT_RESULT(status, AzFramework::AssetSystemRequestBus, CompileAssetSync, path.Data());
-	if (status != AzFramework::AssetSystem::AssetStatus_Compiled)
+	if (found == null)
 	{
-		CLog::Log(PK_ERROR, "Could not compile model at '%s'", path.Data());
-		return assetId;
+		exist = false;
+		geometryCache = PK_NEW(CGeometryCache);
+		if (geometryCache == null || m_GeometryCaches.Insert(key, geometryCache) == null)
+			return null;
 	}
-
-	EBUS_EVENT_RESULT(assetId, AZ::Data::AssetCatalogRequestBus, GetAssetIdByPath, path.Data(), azrtti_typeid<AZ::RPI::Model>(), false);
-	if (!assetId.IsValid())
+	else
 	{
-		CLog::Log(PK_ERROR, "Failed to get model asset id with path '%s'", path.Data());
-		return assetId;
+		exist = true;
+		geometryCache = *found;
 	}
-	return assetId;
+	return geometryCache;
 }
 
 //----------------------------------------------------------------------------
 
-bool		PopcornFXRendererLoader::AddGeometryToLoad(const CString &path, const PAtomRendererCache &rendererCache)
+void	PopcornFXRendererLoader::UpdatePendingRendererCache()
 {
 	PK_SCOPEDLOCK(m_Lock);
-	if (!PK_VERIFY(path != null))
-		return false;
 
-	PGeometryCache	*found = m_GeometryCaches.Find(path);
-
-	if (found != null) // Geom. cache already created
+	if (!m_ModifiedCaches.Empty())
 	{
-		if (found->Get()->m_Modified) 
+		for (PParentCache &cache : m_ModifiedCaches)
 		{
-			// Geom. cache already loaded, data is ready
-			_SetMeshInfos(rendererCache, *found);
+			cache->UpdateRendererCaches();
 		}
-		else
+		m_ModifiedCaches.Clear();
+
+		// Only update the pending renderer cache if m_ModifiedCaches is not empty
+		for (u32 i = 0 ; i < m_PendingRendererCaches.Count(); )
 		{
-			// Geom. cache not loaded, add a dependency
-			// to update renderercache
-			AZ::Data::AssetId	assetID = _GetMeshAssetId(path); 
-			if (assetID.IsValid())
-				_InsertRendererCacheDependency(assetID, rendererCache);
+			bool	ready = true;
+			for (PParentCache &cache : m_PendingRendererCaches[i]->m_Caches)
+			{
+				if (cache != null)
+				{
+					PK_SCOPEDLOCK_READ(cache->m_Lock);
+					if (!cache->m_PendingAssets.empty())
+					{
+						ready = false;
+						break;
+					}
+				}
+			}
+			if (ready)
+			{
+				m_PendingRendererCaches[i]->m_ReadyForRender = true;
+				m_PendingRendererCaches.Remove_AndKeepOrder(i);
+			}
+			else
+				++i;
 		}
-		return true;
 	}
-
-	// Create geom. cache
-	PGeometryCache	geometryChache = PK_NEW(CGeometryCache);
-	if (geometryChache == null || m_GeometryCaches.Insert(path, geometryChache) == null)
-	{
-		CLog::Log(PK_ERROR, "Failed to create geometry cache");
-		return false;
-	}
-
-	// Create a dependency between model and geometry cache
-	// and queue load of the model and add
-	AZ::Data::AssetId	assetID = _GetMeshAssetId(path);
-
-	SAssetDependencies::SCaches	currentCache;
-	currentCache.m_Type = AssetType_Geometry;
-	currentCache.m_GeometryPath = path;
-	_InsertAssetIFN(assetID, currentCache);
-
-	_InsertRendererCacheDependency(assetID, rendererCache);
-
-	AZ::Data::AssetBus::MultiHandler::BusConnect(assetID);
-
-	AZ::Data::Asset<AZ::RPI::ModelAsset>	modelAsset = AZ::Data::AssetManager::Instance().GetAsset<AZ::RPI::ModelAsset>(assetID, AZ::Data::AssetLoadBehavior::QueueLoad);
-	modelAsset.QueueLoad();
-	if (modelAsset.IsReady())
-		OnAssetReady(modelAsset);
-
-	return true;
 }
 
 //----------------------------------------------------------------------------
