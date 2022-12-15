@@ -190,11 +190,11 @@ bool	SMaterialCacheKey::operator == (const SMaterialCacheKey &oth) const
 
 //----------------------------------------------------------------------------
 //
-//	CParentCache
+//	CBaseCache
 //
 //----------------------------------------------------------------------------
 
-void	CParentCache::UpdateRendererCaches() const
+void	CBaseCache::UpdateRendererCaches() const
 {
 	PK_SCOPEDLOCK_READ(m_Lock);
 	for (CAtomRendererCache *rendererCache : m_RendererCaches)
@@ -660,7 +660,7 @@ CAtomRendererCache::CAtomRendererCache()
 
 CAtomRendererCache::~CAtomRendererCache()
 {
-	for (PParentCache &cache : m_Caches)
+	for (PBaseCache &cache : m_Caches)
 	{
 		if (cache != null)
 		{

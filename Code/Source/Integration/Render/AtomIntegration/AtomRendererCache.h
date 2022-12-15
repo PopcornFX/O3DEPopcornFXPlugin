@@ -112,7 +112,7 @@ const char	*GetPopornFXUsedShaderPath(EPopcornFXShader shader);
 //----------------------------------------------------------------------------
 
 PK_FORWARD_DECLARE(AtomRendererCache);
-class	CParentCache : public CRefCountedObject
+class	CBaseCache : public CRefCountedObject
 {
 public:
 	AZStd::vector<AZ::Data::AssetId>			m_PendingAssets;
@@ -123,7 +123,7 @@ public:
 	void			UpdateRendererCaches() const;
 	virtual	void	UpdateRendererCache(CAtomRendererCache *rendererCache) const = 0;
 };
-PK_DECLARE_REFPTRCLASS(ParentCache);
+PK_DECLARE_REFPTRCLASS(BaseCache);
 
 //----------------------------------------------------------------------------
 
@@ -143,7 +143,7 @@ struct	SPipelineStateCacheKey
 
 //----------------------------------------------------------------------------
 
-class	CPipelineStateCache : public CParentCache
+class	CPipelineStateCache : public CBaseCache
 {
 public:
 	// Actual resources:
@@ -181,7 +181,7 @@ struct	SMaterialCacheKey
 
 //----------------------------------------------------------------------------
 
-class	CMaterialCache : public CParentCache
+class	CMaterialCache : public CBaseCache
 {
 public:
 	// Actual resources:
@@ -200,7 +200,7 @@ PK_DECLARE_REFPTRCLASS(MaterialCache);
 
 //----------------------------------------------------------------------------
 
-class	CGeometryCache : public CParentCache
+class	CGeometryCache : public CBaseCache
 {
 public:
 	struct GPUBufferViews
@@ -309,7 +309,7 @@ public:
 		CacheType_Geometry,
 		__CacheType_Count
 	};
-	PParentCache	m_Caches[__CacheType_Count];
+	PBaseCache		m_Caches[__CacheType_Count];
 	bool			m_CachesModified;
 };
 PK_DECLARE_REFPTRCLASS(AtomRendererCache);

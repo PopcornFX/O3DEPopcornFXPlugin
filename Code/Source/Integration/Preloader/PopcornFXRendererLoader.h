@@ -92,7 +92,7 @@ private:
 	// Renderer cache waiting for a cache to load:
 	TArray<PAtomRendererCache>								m_PendingRendererCaches;
 	// Modified caches:
-	TArray<PParentCache>									m_ModifiedCaches;
+	TArray<PBaseCache>										m_ModifiedCaches;
 
 	THashMap<AZ::Data::Asset<AZ::RPI::ShaderVariantAsset>, AZ::Data::AssetId>	m_LoadedVariants;
 
@@ -105,21 +105,21 @@ private:
 																			const SPipelineStateCacheKey &key);
 	bool										_AddTextureToLoad(	const char *texturePath,
 																	const SAssetDependencies::SCache &currentCache,
-																	const PParentCache &cache);
+																	const PBaseCache &cache);
 	bool										_AddShaderToLoad(	const char *shaderPath,
 																	const SAssetDependencies::SCache &currentCache,
-																	const PParentCache &cache);
+																	const PBaseCache &cache);
 	bool										_AddGeometryToLoad(	const char *geometryPath,
 																	const SAssetDependencies::SCache &currentCache,
-																	const PParentCache &cache);
+																	const PBaseCache &cache);
 	AZ::Data::AssetId							_LoadTexture(const CString &path);
 	SAssetDependencies							*_InsertAssetIFN(	const AZ::Data::AssetId &assetId,
 																	const SAssetDependencies::SCache &currentCache,
-																	const PParentCache &cache);
+																	const PBaseCache &cache);
 	bool										_LinkAndUpdateRendererCacheIFP(	const PAtomRendererCache &rendererCache,
-																				const PParentCache &cache,
+																				const PBaseCache &cache,
 																				CAtomRendererCache::ECacheType cacheType);
-	void										_RemovePendingCacheDependencyIFN(const PParentCache &cache, AZ::Data::AssetId);
+	void										_RemovePendingCacheDependencyIFN(const PBaseCache &cache, AZ::Data::AssetId);
 
 
 	PPipelineStateCache							_GetOrCreatePipelineCache(const SPipelineStateCacheKey &key, bool &exist);

@@ -3,7 +3,7 @@
 # https://www.popcornfx.com/terms-and-conditions/
 #----------------------------------------------------------------------------
 
-set(POPCORNFX_VERSION 2.14.4.preview0)
+set(POPCORNFX_VERSION 2.14.4)
 set(POPCORNFX_LICENSE O3DE)
 
 if (PK_O3DE_MAJOR_VERSION GREATER_EQUAL 2205)
@@ -12,6 +12,7 @@ else()
     ly_get_list_relative_pal_filename(pal_dir ${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME} ${gem_restricted_path} ${gem_path} ${gem_name})
 endif()
 
+include(${CMAKE_CURRENT_LIST_DIR}/Platform/PopcornFXPackages.cmake)
 include(${pal_dir}/PAL_${PAL_PLATFORM_NAME_LOWERCASE}.cmake) #for PAL_TRAIT_POPCORNFX_SUPPORTED Traits
 
 if(NOT PAL_TRAIT_POPCORNFX_SUPPORTED)

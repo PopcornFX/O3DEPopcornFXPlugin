@@ -776,7 +776,7 @@ AZ::Data::Instance<AZ::RPI::StreamingImage> &PopcornFXRendererLoader::_GetStream
 
 bool	PopcornFXRendererLoader::_AddTextureToLoad(	const char *texturePath,
 													const SAssetDependencies::SCache &currentCache,
-													const PParentCache &cache)
+													const PBaseCache &cache)
 {
 	if (!PK_VERIFY(texturePath != null))
 		return false;
@@ -809,7 +809,7 @@ bool	PopcornFXRendererLoader::_AddTextureToLoad(	const char *texturePath,
 
 bool	PopcornFXRendererLoader::_AddShaderToLoad(	const char *shaderPathPtr,
 													const SAssetDependencies::SCache &currentCache,
-													const PParentCache &cache)
+													const PBaseCache &cache)
 {
 	if (!PK_VERIFY(shaderPathPtr != null))
 		return false;
@@ -837,7 +837,7 @@ bool	PopcornFXRendererLoader::_AddShaderToLoad(	const char *shaderPathPtr,
 
 bool	PopcornFXRendererLoader::_AddGeometryToLoad(const char *geometryPath,
 													const SAssetDependencies::SCache &currentCache,
-													const PParentCache &cache)
+													const PBaseCache &cache)
 {
 	AZ::Data::AssetId	assetId;
 
@@ -888,7 +888,7 @@ AZ::Data::AssetId	PopcornFXRendererLoader::_LoadTexture(const CString &path)
 
 PopcornFXRendererLoader::SAssetDependencies	*PopcornFXRendererLoader::_InsertAssetIFN(	const AZ::Data::AssetId &assetId,
 																						const SAssetDependencies::SCache &currentCache,
-																						const PParentCache &cache)
+																						const PBaseCache &cache)
 {
 	if (!assetId.IsValid())
 		return null;
@@ -921,7 +921,7 @@ PopcornFXRendererLoader::SAssetDependencies	*PopcornFXRendererLoader::_InsertAss
 //----------------------------------------------------------------------------
 
 bool	PopcornFXRendererLoader::_LinkAndUpdateRendererCacheIFP(const PAtomRendererCache &rendererCache,
-																const PParentCache &cache,
+																const PBaseCache &cache,
 																CAtomRendererCache::ECacheType cacheType)
 {
 	PK_SCOPEDLOCK_WRITE(cache->m_Lock);
@@ -947,7 +947,7 @@ bool	PopcornFXRendererLoader::_LinkAndUpdateRendererCacheIFP(const PAtomRenderer
 
 //----------------------------------------------------------------------------
 
-void	PopcornFXRendererLoader::_RemovePendingCacheDependencyIFN(const PParentCache &cache, AZ::Data::AssetId assetId)
+void	PopcornFXRendererLoader::_RemovePendingCacheDependencyIFN(const PBaseCache &cache, AZ::Data::AssetId assetId)
 {
 	for (size_t i = 0; i < cache->m_PendingAssets.size(); i++)
 	{
@@ -1033,7 +1033,7 @@ void	PopcornFXRendererLoader::UpdatePendingRendererCache()
 
 	if (!m_ModifiedCaches.Empty())
 	{
-		for (PParentCache &cache : m_ModifiedCaches)
+		for (PBaseCache &cache : m_ModifiedCaches)
 		{
 			cache->UpdateRendererCaches();
 		}
@@ -1043,7 +1043,7 @@ void	PopcornFXRendererLoader::UpdatePendingRendererCache()
 		for (u32 i = 0 ; i < m_PendingRendererCaches.Count(); )
 		{
 			bool	ready = true;
-			for (PParentCache &cache : m_PendingRendererCaches[i]->m_Caches)
+			for (PBaseCache &cache : m_PendingRendererCaches[i]->m_Caches)
 			{
 				if (cache != null)
 				{
