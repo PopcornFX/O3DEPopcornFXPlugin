@@ -81,40 +81,18 @@ PRendererCacheBase		CAtomRenderDataFactory::CreateRendererCache(const PRendererD
 		return null;
 	}
 
-	rendererCache->m_CacheFactory = this;
 	rendererCache->InitFromRenderer(*renderer, m_PackPath, particleDesc->ParentEffect()->FilePath());
 	if (renderer->m_RendererType != Renderer_Light)
 	{
-		if (!PK_VERIFY(m_RendererLoader.AddMaterialToCreate(rendererCache->m_BasicDescription.m_MaterialKey, rendererCache->m_BasicDescription.m_PipelineStateKey)))
+		if (!PK_VERIFY(m_RendererLoader.AddMaterialToCreate(rendererCache)))
 			return null;
 		if (rendererCache->m_RendererType == Renderer_Mesh)
 		{
-			if (!PK_VERIFY(m_RendererLoader.AddGeometryToLoad(rendererCache->m_BasicDescription.m_MeshPath.ToString(), rendererCache)))
+			if (!PK_VERIFY(m_RendererLoader.AddGeometryToCreate(rendererCache)))
 				return null;
 		}
 	}
 	return rendererCache;
-}
-
-//----------------------------------------------------------------------------
-
-PMaterialCache		CAtomRenderDataFactory::FindMaterial(const SMaterialCacheKey &key) const
-{
-	return m_RendererLoader.FindMaterial(key);
-}
-
-//----------------------------------------------------------------------------
-
-PPipelineStateCache	CAtomRenderDataFactory::FindPipelineState(const SPipelineStateCacheKey &key) const
-{
-	return m_RendererLoader.FindPipelineState(key);
-}
-
-//----------------------------------------------------------------------------
-
-PGeometryCache		CAtomRenderDataFactory::FindGeometryCache(const CString &path) const
-{
-	return m_RendererLoader.FindGeometryCache(path);
 }
 
 //----------------------------------------------------------------------------

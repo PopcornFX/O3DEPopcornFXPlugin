@@ -20,34 +20,34 @@ namespace PopcornFX {
 // The EMaterialVariations flags change the actual shader variation loaded:
 namespace	RendererFlags
 {
-    // /!\ ERendererFlags should match the flags defined in PopcornFX/Assets/shaders/Common/RendererSrg.azsli
+	// /!\ ERendererFlags should match the flags defined in PopcornFX/Assets/shaders/Common/RendererSrg.azsli
 	enum	ERendererFlags
 	{
 		// Basic color features:
 		Has_Diffuse					= (1 << 0),
-		Has_Emissive			    = (1 << 1),
-		Has_Tint				    = (1 << 2),
-		Has_Distortion			    = (1 << 3),
+		Has_Emissive				= (1 << 1),
+		Has_Tint					= (1 << 2),
+		Has_Distortion				= (1 << 3),
 		// Lit particles:
-		Has_Lighting			    = (1 << 4),
+		Has_Lighting				= (1 << 4),
 		// Soft particles:
-		Has_Soft				    = (1 << 5),
+		Has_Soft					= (1 << 5),
 		// Atlas and UVs:
-		Has_Atlas				    = (1 << 6),
-		Has_CorrectDeformation	    = (1 << 7),
+		Has_Atlas					= (1 << 6),
+		Has_CorrectDeformation		= (1 << 7),
 		// Geometry:
-		Has_Capsules			    = (1 << 8),
+		Has_Capsules				= (1 << 8),
 		Has_Size2					= (1 << 9),
 
 		Has_NormalMap				= (1 << 10),
-        Has_AnimBlend               = (1 << 11),
+		Has_AnimBlend				= (1 << 11),
 		Has_AnimBlend_Linear		= (1 << 12),
 		Has_AnimBlend_MotionVectors	= (1 << 13),
 		Has_DiffuseRamp				= (1 << 14),
 		Has_EmissiveRamp			= (1 << 15),
 		Has_AlphaRemap				= (1 << 16),
 
-        HAS_RotateUV				= (1 << 17),
+		HAS_RotateUV				= (1 << 17),
 		HAS_FlipU					= (1 << 18),
 		HAS_FlipV					= (1 << 19),
 
@@ -111,6 +111,22 @@ const char	*GetPopornFXUsedShaderPath(EPopcornFXShader shader);
 
 //----------------------------------------------------------------------------
 
+PK_FORWARD_DECLARE(AtomRendererCache);
+class	CBaseCache : public CRefCountedObject
+{
+public:
+	AZStd::vector<AZ::Data::AssetId>			m_PendingAssets;
+	TArray<CAtomRendererCache*>					m_RendererCaches;
+
+	Threads::CRWLock							m_Lock;
+
+	void			UpdateRendererCaches() const;
+	virtual	void	UpdateRendererCache(CAtomRendererCache *rendererCache) const = 0;
+};
+PK_DECLARE_REFPTRCLASS(BaseCache);
+
+//----------------------------------------------------------------------------
+
 struct	SPipelineStateCacheKey
 {
 	// Which shader variation to use:
@@ -127,7 +143,7 @@ struct	SPipelineStateCacheKey
 
 //----------------------------------------------------------------------------
 
-class	CPipelineStateCache : public CRefCountedObject
+class	CPipelineStateCache : public CBaseCache
 {
 public:
 	// Actual resources:
@@ -142,11 +158,8 @@ public:
 
 	AZ::Data::Instance<AZ::RPI::Shader>			m_TransparentDepthMaxShader;
 	AZ::RHI::ConstPtr<AZ::RHI::PipelineState>	m_TransparentDepthMaxPipelineState;
-	
-	bool										m_Modified;
-	Threads::CRWLock							m_Lock;
 
-	CPipelineStateCache() : m_Modified(false) { }
+	virtual	void	UpdateRendererCache(CAtomRendererCache *rendererCache) const override;
 };
 PK_DECLARE_REFPTRCLASS(PipelineStateCache);
 
@@ -168,7 +181,7 @@ struct	SMaterialCacheKey
 
 //----------------------------------------------------------------------------
 
-class	CMaterialCache : public CRefCountedObject
+class	CMaterialCache : public CBaseCache
 {
 public:
 	// Actual resources:
@@ -181,16 +194,13 @@ public:
 	AZ::Data::Instance<AZ::RPI::StreamingImage>		m_AlphaMap;
 	AZ::Data::Instance<AZ::RPI::StreamingImage>		m_DistortionMap;
 
-	bool											m_Modified;
-	Threads::CRWLock								m_Lock;
-
-	CMaterialCache() : m_Modified(false) { }
+	virtual	void	UpdateRendererCache(CAtomRendererCache *rendererCache) const override;
 };
 PK_DECLARE_REFPTRCLASS(MaterialCache);
 
 //----------------------------------------------------------------------------
 
-class	CGeometryCache : public CRefCountedObject
+class	CGeometryCache : public CBaseCache
 {
 public:
 	struct GPUBufferViews
@@ -212,17 +222,14 @@ public:
 	CAABB										m_GlobalBounds;
 	AZ::Data::Instance<AZ::RPI::ModelLod>		m_ModelLod;
 
-	bool										m_Modified;
-	Threads::CRWLock							m_Lock;
-	
-	CGeometryCache() : m_Modified(false) { }
+	virtual	void	UpdateRendererCache(CAtomRendererCache *rendererCache) const override;
+
 };
 PK_DECLARE_REFPTRCLASS(GeometryCache);
 
 //----------------------------------------------------------------------------
 
 class	CAtomRendererCache;
-class	PopcornFXMeshLoader;
 
 // This is a very basic description of a particle material that is created from a PopcornFX renderer data.
 // You can create your own engine material instead of that.
@@ -231,7 +238,6 @@ struct	SParticleMaterialBasicDesc
 	u32							m_RendererFlags;
 	u32							m_RendererFlagsBatchMask;
 
-	PopcornFXMeshLoader			*m_MeshLoader;
 	CStringId					m_MeshPath;
 	bool						m_UseMeshAtlas;
 
@@ -251,7 +257,7 @@ struct	SParticleMaterialBasicDesc
 
 	float						m_SortDepthOffset;
 
-    CFloat2                     m_MotionVectorsScale;
+	CFloat2						m_MotionVectorsScale;
 
 	SMaterialCacheKey			m_MaterialKey;
 	SPipelineStateCacheKey		m_PipelineStateKey;
@@ -295,7 +301,16 @@ public:
 	SParticleMaterialBasicDesc			m_BasicDescription;
 	CString								m_ParentEffectPath;
 	CString								m_PackPath;
-	CAtomRenderDataFactory			*m_CacheFactory;
+
+	enum	ECacheType
+	{
+		CacheType_Material,
+		CacheType_PipelineState,
+		CacheType_Geometry,
+		__CacheType_Count
+	};
+	PBaseCache		m_Caches[__CacheType_Count];
+	bool			m_CachesModified;
 };
 PK_DECLARE_REFPTRCLASS(AtomRendererCache);
 

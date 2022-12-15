@@ -168,6 +168,8 @@ protected:
 										u32 particleCount,
 										u32 indexCount,
 										u32 vertexCount);
+
+	void	_UnflagModifiedCaches(const TArray<PRendererCacheBase> &rendererCaches);
 };
 
 //----------------------------------------------------------------------------

@@ -135,13 +135,14 @@ bool	CBillboardBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBat
 		return false;
 
 	CAtomRendererCache *rendererCache = static_cast<CAtomRendererCache*>(drawPass.m_RendererCaches.First().Get());
-
 	if (!PK_VERIFY(rendererCache != null))
 		return false;
 
 	for (auto &pipelineCache : m_PipelineCaches)
 		pipelineCache.InitFromRendererCacheIFN(rendererCache);
-
+	if (rendererCache->m_CachesModified)
+		_UnflagModifiedCaches(drawPass.m_RendererCaches);
+	
 	{
 		PK_NAMEDSCOPEDPROFILE("CAtomBillboardingBatchPolicy::AllocBuffers Alloc additional inputs");
 		const u32	additionalShaderInputsCount = drawPass.m_ToGenerate.m_AdditionalGeneratedInputs.Count();
@@ -294,12 +295,6 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBat
 	AZ_UNUSED(ctx);
 	SAtomRenderContext::SDrawCall		dc;
 
-	for (const auto &pipelineCache : m_PipelineCaches)
-	{
-		if (!pipelineCache.IsInitialized())
-			return true;
-	}
-
 	const u32									particleCount = drawPass.m_TotalParticleCount;
 	const u32									drawRequestsCount = drawPass.m_DrawRequests.Count();
 	const CParticleBuffers::SViewIndependent	&viewIndependent = GetCurBuffers().m_ViewIndependent;
@@ -311,7 +306,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBat
 
 	dc.m_RendererType = Renderer_Billboard;
 	// For billboard renderer, we use a draw instance
-	if (!PK_VERIFY(m_PipelineCaches.Count() == 1))
+	if (!PK_VERIFY(m_PipelineCaches.Count() == 1 && m_PipelineCaches[0].IsInitialized()))
 		return false;
 
 	// ----------------------------------------------------------------

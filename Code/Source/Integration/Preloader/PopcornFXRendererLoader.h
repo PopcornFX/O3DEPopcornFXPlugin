@@ -27,8 +27,8 @@ public:
 	PopcornFXRendererLoader();
 	~PopcornFXRendererLoader();
 
-	bool	AddMaterialToCreate(const SMaterialCacheKey &materialCacheKey, const SPipelineStateCacheKey &pipelineCacheKey);
-	bool	AddGeometryToLoad(const CString &path, const PAtomRendererCache &rendererCache);
+	bool	AddMaterialToCreate(const PAtomRendererCache &rendererCache);
+	bool	AddGeometryToCreate(const PAtomRendererCache &rendererCache);
 
 	void	OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData> asset) override;
 	void	OnAssetReloaded(AZ::Data::Asset<AZ::Data::AssetData> asset) override;
@@ -38,12 +38,7 @@ public:
 	void	OnShaderReinitialized(const AZ::RPI::Shader &shader) override;
 	void	OnShaderVariantReinitialized(const AZ::RPI::ShaderVariant &shaderVariant) override;
 
-	PMaterialCache		FindMaterial(const SMaterialCacheKey &key) const;
-	PPipelineStateCache	FindPipelineState(const SPipelineStateCacheKey &key) const;
-	PGeometryCache		FindGeometryCache(const CString &path) const;
-
-	void	SetRenderManager(CRenderManager *renderManager) { m_RenderManager = renderManager; }
-
+	void	UpdatePendingRendererCache();
 private:
 
 	enum EAssetType
@@ -69,20 +64,19 @@ private:
 
 	struct	SAssetDependencies
 	{
-		struct	SCaches
+		struct	SCache
 		{
-			SMaterialCacheKey			m_MaterialKey;
-			SPipelineStateCacheKey		m_PipelineStateKey;
-			CString						m_GeometryPath;
-			EAssetType					m_Type;
+			SMaterialCacheKey		m_MaterialKey;
+			SPipelineStateCacheKey	m_PipelineStateKey;
+			CString					m_GeometryPath;
+			EAssetType				m_Type;
 
-			bool	operator == (const SCaches &oth) const;
+			bool	operator == (const SCache &oth) const;
 		};
 
-		PopcornFX::TArray<SCaches>				m_Caches;
+		PopcornFX::TArray<SCache>				m_Caches;
 		AZ::Data::Asset<AZ::Data::AssetData>	m_AssetRef;
 	};
-	CRenderManager											*m_RenderManager;
 
 	// Mutex:
 	Threads::CCriticalSection								m_Lock;
@@ -94,8 +88,11 @@ private:
 	THashMap<PPipelineStateCache, SPipelineStateCacheKey>	m_PipelineStates;
 	// Geometry
 	THashMap<PGeometryCache, CString>						m_GeometryCaches;
-	// RendererCache dependencies:
-	THashMap<TArray<PAtomRendererCache>, AZ::Data::AssetId>	m_RendererCacheDependencies;
+
+	// Renderer cache waiting for a cache to load:
+	TArray<PAtomRendererCache>								m_PendingRendererCaches;
+	// Modified caches:
+	TArray<PBaseCache>										m_ModifiedCaches;
 
 	THashMap<AZ::Data::Asset<AZ::RPI::ShaderVariantAsset>, AZ::Data::AssetId>	m_LoadedVariants;
 
@@ -106,13 +103,28 @@ private:
 																			AZ::RPI::ShaderVariant &shaderVariant,
 																			EAssetType assetType,
 																			const SPipelineStateCacheKey &key);
-	bool										_AddTextureToLoad(const char *texturePath, const SAssetDependencies::SCaches &currentCaches);
-	bool										_AddShaderToLoad(const char *shaderPath, const SAssetDependencies::SCaches &currentCaches);
+	bool										_AddTextureToLoad(	const char *texturePath,
+																	const SAssetDependencies::SCache &currentCache,
+																	const PBaseCache &cache);
+	bool										_AddShaderToLoad(	const char *shaderPath,
+																	const SAssetDependencies::SCache &currentCache,
+																	const PBaseCache &cache);
+	bool										_AddGeometryToLoad(	const char *geometryPath,
+																	const SAssetDependencies::SCache &currentCache,
+																	const PBaseCache &cache);
 	AZ::Data::AssetId							_LoadTexture(const CString &path);
-	SAssetDependencies							*_InsertAssetIFN(const AZ::Data::AssetId &assetId, const SAssetDependencies::SCaches currentCaches);
-	bool										_InsertRendererCacheDependency(const AZ::Data::AssetId &assetId, const PAtomRendererCache &rendererCache);
+	SAssetDependencies							*_InsertAssetIFN(	const AZ::Data::AssetId &assetId,
+																	const SAssetDependencies::SCache &currentCache,
+																	const PBaseCache &cache);
+	bool										_LinkAndUpdateRendererCacheIFP(	const PAtomRendererCache &rendererCache,
+																				const PBaseCache &cache,
+																				CAtomRendererCache::ECacheType cacheType);
+	void										_RemovePendingCacheDependencyIFN(const PBaseCache &cache, AZ::Data::AssetId);
+
+
 	PPipelineStateCache							_GetOrCreatePipelineCache(const SPipelineStateCacheKey &key, bool &exist);
 	PMaterialCache								_GetOrCreateMaterialCache(const SMaterialCacheKey &key, bool &exist);
+	PGeometryCache								_GetOrCreateGeometryCache(const CString &key, bool &exist);
 };
 
 }
