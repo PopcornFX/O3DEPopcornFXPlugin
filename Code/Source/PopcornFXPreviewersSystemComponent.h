@@ -27,9 +27,9 @@ namespace PopcornFX {
 		PopcornFXPreviewersSystemComponent() = default;
 		~PopcornFXPreviewersSystemComponent() override = default;
 
-		static void	Reflect(AZ::ReflectContext *context) { AZ_UNUSED(context); }
-		static void	GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType &provided) { AZ_UNUSED(provided); }
-		static void	GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType &incompatible) { AZ_UNUSED(incompatible); }
+		static void	Reflect(AZ::ReflectContext *context);
+		static void	GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType &provided);
+		static void	GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType &incompatible);
 		static void	GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType &required) { AZ_UNUSED(required); }
 		static void	GetDependentServices(AZ::ComponentDescriptor::DependencyArrayType &dependent) { AZ_UNUSED(dependent); }
 

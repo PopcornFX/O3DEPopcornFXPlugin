@@ -3,7 +3,7 @@
 # https://www.popcornfx.com/terms-and-conditions/
 #----------------------------------------------------------------------------
 
-set(POPCORNFX_VERSION 2.14.4)
+set(POPCORNFX_VERSION 2.15.1)
 set(POPCORNFX_LICENSE O3DE)
 
 if (PK_O3DE_MAJOR_VERSION GREATER_EQUAL 2205)
@@ -70,10 +70,10 @@ ly_add_target(
             Gem::EMotionFXStaticLib
             Gem::PhysX.Static
     AUTOGEN_RULES
-        *.ScriptCanvasGrammar.xml,ScriptCanvasGrammar_Header.jinja,$path/$fileprefix.generated.h
-        *.ScriptCanvasGrammar.xml,ScriptCanvasGrammar_Source.jinja,$path/$fileprefix.generated.cpp
         *.ScriptCanvasNodeable.xml,ScriptCanvasNodeable_Header.jinja,$path/$fileprefix.generated.h
         *.ScriptCanvasNodeable.xml,ScriptCanvasNodeable_Source.jinja,$path/$fileprefix.generated.cpp
+        *.ScriptCanvasNodeable.xml,ScriptCanvasNodeableRegistry_Header.jinja,AutoGenNodeableRegistry.generated.h
+        *.ScriptCanvasNodeable.xml,ScriptCanvasNodeableRegistry_Source.jinja,AutoGenNodeableRegistry.generated.cpp
 )
 
 ly_add_target(

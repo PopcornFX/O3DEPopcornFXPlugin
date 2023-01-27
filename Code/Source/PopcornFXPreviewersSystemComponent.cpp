@@ -7,9 +7,28 @@
 
 #include "PopcornFXPreviewersSystemComponent.h"
 
+#include <AzCore/Serialization/SerializeContext.h>
 #include <AzCore/StringFunc/StringFunc.h>
 
 namespace PopcornFX {
+
+	void	PopcornFXPreviewersSystemComponent::Reflect(AZ::ReflectContext *context)
+	{
+		if (AZ::SerializeContext* serialize = azrtti_cast<AZ::SerializeContext*>(context); serialize)
+		{
+			serialize->Class<PopcornFXPreviewersSystemComponent>()->Version(0);
+		}
+	}
+
+	void	PopcornFXPreviewersSystemComponent::GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType &provided)
+	{
+		provided.push_back(AZ_CRC("PopcornFXPreviewersService"));
+	}
+
+	void	PopcornFXPreviewersSystemComponent::GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType &incompatible)
+	{
+		incompatible.push_back(AZ_CRC("PopcornFXPreviewersService"));
+	}
 
 	void	PopcornFXPreviewersSystemComponent::Init()
 	{
