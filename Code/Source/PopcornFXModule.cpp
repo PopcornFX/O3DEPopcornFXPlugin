@@ -31,7 +31,6 @@
 #include "Components/Helpers/PopcornFXHelperProfilerGameComponent.h"
 
 #include "PopcornFXSystemComponent.h"
-#include "ScriptCanvas/PopcornFXLibrary.h"
 
 namespace PopcornFX {
 
@@ -86,11 +85,6 @@ namespace PopcornFX {
 				PopcornFXBuilderComponent::CreateDescriptor(),
 #endif // POPCORNFX_BUILDER
 			});
-
-			//-------- ScriptCanvas Folder
-			AZStd::vector<AZ::ComponentDescriptor*> componentDescriptors(PopcornFXLibrary::GetComponentDescriptors());
-			m_descriptors.insert(m_descriptors.end(), componentDescriptors.begin(), componentDescriptors.end());
-			//--------
 		}
 
 		/**

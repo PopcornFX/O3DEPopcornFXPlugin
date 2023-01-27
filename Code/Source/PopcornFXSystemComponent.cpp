@@ -19,7 +19,11 @@
 #include "Integration/Render/AtomIntegration/PopcornFXFeatureProcessor.h"
 #include "Asset/PopcornFXAsset.h"
 #include "Asset/PopcornFXAssetHandler.h"
-#include "ScriptCanvas/PopcornFXLibrary.h"
+
+#include <AutoGenNodeableRegistry.generated.h>
+#include <AutoGenGrammarRegistry.generated.h>
+
+REGISTER_SCRIPTCANVAS_AUTOGEN_NODEABLE(PopcornFXStatic);
 
 namespace PopcornFX {
 
@@ -77,7 +81,6 @@ namespace PopcornFX {
 				->Event("ProfilerSetEnable", &PopcornFXProfilerRequestBus::Events::ProfilerSetEnable)
 				;
 		}
-		PopcornFXLibrary::Reflect(context);
 	}
 
 	void	PopcornFXSystemComponent::GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType &provided)
@@ -92,7 +95,7 @@ namespace PopcornFX {
 
 	void	PopcornFXSystemComponent::GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType &required)
 	{
-		(void)required;
+		AZ_UNUSED(required);
 	}
 
 	void	PopcornFXSystemComponent::GetDependentServices(AZ::ComponentDescriptor::DependencyArrayType &dependent)
@@ -103,10 +106,6 @@ namespace PopcornFX {
 
 	void	PopcornFXSystemComponent::Init()
 	{
-		if (ScriptCanvas::GetNodeRegistry().IsConstructed())
-		{
-			PopcornFXLibrary::InitNodeRegistry(ScriptCanvas::GetNodeRegistry().Get());
-		}
 	}
 
 	void	PopcornFXSystemComponent::Activate()
