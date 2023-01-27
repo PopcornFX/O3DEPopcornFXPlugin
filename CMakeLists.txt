@@ -14,21 +14,37 @@ set(PK_O3DE_ENGINE_VERSION_LATEST "2210.0")
 
 if (${PK_O3DE_ENGINE_VERSION})
     set(o3de_build_number ${PK_O3DE_ENGINE_VERSION})
-elseif (${INSTALLED_ENGINE})
-    o3de_read_json_key(o3de_build_number ${LY_ROOT_FOLDER}/engine.json "O3DEBuildNumber")
-    if (o3de_build_number STREQUAL "" OR o3de_build_number STREQUAL "0")
-        message(FATAL_ERROR "Invalid O3DEBuildNumber in 'engine.json'. Please set PK_O3DE_ENGINE_VERSION in the PopcornFX CMakeLists.txt.")
-    endif()
 else()
-    o3de_read_json_key(o3de_version ${LY_ROOT_FOLDER}/engine.json "O3DEVersion")
-    if (o3de_version STREQUAL "0.1.0.0")
+    ly_file_read(${LY_ROOT_FOLDER}/engine.json manifest_json_data)
+
+    # Use the engine.json file version to determine the version and build fields
+    string(JSON file_version ERROR_VARIABLE manifest_json_error GET ${manifest_json_data} "file_version")
+    if(file_version GREATER_EQUAL 2)
+        set(o3de_build_number_key "build")
+        set(o3de_display_version_key "display_version")
+        set(o3de_version_key "version")
+    else()
+        set(o3de_build_number_key "O3DEBuildNumber")
+        set(o3de_display_version_key "O3DEVersion")
+        set(o3de_version_key "O3DEVersion")
+    endif()
+
+    string(JSON o3de_display_version ERROR_VARIABLE manifest_json_error GET ${manifest_json_data} ${o3de_display_version_key})
+
+    # During development the engine display version is not used
+    if (o3de_display_version STREQUAL "00.00" OR o3de_display_version STREQUAL "0.1.0.0")
         set(PK_O3DE_DEVELOPMENT ON)
         set(o3de_build_number ${PK_O3DE_ENGINE_VERSION_LATEST})
     else ()
-        message(FATAL_ERROR "Could not determine the engine version using O3DEVersion in 'engine.json'. Please set PK_O3DE_ENGINE_VERSION in the PopcornFX CMakeLists.txt.")
+        string(JSON o3de_build_number ERROR_VARIABLE manifest_json_error GET ${manifest_json_data} ${o3de_build_number_key})
+        if (manifest_json_error OR o3de_build_number STREQUAL "" OR o3de_build_number STREQUAL "0")
+            message(FATAL_ERROR "Invalid ${o3de_build_number_key} or ${o3de_display_version_key} in 'engine.json'. Please set PK_O3DE_ENGINE_VERSION in the PopcornFX CMakeLists.txt.")
+        endif()
     endif()
 endif()
 
+# Note: converting a float to string may result in a bad conversion
+# e.g. 2111.2 becomes the string 2111.1999999999998
 string(REPLACE "." ";" o3de_version_list ${o3de_build_number})
 list(GET o3de_version_list 0 PK_O3DE_MAJOR_VERSION)
 list(GET o3de_version_list 1 PK_O3DE_PATCH_VERSION)
