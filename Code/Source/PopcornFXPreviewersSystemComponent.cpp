@@ -16,7 +16,7 @@ namespace PopcornFX {
 	{
 		if (AZ::SerializeContext* serialize = azrtti_cast<AZ::SerializeContext*>(context); serialize)
 		{
-			serialize->Class<PopcornFXPreviewersSystemComponent>()->Version(0);
+			serialize->Class<PopcornFXPreviewersSystemComponent, AZ::Component>()->Version(0);
 		}
 	}
 
