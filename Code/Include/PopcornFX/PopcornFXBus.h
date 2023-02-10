@@ -430,8 +430,8 @@ namespace PopcornFX
 	};
 	using PopcornFXEmitterEditorComponentEventsBus = AZ::EBus <PopcornFXEmitterEditorComponentEvents>;
 
-	static const AZ::Uuid EmitterComponentTypeId = AZ::Uuid("{515957e3-8354-4048-8d6c-98628ef21804}");
-	static const AZ::Uuid EditorEmitterComponentTypeId = AZ::Uuid("{B62ED02E-731B-4ACD-BCA1-78EF92528228}");
+	static constexpr AZ::Uuid EmitterComponentTypeId = AZ::Uuid("{515957e3-8354-4048-8d6c-98628ef21804}");
+	static constexpr AZ::Uuid EditorEmitterComponentTypeId = AZ::Uuid("{B62ED02E-731B-4ACD-BCA1-78EF92528228}");
 
 	class PopcornFXProfilerRequests
 		: public AZ::EBusTraits
