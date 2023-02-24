@@ -3,7 +3,7 @@
 # https://www.popcornfx.com/terms-and-conditions/
 #----------------------------------------------------------------------------
 
-set(POPCORNFX_VERSION 2.15.2)
+set(POPCORNFX_VERSION 2.15.3)
 set(POPCORNFX_LICENSE O3DE)
 
 if (PK_O3DE_MAJOR_VERSION GREATER_EQUAL 2205)
@@ -131,11 +131,17 @@ if(PAL_TRAIT_BUILD_HOST_TOOLS)
     ly_add_target(
         NAME PopcornFX.Builders GEM_MODULE
         NAMESPACE Gem
+        AUTOUIC
+        AUTOMOC
+        AUTORCC
         FILES_CMAKE
             popcornfx_builder_files.cmake
+            popcornfx_editor_files.cmake # Note: pipeline tools need access to editor components in order to process .prefabs
         COMPILE_DEFINITIONS
             PRIVATE
+                QT_NO_KEYWORDS
                 POPCORNFX_BUILDER
+                POPCORNFX_EDITOR
         INCLUDE_DIRECTORIES
             PRIVATE
                 Source
