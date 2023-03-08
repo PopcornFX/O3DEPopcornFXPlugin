@@ -25,6 +25,7 @@ class CPopcornFXFeatureProcessor : public CPopcornFXFeatureProcessorInterface
 {
 public:
 	AZ_RTTI(CPopcornFXFeatureProcessor, "{D86216E4-92A8-43BE-123F-883489C75BA1}", CPopcornFXFeatureProcessorInterface);
+	AZ_CLASS_ALLOCATOR(CPopcornFXFeatureProcessor, AZ::SystemAllocator);
 
 	CPopcornFXFeatureProcessor();
 	virtual ~CPopcornFXFeatureProcessor() = default;
