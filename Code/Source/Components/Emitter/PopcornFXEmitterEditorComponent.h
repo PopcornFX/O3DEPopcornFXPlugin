@@ -29,7 +29,7 @@ namespace PopcornFX {
 
 	{
 	public:
-		AZ_EDITOR_COMPONENT(PopcornFXEmitterEditorComponent, "{B62ED02E-731B-4ACD-BCA1-78EF92528228}");
+		AZ_EDITOR_COMPONENT(PopcornFXEmitterEditorComponent, EditorEmitterComponentTypeId);
 
 		PopcornFXEmitterEditorComponent();
 
