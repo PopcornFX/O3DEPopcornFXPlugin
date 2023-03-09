@@ -782,10 +782,19 @@ bool	PopcornFXRendererLoader::_AddTextureToLoad(	const char *texturePath,
 		return false;
 
 	//Load Texture
-	AzFramework::AssetSystem::AssetStatus	status = AzFramework::AssetSystem::AssetStatus_Unknown;
-	EBUS_EVENT_RESULT(status, AzFramework::AssetSystemRequestBus, CompileAssetSync, texturePath);
-	if (status != AzFramework::AssetSystem::AssetStatus_Compiled)
-		CLog::Log(PK_ERROR, "Could not compile image at '%s'", texturePath);
+	bool apConnected = false;
+	AzFramework::AssetSystemRequestBus::BroadcastResult(
+		apConnected, &AzFramework::AssetSystemRequestBus::Events::ConnectedWithAssetProcessor);
+	if (apConnected)
+	{
+		// If the Asset Processor is available, make sure the assets are compiled.
+		AzFramework::AssetSystem::AssetStatus status = AzFramework::AssetSystem::AssetStatus_Unknown;
+		EBUS_EVENT_RESULT(status, AzFramework::AssetSystemRequestBus, CompileAssetSync, texturePath);
+		if (status != AzFramework::AssetSystem::AssetStatus_Compiled)
+		{
+			CLog::Log(PK_ERROR, "Could not compile image at '%s'", texturePath);
+		}
+	}
 	AZ::Data::AssetId	streamingImageAssetId;
 	EBUS_EVENT_RESULT(streamingImageAssetId, AZ::Data::AssetCatalogRequestBus, GetAssetIdByPath, texturePath, azrtti_typeid<AZ::RPI::StreamingImageAsset>(), false);
 	if (!streamingImageAssetId.IsValid())
@@ -841,13 +850,20 @@ bool	PopcornFXRendererLoader::_AddGeometryToLoad(const char *geometryPath,
 {
 	AZ::Data::AssetId	assetId;
 
-	AzFramework::AssetSystem::AssetStatus	status = AzFramework::AssetSystem::AssetStatus_Unknown;
-	EBUS_EVENT_RESULT(status, AzFramework::AssetSystemRequestBus, CompileAssetSync, geometryPath);
-	if (status != AzFramework::AssetSystem::AssetStatus_Compiled)
+	bool apConnected = false;
+	AzFramework::AssetSystemRequestBus::BroadcastResult(
+		apConnected, &AzFramework::AssetSystemRequestBus::Events::ConnectedWithAssetProcessor);
+	if (apConnected)
 	{
-		CLog::Log(PK_ERROR, "Could not compile model at '%s'", geometryPath);
-		return false;
+		// If the Asset Processor is available, make sure the assets are compiled.
+		AzFramework::AssetSystem::AssetStatus	status = AzFramework::AssetSystem::AssetStatus_Unknown;
+		EBUS_EVENT_RESULT(status, AzFramework::AssetSystemRequestBus, CompileAssetSync, geometryPath);
+		if (status != AzFramework::AssetSystem::AssetStatus_Compiled)
+		{
+			CLog::Log(PK_ERROR, "Could not compile model at '%s'", geometryPath);
+		}
 	}
+
 	EBUS_EVENT_RESULT(assetId, AZ::Data::AssetCatalogRequestBus, GetAssetIdByPath, geometryPath, azrtti_typeid<AZ::RPI::Model>(), false);
 	if (!assetId.IsValid())
 	{
@@ -872,10 +888,19 @@ bool	PopcornFXRendererLoader::_AddGeometryToLoad(const char *geometryPath,
 
 AZ::Data::AssetId	PopcornFXRendererLoader::_LoadTexture(const CString &path)
 {
-	AzFramework::AssetSystem::AssetStatus	status = AzFramework::AssetSystem::AssetStatus_Unknown;
-	EBUS_EVENT_RESULT(status, AzFramework::AssetSystemRequestBus, CompileAssetSync, path.Data());
-	if (status != AzFramework::AssetSystem::AssetStatus_Compiled)
-		CLog::Log(PK_ERROR, "Could not compile image at '%s'", path.Data());
+	bool apConnected = false;
+	AzFramework::AssetSystemRequestBus::BroadcastResult(
+		apConnected, &AzFramework::AssetSystemRequestBus::Events::ConnectedWithAssetProcessor);
+	if (apConnected)
+	{
+		// If the Asset Processor is available, make sure the assets are compiled.
+		AzFramework::AssetSystem::AssetStatus	status = AzFramework::AssetSystem::AssetStatus_Unknown;
+		EBUS_EVENT_RESULT(status, AzFramework::AssetSystemRequestBus, CompileAssetSync, path.Data());
+		if (status != AzFramework::AssetSystem::AssetStatus_Compiled)
+		{
+			CLog::Log(PK_ERROR, "Could not compile image at '%s'", path.Data());
+		}
+	}
 
 	AZ::Data::AssetId	streamingImageAssetId;
 	EBUS_EVENT_RESULT(streamingImageAssetId, AZ::Data::AssetCatalogRequestBus, GetAssetIdByPath, path.Data(), azrtti_typeid<AZ::RPI::StreamingImageAsset>(), false);
