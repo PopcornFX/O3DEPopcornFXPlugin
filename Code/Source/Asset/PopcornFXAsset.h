@@ -7,6 +7,7 @@
 
 #include <AzCore/std/string/string.h>
 #include <AzCore/Asset/AssetCommon.h>
+#include <PopcornFX/PopcornFXBus.h>
 
 #if defined(O3DE_USE_PK)
 #include <pk_particles/include/ps_effect.h>
@@ -32,7 +33,7 @@ namespace PopcornFX {
 	{
 	public:
 
-		AZ_RTTI(PopcornFXAsset, "{45047C35-64F7-43BA-B463-000081B587C3}", AZ::Data::AssetData);
+		AZ_RTTI(PopcornFXAsset, PopcornFX::AssetTypeId, AZ::Data::AssetData);
 		AZ_CLASS_ALLOCATOR(PopcornFXAsset, AZ::SystemAllocator, 0);
 
 		PParticleEffect	m_Effect = null;
