@@ -17,7 +17,8 @@
 #include "Components/Helpers/PopcornFXHelperLoopEmitterEditorComponent.h"
 #include "Components/Helpers/PopcornFXHelperProfilerEditorComponent.h"
 #include "PopcornFXPreviewersSystemComponent.h"
-#elif defined(POPCORNFX_BUILDER)
+#endif
+#if defined(POPCORNFX_BUILDER)
 #include "Asset/PopcornFXAssetBuilderComponent.h"
 #endif
 
