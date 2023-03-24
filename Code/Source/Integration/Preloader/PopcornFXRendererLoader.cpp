@@ -580,16 +580,16 @@ AZ::RHI::ConstPtr<AZ::RHI::PipelineState>	PopcornFXRendererLoader::_CreatePipeli
 			usedShader == EPopcornFXShader::RibbonLitLegacy_Shader ||
 			usedShader == EPopcornFXShader::RibbonDistortion_Shader)
 		{
-			layoutBuilder.AddBuffer()->Channel("POSITION", AZ::RHI::Format::R32G32B32_FLOAT);
+			layoutBuilder.AddBuffer()->Channel("POSITION", AZ::RHI::Format::R32G32B32A32_FLOAT);
 			if (assetType == AssetType_MaterialShader)
 			{
 				layoutBuilder.AddBuffer()->Channel("UV0", AZ::RHI::Format::R32G32_FLOAT); // texCoord 0
 			}
 		}
 		else if (usedShader == EPopcornFXShader::RibbonAtlasBlendLegacy_Shader ||
-			usedShader == EPopcornFXShader::RibbonLitAtlasBlendLegacy_Shader)
+				 usedShader == EPopcornFXShader::RibbonLitAtlasBlendLegacy_Shader)
 		{
-			layoutBuilder.AddBuffer()->Channel("POSITION", AZ::RHI::Format::R32G32B32_FLOAT);
+			layoutBuilder.AddBuffer()->Channel("POSITION", AZ::RHI::Format::R32G32B32A32_FLOAT);
 			if (assetType == AssetType_MaterialShader)
 			{
 				layoutBuilder.AddBuffer()->Channel("UV0", AZ::RHI::Format::R32G32_FLOAT); // texCoord 0
@@ -598,9 +598,9 @@ AZ::RHI::ConstPtr<AZ::RHI::PipelineState>	PopcornFXRendererLoader::_CreatePipeli
 			}
 		}
 		else if (usedShader == EPopcornFXShader::RibbonCorrectDeformationLegacy_Shader ||
-			usedShader == EPopcornFXShader::RibbonLitCorrectDeformationLegacy_Shader)
+				 usedShader == EPopcornFXShader::RibbonLitCorrectDeformationLegacy_Shader)
 		{
-			layoutBuilder.AddBuffer()->Channel("POSITION", AZ::RHI::Format::R32G32B32_FLOAT);
+			layoutBuilder.AddBuffer()->Channel("POSITION", AZ::RHI::Format::R32G32B32A32_FLOAT);
 			if (assetType == AssetType_MaterialShader)
 			{
 				layoutBuilder.AddBuffer()->Channel("UV0", AZ::RHI::Format::R32G32_FLOAT); // texCoord 0
