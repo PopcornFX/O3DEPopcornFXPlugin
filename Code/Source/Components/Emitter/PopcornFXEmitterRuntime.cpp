@@ -328,6 +328,7 @@ namespace PopcornFX {
 	bool	PopcornFXEmitterRuntime::SetAttributeAsFloat(AZ::u32 attribId, float value)
 	{
 #if !defined(O3DE_USE_PK)
+		AZ_UNUSED(attribId); AZ_UNUSED(value);
 		return false;
 #else
 		CFloat1	pkValue(value);
@@ -338,6 +339,7 @@ namespace PopcornFX {
 	bool	PopcornFXEmitterRuntime::SetAttributeAsFloat2(AZ::u32 attribId, const AZ::Vector2 &value)
 	{
 #if !defined(O3DE_USE_PK)
+		AZ_UNUSED(attribId); AZ_UNUSED(value);
 		return false;
 #else
 		return m_Emitter.SetAttribute(attribId, ToPk(value));
@@ -347,6 +349,7 @@ namespace PopcornFX {
 	bool	PopcornFXEmitterRuntime::SetAttributeAsFloat3(AZ::u32 attribId, const AZ::Vector3 &value)
 	{
 #if !defined(O3DE_USE_PK)
+		AZ_UNUSED(attribId); AZ_UNUSED(value);
 		return false;
 #else
 		return m_Emitter.SetAttribute(attribId, ToPk(value));
@@ -356,6 +359,7 @@ namespace PopcornFX {
 	bool	PopcornFXEmitterRuntime::SetAttributeAsFloat4(AZ::u32 attribId, const AZ::Vector4 &value)
 	{
 #if !defined(O3DE_USE_PK)
+		AZ_UNUSED(attribId); AZ_UNUSED(value);
 		return false;
 #else
 		return m_Emitter.SetAttribute(attribId, ToPk(value));
@@ -365,6 +369,7 @@ namespace PopcornFX {
 	bool	PopcornFXEmitterRuntime::SetAttributeAsInt(AZ::u32 attribId, AZ::s32 value)
 	{
 #if !defined(O3DE_USE_PK)
+		AZ_UNUSED(attribId); AZ_UNUSED(value);
 		return false;
 #else
 		return m_Emitter.SetAttribute(attribId, CInt1(value));
@@ -374,6 +379,7 @@ namespace PopcornFX {
 	bool	PopcornFXEmitterRuntime::SetAttributeAsInt2(AZ::u32 attribId, AZ::s32 valueX, AZ::s32 valueY)
 	{
 #if !defined(O3DE_USE_PK)
+		AZ_UNUSED(attribId); AZ_UNUSED(valueX); AZ_UNUSED(valueY);
 		return false;
 #else
 		return m_Emitter.SetAttribute(attribId, CInt2(valueX, valueY));
@@ -383,6 +389,7 @@ namespace PopcornFX {
 	bool	PopcornFXEmitterRuntime::SetAttributeAsInt3(AZ::u32 attribId, AZ::s32 valueX, AZ::s32 valueY, AZ::s32 valueZ)
 	{
 #if !defined(O3DE_USE_PK)
+		AZ_UNUSED(attribId); AZ_UNUSED(valueX); AZ_UNUSED(valueY); AZ_UNUSED(valueZ);
 		return false;
 #else
 		return m_Emitter.SetAttribute(attribId, CInt3(valueX, valueY, valueZ));
@@ -392,6 +399,7 @@ namespace PopcornFX {
 	bool	PopcornFXEmitterRuntime::SetAttributeAsInt4(AZ::u32 attribId, AZ::s32 valueX, AZ::s32 valueY, AZ::s32 valueZ, AZ::s32 valueW)
 	{
 #if !defined(O3DE_USE_PK)
+		AZ_UNUSED(attribId); AZ_UNUSED(valueX); AZ_UNUSED(valueY); AZ_UNUSED(valueZ); AZ_UNUSED(valueW);
 		return false;
 #else
 		return m_Emitter.SetAttribute(attribId, CInt4(valueX, valueY, valueZ, valueW));
@@ -401,6 +409,7 @@ namespace PopcornFX {
 	bool	PopcornFXEmitterRuntime::SetAttributeAsBool(AZ::u32 attribId, bool value)
 	{
 #if !defined(O3DE_USE_PK)
+		AZ_UNUSED(attribId); AZ_UNUSED(value);
 		return false;
 #else
 		return m_Emitter.SetAttribute(attribId, CBool1(value));
@@ -410,6 +419,7 @@ namespace PopcornFX {
 	bool	PopcornFXEmitterRuntime::SetAttributeAsBool2(AZ::u32 attribId, bool valueX, bool valueY)
 	{
 #if !defined(O3DE_USE_PK)
+		AZ_UNUSED(attribId); AZ_UNUSED(valueX); AZ_UNUSED(valueY);
 		return false;
 #else
 		return m_Emitter.SetAttribute(attribId, CBool2(valueX, valueY));
@@ -419,6 +429,7 @@ namespace PopcornFX {
 	bool	PopcornFXEmitterRuntime::SetAttributeAsBool3(AZ::u32 attribId, bool valueX, bool valueY, bool valueZ)
 	{
 #if !defined(O3DE_USE_PK)
+		AZ_UNUSED(attribId); AZ_UNUSED(valueX); AZ_UNUSED(valueY); AZ_UNUSED(valueZ);
 		return false;
 #else
 		return m_Emitter.SetAttribute(attribId, CBool3(valueX, valueY, valueZ));
@@ -428,6 +439,7 @@ namespace PopcornFX {
 	bool	PopcornFXEmitterRuntime::SetAttributeAsBool4(AZ::u32 attribId, bool valueX, bool valueY, bool valueZ, bool valueW)
 	{
 #if !defined(O3DE_USE_PK)
+		AZ_UNUSED(attribId); AZ_UNUSED(valueX); AZ_UNUSED(valueY); AZ_UNUSED(valueZ); AZ_UNUSED(valueW);
 		return false;
 #else
 		return m_Emitter.SetAttribute(attribId, CBool4(valueX, valueY, valueZ, valueW));
@@ -437,6 +449,7 @@ namespace PopcornFX {
 	bool	PopcornFXEmitterRuntime::SetAttributeAsQuaternion(AZ::u32 attribId, const AZ::Quaternion &value)
 	{
 #if !defined(O3DE_USE_PK)
+		AZ_UNUSED(attribId); AZ_UNUSED(value);
 		return false;
 #else
 		return m_Emitter.SetAttribute(attribId, ToPk(value));
@@ -446,6 +459,7 @@ namespace PopcornFX {
 	bool	PopcornFXEmitterRuntime::SetAttributeAsColor(AZ::u32 attribId, const AZ::Color &value)
 	{
 #if !defined(O3DE_USE_PK)
+		AZ_UNUSED(attribId); AZ_UNUSED(value);
 		return false;
 #else
 		const EPopcornFXType	type = static_cast<EPopcornFXType>(m_Emitter.GetAttributeType(attribId));
@@ -477,6 +491,8 @@ namespace PopcornFX {
 		{
 			return attrib.m_Data32f[0];
 		}
+#else
+		AZ_UNUSED(attribId);
 #endif
 		return 0.0f;
 	}
@@ -491,6 +507,8 @@ namespace PopcornFX {
 			value.SetX(attrib.m_Data32f[0]);
 			value.SetY(attrib.m_Data32f[1]);
 		}
+#else
+		AZ_UNUSED(attribId);
 #endif
 		return value;
 	}
@@ -506,6 +524,8 @@ namespace PopcornFX {
 			value.SetY(attrib.m_Data32f[1]);
 			value.SetZ(attrib.m_Data32f[2]);
 		}
+#else
+		AZ_UNUSED(attribId);
 #endif
 		return value;
 	}
@@ -522,6 +542,8 @@ namespace PopcornFX {
 			value.SetZ(attrib.m_Data32f[2]);
 			value.SetW(attrib.m_Data32f[3]);
 		}
+#else
+		AZ_UNUSED(attribId);
 #endif
 		return value;
 	}
@@ -534,6 +556,8 @@ namespace PopcornFX {
 		{
 			return attrib.m_Data32i[0];
 		}
+#else
+		AZ_UNUSED(attribId);
 #endif
 		return 0;
 	}
@@ -546,6 +570,8 @@ namespace PopcornFX {
 		{
 			return attrib.m_Data32i[1];
 		}
+#else
+		AZ_UNUSED(attribId);
 #endif
 		return 0;
 	}
@@ -558,6 +584,8 @@ namespace PopcornFX {
 		{
 			return attrib.m_Data32i[2];
 		}
+#else
+		AZ_UNUSED(attribId);
 #endif
 		return 0;
 	}
@@ -570,6 +598,8 @@ namespace PopcornFX {
 		{
 			return attrib.m_Data32i[3];
 		}
+#else
+		AZ_UNUSED(attribId);
 #endif
 		return 0;
 	}
@@ -582,6 +612,8 @@ namespace PopcornFX {
 		{
 			return attrib.m_Data8b[0];
 		}
+#else
+		AZ_UNUSED(attribId);
 #endif
 		return false;
 	}
@@ -594,6 +626,8 @@ namespace PopcornFX {
 		{
 			return attrib.m_Data8b[1];
 		}
+#else
+		AZ_UNUSED(attribId);
 #endif
 		return false;
 	}
@@ -606,6 +640,8 @@ namespace PopcornFX {
 		{
 			return attrib.m_Data8b[2];
 		}
+#else
+		AZ_UNUSED(attribId);
 #endif
 		return false;
 	}
@@ -618,6 +654,8 @@ namespace PopcornFX {
 		{
 			return attrib.m_Data8b[3];
 		}
+#else
+		AZ_UNUSED(attribId);
 #endif
 		return false;
 	}
@@ -634,6 +672,8 @@ namespace PopcornFX {
 			value.SetZ(attrib.m_Data32f[2]);
 			value.SetW(attrib.m_Data32f[3]);
 		}
+#else
+		AZ_UNUSED(attribId);
 #endif
 		return value;
 	}
@@ -652,6 +692,8 @@ namespace PopcornFX {
 			AZ::Vector4	vec4Value = GetAttributeAsFloat4(attribId);
 			value = AZ::Color::CreateFromVector3AndFloat(vec4Value.GetAsVector3(), vec4Value.GetW());
 		}
+#else
+		AZ_UNUSED(attribId);
 #endif
 		return value;
 	}

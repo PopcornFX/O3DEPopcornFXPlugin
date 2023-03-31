@@ -10,9 +10,7 @@
 #include <AzToolsFramework/AssetBrowser/AssetBrowserBus.h>
 #include <AzToolsFramework/AssetBrowser/Previewer/PreviewerBus.h>
 
-#if defined(O3DE_USE_PK)
 #include "Previewer/PopcornFXEffectPreviewerFactory.h"
-#endif
 
 namespace PopcornFX {
 

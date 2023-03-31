@@ -54,6 +54,7 @@ namespace PopcornFX {
 		virtual void							PackChanged(const AZStd::string &packPath, const AZStd::string &libraryPath) = 0;
 		virtual void							SetPkProjPathCache(const AZStd::string &pkProjPath) = 0;
 		virtual AZStd::string					GetPkProjPathCache() = 0;
+		virtual void							GetThumbnailPathForAsset(const AZStd::string &assetPath, AZStd::string &outThumbnailPath, AZStd::string &inOutPkProjPath) = 0;
 #endif
 	};
 	using PopcornFXIntegrationBus = AZ::EBus<PopcornFXIntegrationRequests>;

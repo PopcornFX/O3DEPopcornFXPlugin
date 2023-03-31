@@ -5,10 +5,9 @@
 
 #pragma once
 
-#if defined(O3DE_USE_PK)
-
 #include <PopcornFX/PopcornFXBus.h>
 
+#if defined(O3DE_USE_PK)
 #include <AzCore/Math/Vector3.h>
 #include <AzCore/Math/Vector4.h>
 #include <AzCore/Math/Matrix4x4.h>
@@ -22,9 +21,11 @@
 #include <pk_maths/include/pk_maths_primitives.h>
 
 #include <pk_kernel/include/kr_base_types.h>
+#endif //O3DE_USE_PK
 
 namespace PopcornFX {
 
+#if defined(O3DE_USE_PK)
 	template <typename _OutType, typename _InType>
 	PK_FORCEINLINE const _OutType		&_Reinterpret(const _InType &vec)
 	{
@@ -116,7 +117,9 @@ namespace PopcornFX {
 		}
 	}
 
-	PK_FORCEINLINE AZStd::string	O3DEPopcornFXTypeToString(const EPopcornFXType type)
+#endif //O3DE_USE_PK
+
+	inline AZStd::string	O3DEPopcornFXTypeToString(const EPopcornFXType type)
 	{
 		switch (type)
 		{
@@ -153,5 +156,3 @@ namespace PopcornFX {
 	}
 
 }
-
-#endif //O3DE_USE_PK

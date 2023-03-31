@@ -7,6 +7,8 @@
 
 #pragma once
 
+#if defined(O3DE_USE_PK)
+
 #include <pk_kernel/include/kr_string_id.h>
 
 __PK_API_BEGIN
@@ -444,3 +446,5 @@ namespace BasicFeatures
 }
 
 __PK_API_END
+
+#endif //O3DE_USE_PK

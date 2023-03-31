@@ -141,6 +141,172 @@ PopcornFXEditorAttribute::PopcornFXEditorAttribute()
 
 //----------------------------------------------------------------------------
 
+PopcornFXEditorSampler::PopcornFXEditorSampler()
+{
+}
+
+//----------------------------------------------------------------------------
+
+void	PopcornFXEditorSampler::Reflect(AZ::ReflectContext *context)
+{
+	AZ::SerializeContext	*serializeContext = azrtti_cast<AZ::SerializeContext*>(context);
+	if (serializeContext)
+	{
+		serializeContext->Class<PopcornFXEditorSampler>()
+			->Version(1, &VersionConverter)
+			->Field("Entity", &PopcornFXEditorSampler::m_SamplerEntityId)
+			;
+
+		AZ::EditContext	*edit = serializeContext->GetEditContext();
+		if (edit)
+		{
+			edit->Class<PopcornFXEditorSampler>("PopcornFXSampler", "PopcornFX Effect's Sampler")
+				->ClassElement(AZ::Edit::ClassElements::EditorData, "")
+				->Attribute(AZ::Edit::Attributes::NameLabelOverride, &PopcornFXEditorSampler::m_Name)
+				->Attribute(AZ::Edit::Attributes::DescriptionTextOverride, &PopcornFXEditorSampler::m_Description)
+				->Attribute(AZ::Edit::Attributes::AutoExpand, false)
+				->DataElement(0, &PopcornFXEditorSampler::m_SamplerEntityId, "Entity", "")
+				->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXEditorSampler::OnSamplerChanged)
+				->Attribute(AZ::Edit::Attributes::SliceFlags, AZ::Edit::SliceFlags::DontGatherReference | AZ::Edit::SliceFlags::NotPushableOnSliceRoot)
+				;
+		}
+	}
+}
+
+//----------------------------------------------------------------------------
+
+// Private Static
+bool	PopcornFXEditorSampler::VersionConverter(AZ::SerializeContext &context, AZ::SerializeContext::DataElementNode &classElement)
+{
+	(void)context; (void)classElement;
+	return true;
+}
+
+//----------------------------------------------------------------------------
+
+PopcornFXEditorAttributeCategory::PopcornFXEditorAttributeCategory()
+{
+}
+
+//----------------------------------------------------------------------------
+
+void	PopcornFXEditorAttributeCategory::Reflect(AZ::ReflectContext *context)
+{
+	PopcornFXEditorAttribute::Reflect(context);
+	PopcornFXEditorSampler::Reflect(context);
+
+	AZ::SerializeContext	*serializeContext = azrtti_cast<AZ::SerializeContext*>(context);
+	if (serializeContext)
+	{
+		serializeContext->Class<PopcornFXEditorAttributeCategory>()
+			->Version(1, &VersionConverter)
+			->Field("Attributes", &PopcornFXEditorAttributeCategory::m_Attributes)
+			->Field("Samplers", &PopcornFXEditorAttributeCategory::m_Samplers)
+			;
+
+		AZ::EditContext	*edit = serializeContext->GetEditContext();
+		if (edit)
+		{
+			edit->Class<PopcornFXEditorAttributeCategory>("PopcornFXEditorAttributeCategory", "")
+				->ClassElement(AZ::Edit::ClassElements::EditorData, "")
+				->Attribute(AZ::Edit::Attributes::NameLabelOverride, &PopcornFXEditorAttributeCategory::m_Name)
+				->DataElement(AZ::Edit::UIHandlers::Default, &PopcornFXEditorAttributeCategory::m_Attributes, "", "")
+				->Attribute(AZ::Edit::Attributes::AutoExpand, false)
+				->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::ShowChildrenOnly)
+				->DataElement(AZ::Edit::UIHandlers::Default, &PopcornFXEditorAttributeCategory::m_Samplers, "", "")
+				->Attribute(AZ::Edit::Attributes::AutoExpand, false)
+				->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::ShowChildrenOnly)
+				;
+		}
+	}
+}
+
+//----------------------------------------------------------------------------
+
+// Private Static
+bool	PopcornFXEditorAttributeCategory::VersionConverter(AZ::SerializeContext &context, AZ::SerializeContext::DataElementNode &classElement)
+{
+	(void)context; (void)classElement;
+	return true;
+}
+
+//----------------------------------------------------------------------------
+
+PopcornFXEditorAttributeList::PopcornFXEditorAttributeList()
+{
+}
+
+//----------------------------------------------------------------------------
+
+void	PopcornFXEditorAttributeList::Reflect(AZ::ReflectContext *context)
+{
+	PopcornFXEditorAttributeCategory::Reflect(context);
+
+	AZ::SerializeContext	*serializeContext = azrtti_cast<AZ::SerializeContext*>(context);
+	if (serializeContext)
+	{
+		serializeContext->Class<PopcornFXEditorAttributeList>()
+			->Version(2, &VersionConverter)
+			->Field("AttributeCategories", &PopcornFXEditorAttributeList::m_AttributeCategories)
+			->Field("ResetAllButton", &PopcornFXEditorAttributeList::m_ResetAllButton)
+			;
+
+		AZ::EditContext	*edit = serializeContext->GetEditContext();
+		if (edit)
+		{
+			edit->Class<PopcornFXEditorAttributeList>("AttributeList", "PopcornFX Effect's AttributeList")
+				->DataElement(AZ::Edit::UIHandlers::Default, &PopcornFXEditorAttributeList::m_AttributeCategories, "", "")
+				->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::ShowChildrenOnly)
+				->Attribute(AZ::Edit::Attributes::AutoExpand, false)
+				->DataElement(AZ::Edit::UIHandlers::Button, &PopcornFXEditorAttributeList::m_ResetAllButton, "", "Reset all attributes to default value")
+				->Attribute(AZ::Edit::Attributes::ButtonText, "Reset all")
+				->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXEditorAttributeList::OnResetAllButtonPressed);
+			;
+		}
+	}
+}
+
+//----------------------------------------------------------------------------
+
+// Private Static
+bool	PopcornFXEditorAttributeList::VersionConverter(AZ::SerializeContext &context, AZ::SerializeContext::DataElementNode &classElement)
+{
+	(void)context;
+	if (classElement.GetVersion() == 1)
+	{
+		// "Remove old Attributes and Samplers, it will be reconstructed
+		classElement.RemoveElementByName(AZ::Crc32("Attributes"));
+		classElement.RemoveElementByName(AZ::Crc32("Samplers"));
+	}
+	return true;
+}
+
+//----------------------------------------------------------------------------
+
+#if !defined(O3DE_USE_PK)
+
+AZ::u32	PopcornFXEditorAttribute::OnAttributeChanged()
+{
+	return AZ::Edit::PropertyRefreshLevels::None;
+}
+
+AZ::u32	PopcornFXEditorAttribute::OnResetButtonPressed()
+{
+	return AZ::Edit::PropertyRefreshLevels::None;
+}
+
+AZ::u32	PopcornFXEditorSampler::OnSamplerChanged()
+{
+	return AZ::Edit::PropertyRefreshLevels::None;
+}
+
+AZ::u32	PopcornFXEditorAttributeList::OnResetAllButtonPressed()
+{
+	return AZ::Edit::PropertyRefreshLevels::None;
+}
+
+#else
+
 void PopcornFXEditorAttribute::Copy(AZ::EntityId entityId, const CParticleAttributeDeclaration *attrib, const SAttributesContainer::SAttrib &attribValue, AZ::u32 id)
 {
 	m_EntityId = entityId;
@@ -426,49 +592,6 @@ void	PopcornFXEditorAttribute::_SetColorValues(const AZ::Color &color)
 // PopcornFXEditorSampler
 //----------------------------------------------------------------------------
 
-PopcornFXEditorSampler::PopcornFXEditorSampler()
-{
-}
-
-//----------------------------------------------------------------------------
-
-void	PopcornFXEditorSampler::Reflect(AZ::ReflectContext *context)
-{
-	AZ::SerializeContext	*serializeContext = azrtti_cast<AZ::SerializeContext*>(context);
-	if (serializeContext)
-	{
-		serializeContext->Class<PopcornFXEditorSampler>()
-			->Version(1, &VersionConverter)
-			->Field("Entity", &PopcornFXEditorSampler::m_SamplerEntityId)
-		;
-
-		AZ::EditContext	*edit = serializeContext->GetEditContext();
-		if (edit)
-		{
-			edit->Class<PopcornFXEditorSampler>("PopcornFXSampler", "PopcornFX Effect's Sampler")
-				->ClassElement(AZ::Edit::ClassElements::EditorData, "")
-					->Attribute(AZ::Edit::Attributes::NameLabelOverride, &PopcornFXEditorSampler::m_Name)
-					->Attribute(AZ::Edit::Attributes::DescriptionTextOverride, &PopcornFXEditorSampler::m_Description)
-					->Attribute(AZ::Edit::Attributes::AutoExpand, false)
-				->DataElement(0, &PopcornFXEditorSampler::m_SamplerEntityId, "Entity", "")
-					->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXEditorSampler::OnSamplerChanged)
-					->Attribute(AZ::Edit::Attributes::SliceFlags, AZ::Edit::SliceFlags::DontGatherReference | AZ::Edit::SliceFlags::NotPushableOnSliceRoot)
-				;
-		}
-	}
-}
-
-//----------------------------------------------------------------------------
-
-// Private Static
-bool	PopcornFXEditorSampler::VersionConverter(AZ::SerializeContext &context, AZ::SerializeContext::DataElementNode &classElement)
-{
-	(void)context; (void)classElement;
-	return true;
-}
-
-//----------------------------------------------------------------------------
-
 void PopcornFXEditorSampler::Copy(AZ::EntityId entityId, const CParticleAttributeSamplerDeclaration *sampler, AZ::EntityId samplerValue, AZ::u32 id)
 {
 	m_Id = id;
@@ -522,54 +645,6 @@ AZ::u32	PopcornFXEditorSampler::OnSamplerChanged()
 
 //----------------------------------------------------------------------------
 // PopcornFXEditorAttributeCategory
-//----------------------------------------------------------------------------
-
-PopcornFXEditorAttributeCategory::PopcornFXEditorAttributeCategory()
-{
-}
-
-//----------------------------------------------------------------------------
-
-void	PopcornFXEditorAttributeCategory::Reflect(AZ::ReflectContext *context)
-{
-	PopcornFXEditorAttribute::Reflect(context);
-	PopcornFXEditorSampler::Reflect(context);
-
-	AZ::SerializeContext	*serializeContext = azrtti_cast<AZ::SerializeContext*>(context);
-	if (serializeContext)
-	{
-		serializeContext->Class<PopcornFXEditorAttributeCategory>()
-			->Version(1, &VersionConverter)
-			->Field("Attributes", &PopcornFXEditorAttributeCategory::m_Attributes)
-			->Field("Samplers", &PopcornFXEditorAttributeCategory::m_Samplers)
-			;
-
-		AZ::EditContext	*edit = serializeContext->GetEditContext();
-		if (edit)
-		{
-			edit->Class<PopcornFXEditorAttributeCategory>("PopcornFXEditorAttributeCategory", "")
-				->ClassElement(AZ::Edit::ClassElements::EditorData, "")
-				->Attribute(AZ::Edit::Attributes::NameLabelOverride, &PopcornFXEditorAttributeCategory::m_Name)
-				->DataElement(AZ::Edit::UIHandlers::Default, &PopcornFXEditorAttributeCategory::m_Attributes, "", "")
-					->Attribute(AZ::Edit::Attributes::AutoExpand, false)
-					->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::ShowChildrenOnly)
-				->DataElement(AZ::Edit::UIHandlers::Default, &PopcornFXEditorAttributeCategory::m_Samplers, "", "")
-					->Attribute(AZ::Edit::Attributes::AutoExpand, false)
-					->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::ShowChildrenOnly)
-				;
-		}
-	}
-}
-
-//----------------------------------------------------------------------------
-
-// Private Static
-bool	PopcornFXEditorAttributeCategory::VersionConverter(AZ::SerializeContext &context, AZ::SerializeContext::DataElementNode &classElement)
-{
-	(void)context; (void)classElement;
-	return true;
-}
-
 //----------------------------------------------------------------------------
 
 void	PopcornFXEditorAttributeCategory::AddAttribute(AZ::EntityId entityId, const CParticleAttributeDeclaration *attrib, const SAttributesContainer::SAttrib &attribValue, AZ::u32 id)
@@ -632,57 +707,6 @@ void	PopcornFXEditorAttributeCategory::RefreshSamplerIFP(AZ::u32 id)
 
 //----------------------------------------------------------------------------
 // PopcornFXEditorAttributeList
-//----------------------------------------------------------------------------
-
-PopcornFXEditorAttributeList::PopcornFXEditorAttributeList()
-{
-}
-
-//----------------------------------------------------------------------------
-
-void	PopcornFXEditorAttributeList::Reflect(AZ::ReflectContext *context)
-{
-	PopcornFXEditorAttributeCategory::Reflect(context);
-
-	AZ::SerializeContext	*serializeContext = azrtti_cast<AZ::SerializeContext*>(context);
-	if (serializeContext)
-	{
-		serializeContext->Class<PopcornFXEditorAttributeList>()
-			->Version(2, &VersionConverter)
-			->Field("AttributeCategories", &PopcornFXEditorAttributeList::m_AttributeCategories)
-			->Field("ResetAllButton", &PopcornFXEditorAttributeList::m_ResetAllButton)
-			;
-
-		AZ::EditContext	*edit = serializeContext->GetEditContext();
-		if (edit)
-		{
-			edit->Class<PopcornFXEditorAttributeList>("AttributeList", "PopcornFX Effect's AttributeList")
-				->DataElement(AZ::Edit::UIHandlers::Default, &PopcornFXEditorAttributeList::m_AttributeCategories, "", "")
-					->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::ShowChildrenOnly)
-					->Attribute(AZ::Edit::Attributes::AutoExpand, false)
-				->DataElement(AZ::Edit::UIHandlers::Button, &PopcornFXEditorAttributeList::m_ResetAllButton, "", "Reset all attributes to default value")
-					->Attribute(AZ::Edit::Attributes::ButtonText, "Reset all")
-					->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXEditorAttributeList::OnResetAllButtonPressed);
-				;
-		}
-	}
-}
-
-//----------------------------------------------------------------------------
-
-// Private Static
-bool	PopcornFXEditorAttributeList::VersionConverter(AZ::SerializeContext &context, AZ::SerializeContext::DataElementNode &classElement)
-{
-	(void)context;
-	if (classElement.GetVersion() == 1)
-	{
-		// "Remove old Attributes and Samplers, it will be reconstructed
-		classElement.RemoveElementByName(AZ::Crc32("Attributes"));
-		classElement.RemoveElementByName(AZ::Crc32("Samplers"));
-	}
-	return true;
-}
-
 //----------------------------------------------------------------------------
 
 void PopcornFXEditorAttributeList::Prepare(	const CParticleAttributeList *defaultList, const TMemoryView<SAttributesContainer::SAttrib> attribRawData,
@@ -790,4 +814,5 @@ CGuid	PopcornFXEditorAttributeList::_GetOrAddCategory(const CStringLocalized &ca
 	return catId;
 }
 
+#endif //O3DE_USE_PK
 }

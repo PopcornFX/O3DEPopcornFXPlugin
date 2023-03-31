@@ -26,11 +26,171 @@ namespace PopcornFX {
 	{
 	}
 
-	void	PopcornFXEmitterEditorComponent::Init()
+	void	PopcornFXEmitterEditorComponent::Reflect(AZ::ReflectContext *context)
 	{
-		EditorComponentBase::Init();
+		PopcornFXEditorAttributeList::Reflect(context);
+
+		if (auto *serializeContext = azrtti_cast<AZ::SerializeContext*>(context))
+		{
+			// Serializer:
+			serializeContext->Class<PopcornFXEmitterEditorComponent, AzToolsFramework::Components::EditorComponentBase>()
+				->Version(1)
+				->Field("Enable", &PopcornFXEmitterEditorComponent::m_Enable)
+				->Field("StartStopButton", &PopcornFXEmitterEditorComponent::m_StartStopButton)
+				->Field("RestartButton", &PopcornFXEmitterEditorComponent::m_RestartButton)
+				->Field("KillButton", &PopcornFXEmitterEditorComponent::m_KillButton)
+				->Field("ParticleSystem", &PopcornFXEmitterEditorComponent::m_Asset)
+				->Field("Visible", &PopcornFXEmitterEditorComponent::m_Visible)
+				->Field("TimeScale", &PopcornFXEmitterEditorComponent::m_TimeScale)
+				->Field("PrewarmEnable", &PopcornFXEmitterEditorComponent::m_PrewarmEnable)
+				->Field("PrewarmTime", &PopcornFXEmitterEditorComponent::m_PrewarmTime)
+				->Field("ResetPrewanButton", &PopcornFXEmitterEditorComponent::m_ResetPrewarmButton)
+				->Field("AttributeList", &PopcornFXEmitterEditorComponent::m_AttributeList)
+				->Field("EditorAttributeList", &PopcornFXEmitterEditorComponent::m_EditorAttributeList)
+				;
+
+			// Edit context:
+			if (AZ::EditContext *editContext = serializeContext->GetEditContext())
+			{
+				editContext->Class<PopcornFXEmitterEditorComponent>("PopcornFX Emitter", "Particle Emitter")
+					->ClassElement(AZ::Edit::ClassElements::EditorData, "")
+					->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC("Game"))
+					->Attribute(AZ::Edit::Attributes::Category, "PopcornFX")
+					->Attribute(AZ::Edit::Attributes::PrimaryAssetType, AZ::AzTypeInfo<PopcornFXAsset>::Uuid())
+					->Attribute(AZ::Edit::Attributes::Icon, "Icons/Components/PopcornFX_Icon.svg")
+					->Attribute(AZ::Edit::Attributes::ViewportIcon, "Icons/Components/Viewport/Viewport_PKFX.png")
+					->Attribute(AZ::Edit::Attributes::AutoExpand, true)
+
+					->DataElement(0, &PopcornFXEmitterEditorComponent::m_Enable, "Enable", "Whether or not the particle component is active.")
+					->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXEmitterEditorComponent::OnEnableChanged)
+
+					->DataElement(AZ::Edit::UIHandlers::Button, &PopcornFXEmitterEditorComponent::m_StartStopButton, "", "Start/Stop the particles emission.")
+					->Attribute(AZ::Edit::Attributes::ButtonText, &PopcornFXEmitterEditorComponent::StartStopButtonText)
+					->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXEmitterEditorComponent::OnStartStopButtonPressed)
+					->Attribute(AZ::Edit::Attributes::Visibility, &PopcornFXEmitterEditorComponent::GetButtonsVisibility)
+					->DataElement(AZ::Edit::UIHandlers::Button, &PopcornFXEmitterEditorComponent::m_RestartButton, "", "Restart the particles emission.")
+					->Attribute(AZ::Edit::Attributes::ButtonText, "Restart")
+					->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXEmitterEditorComponent::OnRestartButtonPressed)
+					->Attribute(AZ::Edit::Attributes::Visibility, &PopcornFXEmitterEditorComponent::GetButtonsVisibility)
+					->DataElement(AZ::Edit::UIHandlers::Button, &PopcornFXEmitterEditorComponent::m_KillButton, "", "Kill all the particles and stop the emission.")
+					->Attribute(AZ::Edit::Attributes::ButtonText, "Kill")
+					->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXEmitterEditorComponent::OnKillButtonPressed)
+					->Attribute(AZ::Edit::Attributes::Visibility, &PopcornFXEmitterEditorComponent::GetButtonsVisibility)
+
+					->DataElement(0, &PopcornFXEmitterEditorComponent::m_Asset, "Particle System", "")
+					->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXEmitterEditorComponent::OnAssetChanged)
+
+					->DataElement(0, &PopcornFXEmitterEditorComponent::m_EditorAttributeList, "Attributes", "List of effect's attributes.")
+					->Attribute(AZ::Edit::Attributes::AutoExpand, false)
+					->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::Show)
+
+					->ClassElement(AZ::Edit::ClassElements::Group, "Options")
+					->DataElement(0, &PopcornFXEmitterEditorComponent::m_Visible, "Visible", "Visibility of the emitter instance.")
+					->DataElement(0, &PopcornFXEmitterEditorComponent::m_TimeScale, "Time Scale", "Time Scale of the emitter instance.")
+					->Attribute(AZ::Edit::Attributes::Min, 0.0f)
+					->DataElement(0, &PopcornFXEmitterEditorComponent::m_PrewarmEnable, "Prewarm Enable", "Enable the prewarm effect of the emitter instance.")
+					->Attribute(AZ::Edit::Attributes::ChangeNotify, AZ::Edit::PropertyRefreshLevels::EntireTree)
+					->DataElement(0, &PopcornFXEmitterEditorComponent::m_PrewarmTime, "Prewarm Time", "Prewarm time of the emitter instance.")
+					->Attribute(AZ::Edit::Attributes::Min, 0.0f)
+					->Attribute(AZ::Edit::Attributes::ReadOnly, &PopcornFXEmitterEditorComponent::IsPrewarmTimeReadOnly)
+					->DataElement(AZ::Edit::UIHandlers::Button, &PopcornFXEmitterEditorComponent::m_ResetPrewarmButton, "", "Reset Prewarm values to default defined in the effect.")
+					->Attribute(AZ::Edit::Attributes::ButtonText, "Reset Prewarm")
+					->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXEmitterEditorComponent::OnResetPrewarmButtonPressed)
+					;
+			}
+		}
+
+		AZ::BehaviorContext	*behaviorContext = azrtti_cast<AZ::BehaviorContext*>(context);
+		if (behaviorContext)
+		{
+			behaviorContext->Class<PopcornFXEmitterEditorComponent>()
+				->RequestBus("PopcornFXEmitterComponentRequestBus");
+		}
 	}
 
+	void	PopcornFXEmitterEditorComponent::BuildGameEntity(AZ::Entity *gameEntity)
+	{
+		PopcornFXEmitterGameComponent	*component = gameEntity->CreateComponent<PopcornFXEmitterGameComponent>();
+
+		if (component)
+		{
+			// Copy the editor-side settings to the game entity to be exported.
+			component->m_Emitter.Init(m_Enable, m_AttributeList);
+			component->m_Emitter.SetAsset(m_Asset);
+			component->m_Emitter.SetVisible(m_Visible);
+			component->m_Emitter.SetTimeScale(m_TimeScale);
+			component->m_Emitter.SetPrewarmEnable(m_PrewarmEnable);
+			component->m_Emitter.SetPrewarmTime(m_PrewarmTime);
+		}
+	}
+
+	void	PopcornFXEmitterEditorComponent::SetPrimaryAsset(const AZ::Data::AssetId &assetId)
+	{
+		AZ::Data::Asset<PopcornFXAsset> asset = AZ::Data::AssetManager::Instance().GetAsset<PopcornFXAsset>(assetId, AZ::Data::AssetLoadBehavior::QueueLoad);
+		if (asset)
+		{
+			m_Asset = asset;
+			OnAssetChanged();
+		}
+	}
+
+#if !defined(O3DE_USE_PK)
+
+	void	PopcornFXEmitterEditorComponent::Activate()
+	{
+		EditorComponentBase::Activate();
+	}
+
+	void	PopcornFXEmitterEditorComponent::Deactivate()
+	{
+		EditorComponentBase::Deactivate();
+	}
+
+	void	PopcornFXEmitterEditorComponent::OnAssetChanged()
+	{
+	}
+
+	AZ::u32	PopcornFXEmitterEditorComponent::OnEnableChanged()
+	{
+		return AZ::Edit::PropertyRefreshLevels::None;
+	}
+
+	AZ::u32	PopcornFXEmitterEditorComponent::OnStartStopButtonPressed()
+	{
+		return AZ::Edit::PropertyRefreshLevels::None;
+	}
+
+	AZ::u32	PopcornFXEmitterEditorComponent::OnRestartButtonPressed()
+	{
+		return AZ::Edit::PropertyRefreshLevels::None;
+	}
+
+	AZ::u32	PopcornFXEmitterEditorComponent::OnKillButtonPressed()
+	{
+		return AZ::Edit::PropertyRefreshLevels::None;
+	}
+
+	AZ::u32	PopcornFXEmitterEditorComponent::OnResetPrewarmButtonPressed()
+	{
+		return AZ::Edit::PropertyRefreshLevels::None;
+	}
+
+	AZStd::string	PopcornFXEmitterEditorComponent::StartStopButtonText() const
+	{
+		return "";
+	}
+
+	AZ::Crc32	PopcornFXEmitterEditorComponent::GetButtonsVisibility() const
+	{
+		return AZ::Edit::PropertyVisibility::Hide;
+	}
+
+	bool	PopcornFXEmitterEditorComponent::IsPrewarmTimeReadOnly() const
+	{
+		return true;
+	}
+
+#else
 	void	PopcornFXEmitterEditorComponent::Activate()
 	{
 		EditorComponentBase::Activate();
@@ -73,114 +233,6 @@ namespace PopcornFX {
 		AZ::TickBus::Handler::BusDisconnect();
 
 		EditorComponentBase::Deactivate();
-	}
-
-	void	PopcornFXEmitterEditorComponent::Reflect(AZ::ReflectContext *context)
-	{
-		PopcornFXEditorAttributeList::Reflect(context);
-
-		if (auto *serializeContext = azrtti_cast<AZ::SerializeContext*>(context))
-		{
-			// Serializer:
-			serializeContext->Class<PopcornFXEmitterEditorComponent, AzToolsFramework::Components::EditorComponentBase>()
-				->Version(1)
-				->Field("Enable", &PopcornFXEmitterEditorComponent::m_Enable)
-				->Field("StartStopButton", &PopcornFXEmitterEditorComponent::m_StartStopButton)
-				->Field("RestartButton", &PopcornFXEmitterEditorComponent::m_RestartButton)
-				->Field("KillButton", &PopcornFXEmitterEditorComponent::m_KillButton)
-				->Field("ParticleSystem", &PopcornFXEmitterEditorComponent::m_Asset)
-				->Field("Visible", &PopcornFXEmitterEditorComponent::m_Visible)
-				->Field("TimeScale", &PopcornFXEmitterEditorComponent::m_TimeScale)
-				->Field("PrewarmEnable", &PopcornFXEmitterEditorComponent::m_PrewarmEnable)
-				->Field("PrewarmTime", &PopcornFXEmitterEditorComponent::m_PrewarmTime)
-				->Field("ResetPrewanButton", &PopcornFXEmitterEditorComponent::m_ResetPrewarmButton)
-				->Field("AttributeList", &PopcornFXEmitterEditorComponent::m_AttributeList)
-				->Field("EditorAttributeList", &PopcornFXEmitterEditorComponent::m_EditorAttributeList)
-				;
-
-			// Edit context:
-			if (AZ::EditContext *editContext = serializeContext->GetEditContext())
-			{
-				editContext->Class<PopcornFXEmitterEditorComponent>("PopcornFX Emitter", "Particle Emitter")
-					->ClassElement(AZ::Edit::ClassElements::EditorData, "")
-						->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC("Game"))
-						->Attribute(AZ::Edit::Attributes::Category, "PopcornFX")
-						->Attribute(AZ::Edit::Attributes::PrimaryAssetType, AZ::AzTypeInfo<PopcornFXAsset>::Uuid())
-						->Attribute(AZ::Edit::Attributes::Icon, "Icons/Components/PopcornFX_Icon.svg")
-						->Attribute(AZ::Edit::Attributes::ViewportIcon, "Icons/Components/Viewport/Viewport_PKFX.png")
-						->Attribute(AZ::Edit::Attributes::AutoExpand, true)
-
-					->DataElement(0, &PopcornFXEmitterEditorComponent::m_Enable, "Enable", "Whether or not the particle component is active.")
-						->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXEmitterEditorComponent::OnEnableChanged)
-
-					->DataElement(AZ::Edit::UIHandlers::Button, &PopcornFXEmitterEditorComponent::m_StartStopButton, "", "Start/Stop the particles emission.")
-						->Attribute(AZ::Edit::Attributes::ButtonText, &PopcornFXEmitterEditorComponent::StartStopButtonText)
-						->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXEmitterEditorComponent::OnStartStopButtonPressed)
-						->Attribute(AZ::Edit::Attributes::Visibility, &PopcornFXEmitterEditorComponent::GetButtonsVisibility)
-					->DataElement(AZ::Edit::UIHandlers::Button, &PopcornFXEmitterEditorComponent::m_RestartButton, "", "Restart the particles emission.")
-						->Attribute(AZ::Edit::Attributes::ButtonText, "Restart")
-						->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXEmitterEditorComponent::OnRestartButtonPressed)
-						->Attribute(AZ::Edit::Attributes::Visibility, &PopcornFXEmitterEditorComponent::GetButtonsVisibility)
-					->DataElement(AZ::Edit::UIHandlers::Button, &PopcornFXEmitterEditorComponent::m_KillButton, "", "Kill all the particles and stop the emission.")
-						->Attribute(AZ::Edit::Attributes::ButtonText, "Kill")
-						->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXEmitterEditorComponent::OnKillButtonPressed)
-						->Attribute(AZ::Edit::Attributes::Visibility, &PopcornFXEmitterEditorComponent::GetButtonsVisibility)
-
-					->DataElement(0, &PopcornFXEmitterEditorComponent::m_Asset, "Particle System", "")
-						->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXEmitterEditorComponent::OnAssetChanged)
-
-					->DataElement(0, &PopcornFXEmitterEditorComponent::m_EditorAttributeList, "Attributes", "List of effect's attributes.")
-						->Attribute(AZ::Edit::Attributes::AutoExpand, false)
-						->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::Show)
-
-					->ClassElement(AZ::Edit::ClassElements::Group, "Options")
-						->DataElement(0, &PopcornFXEmitterEditorComponent::m_Visible, "Visible", "Visibility of the emitter instance.")
-						->DataElement(0, &PopcornFXEmitterEditorComponent::m_TimeScale, "Time Scale", "Time Scale of the emitter instance.")
-							->Attribute(AZ::Edit::Attributes::Min, 0.0f)
-						->DataElement(0, &PopcornFXEmitterEditorComponent::m_PrewarmEnable, "Prewarm Enable", "Enable the prewarm effect of the emitter instance.")
-							->Attribute(AZ::Edit::Attributes::ChangeNotify, AZ::Edit::PropertyRefreshLevels::EntireTree)
-						->DataElement(0, &PopcornFXEmitterEditorComponent::m_PrewarmTime, "Prewarm Time", "Prewarm time of the emitter instance.")
-							->Attribute(AZ::Edit::Attributes::Min, 0.0f)
-							->Attribute(AZ::Edit::Attributes::ReadOnly, &PopcornFXEmitterEditorComponent::IsPrewarmTimeReadOnly)
-						->DataElement(AZ::Edit::UIHandlers::Button, &PopcornFXEmitterEditorComponent::m_ResetPrewarmButton, "", "Reset Prewarm values to default defined in the effect.")
-							->Attribute(AZ::Edit::Attributes::ButtonText, "Reset Prewarm")
-							->Attribute(AZ::Edit::Attributes::ChangeNotify, &PopcornFXEmitterEditorComponent::OnResetPrewarmButtonPressed)
-					;
-			}
-		}
-
-		AZ::BehaviorContext	*behaviorContext = azrtti_cast<AZ::BehaviorContext*>(context);
-		if (behaviorContext)
-		{
-			behaviorContext->Class<PopcornFXEmitterEditorComponent>()
-				->RequestBus("PopcornFXEmitterComponentRequestBus");
-		}
-	}
-
-	void	PopcornFXEmitterEditorComponent::BuildGameEntity(AZ::Entity *gameEntity)
-	{
-		PopcornFXEmitterGameComponent	*component = gameEntity->CreateComponent<PopcornFXEmitterGameComponent>();
-
-		if (component)
-		{
-			// Copy the editor-side settings to the game entity to be exported.
-			component->m_Emitter.Init(m_Enable, m_AttributeList);
-			component->m_Emitter.SetAsset(m_Asset);
-			component->m_Emitter.SetVisible(m_Visible);
-			component->m_Emitter.SetTimeScale(m_TimeScale);
-			component->m_Emitter.SetPrewarmEnable(m_PrewarmEnable);
-			component->m_Emitter.SetPrewarmTime(m_PrewarmTime);
-		}
-	}
-
-	void	PopcornFXEmitterEditorComponent::SetPrimaryAsset(const AZ::Data::AssetId &assetId)
-	{
-		AZ::Data::Asset<PopcornFXAsset> asset = AZ::Data::AssetManager::Instance().GetAsset<PopcornFXAsset>(assetId, AZ::Data::AssetLoadBehavior::QueueLoad);
-		if (asset)
-		{
-			m_Asset = asset;
-			OnAssetChanged();
-		}
 	}
 
 	void	PopcornFXEmitterEditorComponent::OnTick(float deltaTime, AZ::ScriptTimePoint time)
@@ -963,6 +1015,5 @@ namespace PopcornFX {
 	{
 		return m_Emitter.SetTeleportThisFrame();
 	}
-
-
+#endif //O3DE_USE_PK
 }

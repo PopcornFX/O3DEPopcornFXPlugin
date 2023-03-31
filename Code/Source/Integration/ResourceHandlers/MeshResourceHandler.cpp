@@ -7,6 +7,8 @@
 
 #include "MeshResourceHandler.h"
 
+#if defined(O3DE_USE_PK)
+
 #include <Atom/RPI.Public/Model/Model.h>
 #include <AzFramework/Asset/AssetSystemBus.h>
 #include <pk_defs.h>
@@ -323,3 +325,5 @@ void	CMeshResourceHandler::BroadcastResourceChanged(const CResourceManager *reso
 }
 
 }
+
+#endif //O3DE_USE_PK

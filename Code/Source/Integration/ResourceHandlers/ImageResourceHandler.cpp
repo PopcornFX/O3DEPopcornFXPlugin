@@ -7,6 +7,8 @@
 
 #include "ImageResourceHandler.h"
 
+#if defined(O3DE_USE_PK)
+
 #include <Atom/RPI.Public/RPIUtils.h>
 #include <AzFramework/Asset/AssetSystemBus.h>
 #include <pk_kernel/include/kr_file.h>
@@ -412,3 +414,5 @@ void	ToPkImageFormatAndFlags(const AZ::RHI::Format &imgFormat, PopcornFX::CImage
 //----------------------------------------------------------------------------
 
 }
+
+#endif //O3DE_USE_PK

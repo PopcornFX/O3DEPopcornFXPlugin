@@ -5,6 +5,8 @@
 
 #pragma once
 
+#if defined(O3DE_USE_PK)
+
 #include "Integration/PopcornFXIntegrationBus.h"
 
 #include <pk_kernel/include/kr_resources.h>
@@ -70,3 +72,5 @@ private:
 };
 
 }
+
+#endif //O3DE_USE_PK
