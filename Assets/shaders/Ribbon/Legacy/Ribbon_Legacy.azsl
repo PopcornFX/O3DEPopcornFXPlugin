@@ -28,7 +28,7 @@ struct VertexInput
 
 struct VertexInputAtlasBlend
 {
-    float3 m_position : POSITION;
+    float4 m_position : POSITION;
     float2 m_texCoord0 : UV0;
     float2 m_texCoord1 : UV1;
     float m_texFrameLerp : UV2;
@@ -38,7 +38,7 @@ struct VertexInputAtlasBlend
 
 struct VertexInputCorrectDeformation
 {
-    float3 m_position : POSITION;
+    float4 m_position : POSITION;
     float2 m_texCoord0 : UV0;
     float4 m_UVRemap : UV1;
     float2 m_UVFactors : UV2;
