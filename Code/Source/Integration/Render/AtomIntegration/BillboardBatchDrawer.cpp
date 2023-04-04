@@ -58,10 +58,16 @@ bool	CBillboardBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBat
 			m_AtlasSubRectsCount = rendererCache->m_Atlas->m_RectsFp32.Count();
 			m_AtlasDefinition = m_RenderContext->m_RenderManager->ResizeOrCreateBufferIFN(m_AtlasDefinition, m_AtlasSubRectsCount * sizeof(CFloat4), 0x10);
 			if (!PK_VERIFY(m_AtlasDefinition != null))
+			{
+				m_RenderContext = null;
 				return false;
+			}
 			CFloat4	*atlasSubRects = static_cast<CFloat4*>(m_RenderContext->m_RenderManager->MapBuffer(m_AtlasDefinition, m_AtlasSubRectsCount * sizeof(CFloat4)));
 			if (!PK_VERIFY(atlasSubRects != null))
+			{
+				m_RenderContext = null;
 				return false;
+			}
 			Mem::Copy(atlasSubRects, rendererCache->m_Atlas->m_RectsFp32.RawDataPointer(), m_AtlasSubRectsCount * sizeof(CFloat4));
 			m_RenderContext->m_RenderManager->UnmapBuffer(m_AtlasDefinition);
 		}
@@ -82,11 +88,17 @@ bool	CBillboardBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBat
 		// Create draw instance buffers:
 		m_DrawInstanceVtx = m_RenderContext->m_RenderManager->ResizeOrCreateBufferIFN(m_DrawInstanceVtx, 6 * sizeof(CFloat2), 0x10);
 		if (!PK_VERIFY(m_DrawInstanceVtx != null))
+		{
+			m_RenderContext = null;
 			return false;
+		}
 
 		float	*texCoords = static_cast<float*>(m_RenderContext->m_RenderManager->MapBuffer(m_DrawInstanceVtx, 6 * sizeof(CFloat2)));
 		if (!PK_VERIFY(texCoords != null))
+		{
+			m_RenderContext = null;
 			return false;
+		}
 
 		texCoords[0] = -1.0f; // Lower left corner
 		texCoords[1] = -1.0f;
@@ -105,11 +117,17 @@ bool	CBillboardBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBat
 
 		m_DrawInstanceIdx = m_RenderContext->m_RenderManager->ResizeOrCreateBufferIFN(m_DrawInstanceIdx, 12 * sizeof(u16), 0x10);
 		if (!PK_VERIFY(m_DrawInstanceIdx != null))
+		{
+			m_RenderContext = null;
 			return false;
+		}
 
 		u16	*indices = static_cast<u16*>(m_RenderContext->m_RenderManager->MapBuffer(m_DrawInstanceIdx, 12 * sizeof(u16)));
 		if (!PK_VERIFY(indices != null))
+		{
+			m_RenderContext = null;
 			return false;
+		}
 
 		// In O3DE, counter clockwise winding order defines front face
 		indices[0] = 0;
@@ -312,6 +330,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBat
 	// ----------------------------------------------------------------
 	// The pipeline cache handles the buffer bindings for the draw call:
 	// Add draw instance vertex and index buffers:
+	PK_ASSERT(m_DrawInstanceVtx != null && m_DrawInstanceIdx != null);
 	m_PipelineCaches[0].SetVertexInputBuffer(DrawInstanceTexCoords_Vertex, AZ::RHI::StreamBufferView(*m_DrawInstanceVtx, 0, m_DrawInstanceVtxCount * sizeof(CFloat2), sizeof(CFloat2)));
 	m_PipelineCaches[0].SetIndexBuffer(AZ::RHI::IndexBufferView(*m_DrawInstanceIdx, 0, m_DrawInstanceIdxCount * sizeof(u16), AZ::RHI::IndexFormat::Uint16));
 	m_PipelineCaches[0].SetBillboardingSrgConstantValue(BillboardSrg::RendererFlags_ShaderRead, rendererCache->m_BasicDescription.m_RendererFlags);
