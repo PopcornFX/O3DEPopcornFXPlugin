@@ -47,6 +47,11 @@ VertexOutput BillboardVS(VertexInput input)
     float2  vtxUV1;
     float   vtxTexFrameLerp;
 
+    //Update all UV streams or the dx12 driver complains
+    output.m_texCoords0 = float2(0.0f,0.0f);
+    output.m_texCoords1 = float2(0.0f,0.0f);
+    output.m_texFrameLerp = 0.0f;
+    
     ComputeBillboardVertex(particleIdx, input.m_uv, vtxWorldPos, vtxUV0, vtxUV1, vtxTexFrameLerp);
 
     output.m_position = mul(ViewSrg::m_viewProjectionMatrix, float4(vtxWorldPos, 1.0f));
