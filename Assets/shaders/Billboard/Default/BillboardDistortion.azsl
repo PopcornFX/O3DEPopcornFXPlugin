@@ -77,15 +77,18 @@ PixelOutput BillboardFS(VertexOutput input)
     PixelOutput output;
 
     float2  texCoords0 = input.m_texCoords0;
-    float2  texCoords1 = input.m_texCoords1;
-
     float4 distortionColor = input.m_distortionColor;
     float4 textureColor = float4(0, 0, 0, 0);
 
     if (HasOneRendererFlags(Has_AnimBlend))
+    {
+        float2  texCoords1 = input.m_texCoords1;
         textureColor = GetDistortionColor(texCoords0, texCoords1, input.m_texFrameLerp);
+    }
     else
+    {
         textureColor = GetDistortionColor(texCoords0);
+    }
 
     distortionColor *= textureColor;
 
