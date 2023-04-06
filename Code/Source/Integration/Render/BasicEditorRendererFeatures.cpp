@@ -8,6 +8,7 @@
 #include "PopcornFX_precompiled.h"
 #include "BasicEditorRendererFeatures.h"
 
+#if defined(O3DE_USE_PK)
 __PK_API_BEGIN
 
 namespace BasicFeatures
@@ -1388,3 +1389,5 @@ namespace BasicFeatures
 }
 
 __PK_API_END
+
+#endif //O3DE_USE_PK

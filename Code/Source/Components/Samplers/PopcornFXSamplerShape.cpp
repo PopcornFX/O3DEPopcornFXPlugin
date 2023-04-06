@@ -146,6 +146,11 @@ namespace PopcornFX {
 	{
 	}
 
+	AZ::u32	PopcornFXSamplerShape::_OnValueChanged()
+	{
+		return AZ::Edit::PropertyRefreshLevels::None;
+	}
+
 	AZ::u32	PopcornFXSamplerShape::_OnShapeTypeChanged()
 	{
 		return AZ::Edit::PropertyRefreshLevels::None;

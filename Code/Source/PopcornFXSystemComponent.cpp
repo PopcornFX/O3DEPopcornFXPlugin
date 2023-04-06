@@ -122,7 +122,7 @@ namespace PopcornFX {
 			assetCatalog->AddExtension("pkfx");
 		}
 
-#if !defined(POPCORNFX_BUILDER)
+#if !defined(POPCORNFX_BUILDER) && defined(O3DE_USE_PK)
 		// setup handler for load pass template mappings
 		m_LoadTemplatesHandler = AZ::RPI::PassSystemInterface::OnReadyLoadTemplatesEvent::Handler([this]() { this->LoadPassTemplateMappings(); });
 		AZ::RPI::PassSystemInterface::Get()->ConnectEvent(m_LoadTemplatesHandler);

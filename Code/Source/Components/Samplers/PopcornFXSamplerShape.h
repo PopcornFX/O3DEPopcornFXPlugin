@@ -7,9 +7,6 @@
 
 #include "PopcornFXSkinnedMesh.h"
 
-#include <AzCore/Component/TransformBus.h>
-#include <AtomLyIntegration/CommonFeatures/Mesh/MeshComponentBus.h>
-
 #if defined(PK_USE_EMOTIONFX)
 #include <Integration/ActorComponentBus.h>
 #endif //PK_USE_EMOTIONFX
@@ -17,6 +14,8 @@
 #include "Integration/PopcornFXIntegrationBus.h"
 
 #if defined(O3DE_USE_PK)
+#include <AzCore/Component/TransformBus.h>
+#include <AtomLyIntegration/CommonFeatures/Mesh/MeshComponentBus.h>
 #include <AzCore/Component/TickBus.h>
 #include <pk_particles/include/ps_samplers_shape.h>
 #include <pk_geometrics/include/ge_shapes.h>
@@ -33,15 +32,16 @@ namespace EMotionFX
 namespace PopcornFX {
 
 	class PopcornFXSamplerShape
+#if defined(O3DE_USE_PK)
 		: public AZ::Render::MeshComponentNotificationBus::Handler
 		, public AZ::TransformNotificationBus::Handler
-#if defined(O3DE_USE_PK)
 		, public AZ::TickBus::Handler
-#endif //O3DE_USE_PK
 #if defined(PK_USE_EMOTIONFX)
 		, private EMotionFX::Integration::ActorComponentNotificationBus::Handler
 #endif //PK_USE_EMOTIONFX
 		, public PopcornFXSamplerComponentRequestBus::Handler
+#endif //O3DE_USE_PK
+
 {
 	public:
 		enum class EShapeType
@@ -71,8 +71,8 @@ namespace PopcornFX {
 										AZ::SerializeContext::DataElementNode &classElement);
 
 	protected:
-		AZ::u32			_OnShapeTypeChanged();
 		AZ::u32			_OnValueChanged();
+		AZ::u32			_OnShapeTypeChanged();
 		AZ::u32			_OnShapeDimensionsChanged();
 		void			_OnUseRelativeTransformChanged();
 		void			_TriggerRebuildKdTree();

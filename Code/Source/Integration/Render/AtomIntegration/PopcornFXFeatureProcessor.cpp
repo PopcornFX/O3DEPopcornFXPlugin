@@ -5,6 +5,9 @@
 
 #include "PopcornFX_precompiled.h"
 #include "PopcornFXFeatureProcessor.h"
+
+#if defined(O3DE_USE_PK)
+
 #include "Integration/PopcornFXUtils.h"
 
 #include <pk_kernel/include/kr_profiler.h>
@@ -22,7 +25,7 @@
 #include <Atom/Feature/ReflectionProbe/ReflectionProbeFeatureProcessor.h>
 #endif
 
-#if defined(O3DE_USE_PK)
+#endif //O3DE_USE_PK
 
 namespace PopcornFX {
 //----------------------------------------------------------------------------
@@ -41,6 +44,7 @@ CPopcornFXFeatureProcessor::CPopcornFXFeatureProcessor()
 {
 }
 
+#if defined(O3DE_USE_PK)
 void	CPopcornFXFeatureProcessor::Activate()
 {
 	m_RenderManager.SetFeatureProcessor(this);
@@ -439,8 +443,7 @@ void	CPopcornFXFeatureProcessor::Init(CParticleMediumCollection *medCol, const S
 	m_MediumCollection = medCol;
 	m_SceneViews = views;
 }
+#endif //O3DE_USE_PK
 
 //----------------------------------------------------------------------------
 }
-
-#endif

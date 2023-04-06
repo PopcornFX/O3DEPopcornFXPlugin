@@ -96,6 +96,8 @@ namespace PopcornFX {
 		virtual void						PackChanged(const AZStd::string &packPath, const AZStd::string &libraryPath) override;
 		virtual void						SetPkProjPathCache(const AZStd::string &pkProjPath) override { m_PkProjPathCache = pkProjPath; }
 		virtual AZStd::string				GetPkProjPathCache() override { return m_PkProjPathCache; }
+		virtual void						GetThumbnailPathForAsset(const AZStd::string &assetPath, AZStd::string &outThumbnailPath, AZStd::string &inOutPkProjPath) override;
+
 #endif
 		//////////////////////////////////////////////////////////////////////////
 

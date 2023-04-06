@@ -11,22 +11,26 @@
 #include "Components/Attributes/PopcornFXEditorAttributeList.h"
 #include "Asset/PopcornFXAsset.h"
 
+#include <AzToolsFramework/ToolsComponents/EditorComponentBase.h>
+
+#if defined(O3DE_USE_PK)
 #include <PopcornFX/PopcornFXBus.h>
 #include <AzCore/Component/TickBus.h>
 #include <AzFramework/Asset/AssetCatalogBus.h>
-#include <AzToolsFramework/ToolsComponents/EditorComponentBase.h>
 #include <AzToolsFramework/ToolsComponents/EditorVisibilityBus.h>
+#endif //O3DE_USE_PK
 
 namespace PopcornFX {
 
 	class PopcornFXEmitterEditorComponent
 		: public AzToolsFramework::Components::EditorComponentBase
+#if defined(O3DE_USE_PK)
 		, private AZ::Data::AssetBus::Handler
 		, public PopcornFXEmitterComponentRequestBus::Handler
 		, private AzFramework::AssetCatalogEventBus::Handler
 		, public AZ::TickBus::Handler
 		, private AzToolsFramework::EditorVisibilityNotificationBus::Handler
-
+#endif //O3DE_USE_PK
 	{
 	public:
 		AZ_EDITOR_COMPONENT(PopcornFXEmitterEditorComponent, EditorEmitterComponentTypeId);
@@ -53,7 +57,6 @@ namespace PopcornFX {
 		}
 
 		// AZ::Component interface implementation.
-		void	Init() override;
 		void	Activate() override;
 		void	Deactivate() override;
 
@@ -62,13 +65,11 @@ namespace PopcornFX {
 		//! Called when you want to change the game asset through code (like when creating components based on assets).
 		void	SetPrimaryAsset(const AZ::Data::AssetId &assetId) override;
 
-		//! Invoked in the editor when the user assigns a new asset.
-		void	OnAssetChanged();
-
 	protected:
 		// Required Reflect function.
 		static void	Reflect(AZ::ReflectContext *context);
 
+		void			OnAssetChanged();
 		AZ::u32			OnEnableChanged();
 		AZ::u32			OnStartStopButtonPressed();
 		AZ::u32			OnRestartButtonPressed();
@@ -79,6 +80,7 @@ namespace PopcornFX {
 		AZ::Crc32		GetButtonsVisibility() const;
 		bool			IsPrewarmTimeReadOnly() const;
 
+#if defined(O3DE_USE_PK)
 	public:
 		////////////////////////////////////////////////////////////////////////
 		// AZ::TickBus::Handler interface implementation
@@ -165,8 +167,11 @@ namespace PopcornFX {
 		virtual AZ::EntityId	GetAttributeSampler(AZ::u32 attribSamplerId) override;
 
 		virtual void			SetTeleportThisFrame() override;
-
 		//////////////////////////////////////////////////////////////////////////
+
+private:
+		void	_SetupAsset(const AZ::Data::AssetId &assetId);
+#endif //O3DE_USE_PK
 
 protected:
 		bool							m_Enable = true;
@@ -183,14 +188,14 @@ protected:
 		bool							m_ResetPrewarmButton = false;
 		PopcornFXAttributeList			m_AttributeList;
 		PopcornFXEditorAttributeList	m_EditorAttributeList;
+#if defined(O3DE_USE_PK)
 		PopcornFXEmitter				m_Emitter;
+#endif //O3DE_USE_PK
 
 		//! The full file path of the emitter to be loaded when set a emitter programmatically.
 		AZStd::string					m_EmitterToLoad;
 
 		bool							m_EditorVisibility = true;
-
-		void	_SetupAsset(const AZ::Data::AssetId &assetId);
 	};
 
 }

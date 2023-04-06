@@ -56,9 +56,9 @@ namespace PopcornFX {
 		}
 
 #if !defined(O3DE_USE_PK)
-		void	SetTransform(const AZ::Transform &transform) { }
-		void	AttachToEntity(AZ::EntityId entityId) { }
-		void	EnableAutoRemove(bool enable) { }
+		void	SetTransform(const AZ::Transform&) { }
+		void	AttachToEntity(AZ::EntityId) { }
+		void	EnableAutoRemove(bool) { }
 #else
 		void	SetTransform(const AZ::Transform &transform) { m_Emitter.SetTransform(transform); }
 		void	AttachToEntity(AZ::EntityId entityId) { m_EntityId = entityId; m_Emitter.AttachToEntity(entityId, m_StandaloneEmitter != null); }

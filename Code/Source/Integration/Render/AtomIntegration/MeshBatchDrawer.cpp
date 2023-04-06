@@ -121,6 +121,8 @@ bool	CMeshBatchDrawer::MapBuffers(SRenderContext &ctx, const SRendererBatchDrawP
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_Matrices] != null)
 	{
 		CFloat4x4	*data = static_cast<CFloat4x4*>(renderManager->MapBuffer(viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_Matrices], particleCount * sizeof(CFloat4x4)));
+		if (!PK_VERIFY(data != null))
+			return false;
 		m_BBJobs_Mesh.m_Exec_Matrices.m_Matrices = TMemoryView<CFloat4x4>(data, particleCount);
 	}
 
@@ -141,6 +143,9 @@ bool	CMeshBatchDrawer::MapBuffers(SRenderContext &ctx, const SRendererBatchDrawP
 			AZ::RHI::Ptr<AZ::RHI::Buffer>	buff = GetCurBuffers().FindAdditionalFieldBuffer(curAdditionalShaderInput.m_Name);
 			const AZ::u64					typeByteSize = CBaseTypeTraits::Traits(curAdditionalShaderInput.m_Type).Size;
 			u8								*data = static_cast<u8*>(renderManager->MapBuffer(buff, particleCount * typeByteSize));
+
+			if (!PK_VERIFY(data != null))
+				return false;
 
 			desc.m_AdditionalInputIndex = i;
 			desc.m_Storage.m_RawDataPtr = data;

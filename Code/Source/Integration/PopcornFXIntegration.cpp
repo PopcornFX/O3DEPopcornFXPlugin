@@ -538,6 +538,12 @@ void	PopcornFXIntegration::PackChanged(const AZStd::string &packPath, const AZSt
 	}
 	m_WindManager.Reset(m_LibraryPath);
 }
+
+void	PopcornFXIntegration::GetThumbnailPathForAsset(const AZStd::string &assetPath, AZStd::string &outThumbnailPath, AZStd::string &inOutPkProjPath)
+{
+	PopcornFX::GetThumbnailPathForAsset(assetPath, outThumbnailPath, inOutPkProjPath);
+}
+
 #endif
 
 ////////////////////////////////////////////////////////////////////////
