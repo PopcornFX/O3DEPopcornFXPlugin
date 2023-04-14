@@ -10,6 +10,7 @@
 #include "Source/Asset/PopcornFXAsset.h"
 
 #include <AzToolsFramework/AssetBrowser/AssetBrowserEntry.h>
+#include <AzFramework/StringFunc/StringFunc.h>
 
 namespace PopcornFX {
 
@@ -28,9 +29,10 @@ bool PopcornFXEffectPreviewerFactory::IsEntrySupported(const AzToolsFramework::A
 	{
 	case AssetBrowserEntry::AssetEntryType::Source:
 	{
-		const auto		source = azrtti_cast<const SourceAssetBrowserEntry*>(entry);
-		const CString	extension(source->GetExtension().c_str());
-		return extension.Compare(".pkfx", CaseInsensitive);
+		const auto			source = azrtti_cast<const SourceAssetBrowserEntry*>(entry);
+		AZStd::string	extension = source->GetExtension();
+		AZStd::to_lower(extension.begin(), extension.end());
+		return extension == ".pkfx";
 	}
 	case AssetBrowserEntry::AssetEntryType::Product:
 		const auto product = azrtti_cast<const ProductAssetBrowserEntry*>(entry);

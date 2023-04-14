@@ -20,6 +20,7 @@ PK_LOG_MODULE_DEFINE();
 #else
 
 #define	PK_VERSION_CURRENT_STRING	"0.0.0.0"
+constexpr auto null = nullptr;
 
 #endif //O3DE_USE_PK
 

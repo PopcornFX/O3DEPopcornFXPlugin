@@ -5,11 +5,13 @@
 
 #pragma once
 
-#if defined(O3DE_USE_PK)
 
 #include <Atom/RPI.Public/FeatureProcessor.h>
+
+#if defined(O3DE_USE_PK)
 #include <Integration/Managers/RenderManager.h>
 #include <Integration/Render/CameraInfo.h>
+#endif //O3DE_USE_PK
 
 namespace PopcornFX {
 //----------------------------------------------------------------------------
@@ -32,6 +34,7 @@ public:
 
 	static void	Reflect(AZ::ReflectContext *context);
 
+#if defined(O3DE_USE_PK)
 	// FeatureProcessor overrides ...
 	void		Activate() override;
 	void		Deactivate() override;
@@ -64,9 +67,8 @@ private:
 	const SSceneViews											*m_SceneViews = null;
 	CParticleMediumCollection									*m_MediumCollection = null;
 	AZ::Data::Asset<AZ::RPI::AnyAsset>							m_passRequestAsset;
+#endif //O3DE_USE_PK
 };
 
 //----------------------------------------------------------------------------
 }
-
-#endif

@@ -54,7 +54,7 @@ namespace PopcornFX {
 	{
 	}
 
-	AZ::u32	PopcornFXSamplerImage::_OnDataChanged()
+	AZ::u32	PopcornFXSamplerImage::_OnTextureChanged()
 	{
 		return AZ::Edit::PropertyRefreshLevels::None;
 	}

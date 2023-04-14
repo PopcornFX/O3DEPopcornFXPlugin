@@ -46,6 +46,11 @@ namespace PopcornFX {
 		return true;
 	}
 
+	void	PopcornFXSamplerAnimTrack::CopyFrom(const PopcornFXSamplerAnimTrack &other)
+	{
+		m_UseRelativeTransform = other.m_UseRelativeTransform;
+	}
+
 #if !defined(O3DE_USE_PK)
 
 	void	PopcornFXSamplerAnimTrack::Activate()
@@ -215,11 +220,6 @@ namespace PopcornFX {
 		PopcornFXSamplerComponentEventsBus::Event(m_AttachedToEntityId, &PopcornFXSamplerComponentEventsBus::Events::OnSamplerReady, m_AttachedToEntityId);
 
 		return true;
-	}
-
-	void	PopcornFXSamplerAnimTrack::CopyFrom(const PopcornFXSamplerAnimTrack &other)
-	{
-		m_UseRelativeTransform = other.m_UseRelativeTransform;
 	}
 
 	void	PopcornFXSamplerAnimTrack::_SetTransform()

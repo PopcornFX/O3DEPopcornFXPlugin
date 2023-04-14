@@ -86,6 +86,9 @@ void	CRenderManager::SetPackPath(const AZStd::string &packPath)
 
 void	CRenderManager::StartUpdate(CParticleMediumCollection *mediumCollection, const SSceneViews *sceneViews)
 {
+	if (AZ::RPI::IsNullRenderer())
+		return;
+
 	m_RenderBatchFactory.UpdatePendingRendererCache();
 
 	if (sceneViews->m_Views.Empty())
@@ -129,6 +132,9 @@ void	CRenderManager::UnmapBuffer(AZ::RHI::Ptr<AZ::RHI::Buffer> buffer)
 
 void	CRenderManager::StopUpdate(CParticleMediumCollection *mediumCollection)
 {
+	if (AZ::RPI::IsNullRenderer())
+		return;
+
 	mediumCollection->m_OnUpdateComplete -= FastDelegate<void(CParticleMediumCollection*)>(this, &CRenderManager::CollectFrame);
 
 	SParticleCollectedFrameToRender2	*newToRender = m_FrameCollector.GetLastCollectedFrame();

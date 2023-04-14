@@ -10,7 +10,9 @@
 
 #include "PopcornFXAttributeList.h"
 
+#if defined(O3DE_USE_PK)
 #include <pk_particles/include/ps_descriptor.h>
+#endif //O3DE_USE_PK
 
 namespace PopcornFX {
 
@@ -24,13 +26,19 @@ namespace PopcornFX {
 
 		static void	Reflect(AZ::ReflectContext *context);
 
+#if defined(O3DE_USE_PK)
 		AZ::u32		Id() { return m_Id; }
-
 		void		Copy(AZ::EntityId entityId, const CParticleAttributeDeclaration *attrib, const SAttributesContainer::SAttrib &attribValue, AZ::u32 id);
 		void		Reset();
 		void		Refresh();
+#endif //O3DE_USE_PK
 
 	private:
+		static bool	VersionConverter(AZ::SerializeContext &context, AZ::SerializeContext::DataElementNode &classElement);
+
+		AZ::u32		OnAttributeChanged();
+		AZ::u32		OnResetButtonPressed();
+
 		//Desc
 		AZ::EntityId	m_EntityId;
 		AZStd::string	m_Name;
@@ -96,16 +104,13 @@ namespace PopcornFX {
 		bool			m_ShowValueColorAlpha = false;
 		bool			m_ResetButton = false;
 
-		static bool	VersionConverter(AZ::SerializeContext &context, AZ::SerializeContext::DataElementNode &classElement);
-
-		AZ::u32		OnAttributeChanged();
-		AZ::u32		OnResetButtonPressed();
-
+#if defined(O3DE_USE_PK)
 		void		_FillAttributeQuat(const SAttributesContainer::SAttrib &attribValue);
 		void		_FillAttributeColor(const SAttributesContainer::SAttrib &attribValue);
 		void		_FillAttribute(const CParticleAttributeDeclaration *decl, const SAttributesContainer::SAttrib &attribValue, AZ::u32 laneId);
 		void		_SetColorValues(const AZ::Color &color);
-};
+#endif //O3DE_USE_PK
+	};
 
 	class PopcornFXEditorSampler
 	{
@@ -117,13 +122,18 @@ namespace PopcornFX {
 
 		static void	Reflect(AZ::ReflectContext *context);
 
+#if defined(O3DE_USE_PK)
 		AZ::u32		Id() { return m_Id; }
-
 		void		Copy(AZ::EntityId entityId, const CParticleAttributeSamplerDeclaration *sampler, AZ::EntityId samplerValue, AZ::u32 id);
 		void		Reset();
 		void		Refresh();
+#endif //O3DE_USE_PK
 
 	private:
+		static bool	VersionConverter(AZ::SerializeContext &context, AZ::SerializeContext::DataElementNode &classElement);
+
+		AZ::u32		OnSamplerChanged();
+
 		//Desc
 		AZ::u32			m_Id;
 		AZStd::string	m_Name;
@@ -133,10 +143,6 @@ namespace PopcornFX {
 
 		//Values
 		AZ::EntityId	m_SamplerEntityId;
-
-		static bool	VersionConverter(AZ::SerializeContext &context, AZ::SerializeContext::DataElementNode &classElement);
-
-		AZ::u32		OnSamplerChanged();
 	};
 
 	class PopcornFXEditorAttributeCategory
@@ -148,21 +154,22 @@ namespace PopcornFX {
 
 		static void	Reflect(AZ::ReflectContext *context);
 
+#if defined(O3DE_USE_PK)
 		void					SetName(const AZStd::string &name) { m_Name = name; }
 		const AZStd::string		&Name() const { return m_Name; }
-
 		void					AddAttribute(AZ::EntityId entityId, const CParticleAttributeDeclaration *attrib, const SAttributesContainer::SAttrib &attribValue, AZ::u32 id);
 		void					AddSampler(AZ::EntityId entityId, const CParticleAttributeSamplerDeclaration *sampler, AZ::EntityId samplerValue, AZ::u32 id);
 		void					ResetAll();
 		void					RefreshAttributeIFP(AZ::u32 id);
 		void					RefreshSamplerIFP(AZ::u32 id);
+#endif //O3DE_USE_PK
 
 	private:
+		static bool	VersionConverter(AZ::SerializeContext &context, AZ::SerializeContext::DataElementNode &classElement);
+
 		AZStd::string							m_Name;
 		AZStd::vector<PopcornFXEditorAttribute>	m_Attributes;
 		AZStd::vector<PopcornFXEditorSampler>	m_Samplers;
-
-		static bool	VersionConverter(AZ::SerializeContext &context, AZ::SerializeContext::DataElementNode &classElement);
 	};
 
 	class PopcornFXEditorAttributeList
@@ -175,20 +182,24 @@ namespace PopcornFX {
 
 		static void Reflect(AZ::ReflectContext *context);
 
+#if defined(O3DE_USE_PK)
 		void					Prepare(const CParticleAttributeList *defaultList, const TMemoryView<SAttributesContainer::SAttrib> attribRawData,
 										const AZStd::vector<PopcornFXSampler> &samplers, AZ::EntityId entityId);
 		void					Clear();
 		void					RefreshAttribute(AZ::u32 attribId);
 		void					RefreshSampler(AZ::u32 samplerId);
+#endif //O3DE_USE_PK
 
 	private:
+		static bool	VersionConverter(AZ::SerializeContext &context, AZ::SerializeContext::DataElementNode &classElement);
+
 		AZStd::vector<PopcornFXEditorAttributeCategory>	m_AttributeCategories;
 		bool											m_ResetAllButton = false;
 
-		static bool	VersionConverter(AZ::SerializeContext &context, AZ::SerializeContext::DataElementNode &classElement);
-
 		AZ::u32		OnResetAllButtonPressed();
+#if defined(O3DE_USE_PK)
 		CGuid		_GetOrAddCategory(const CStringLocalized &categoryName);
+#endif //O3DE_USE_PK
 	};
 
 }
