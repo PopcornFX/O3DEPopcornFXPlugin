@@ -3,7 +3,7 @@
 # https://www.popcornfx.com/terms-and-conditions/
 #----------------------------------------------------------------------------
 
-set(POPCORNFX_VERSION 2.16.1)
+set(POPCORNFX_VERSION 2.16.2)
 set(POPCORNFX_LICENSE O3DE)
 
 if (PK_O3DE_MAJOR_VERSION GREATER_EQUAL 2205)
