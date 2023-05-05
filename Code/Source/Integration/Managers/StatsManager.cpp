@@ -145,6 +145,9 @@ void	CStatsManager::Deactivate()
 	PopcornFXProfilerRequestBus::Handler::BusDisconnect();
 	AZ::RPI::ViewportContextNotificationBus::Handler::BusDisconnect();
 	m_whiteTex = null;
+	m_MemoryFrames.Clean();
+	m_EffectTimings.Clean();
+	m_EffectTimings_Sum.Clean();
 }
 
 void	CStatsManager::Reset(CParticleMediumCollection *mediumCollection)

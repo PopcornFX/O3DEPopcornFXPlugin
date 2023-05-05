@@ -221,6 +221,7 @@ void	CWindManager::Activate()
 void	CWindManager::Deactivate()
 {
 	Physics::WindNotificationsBus::Handler::BusDisconnect();
+	m_SceneWindSimInterfacePath = CString::EmptyString;
 }
 
 void	CWindManager::Update()

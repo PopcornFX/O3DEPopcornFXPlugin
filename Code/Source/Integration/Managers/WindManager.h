@@ -42,7 +42,7 @@ public:
 
 	static CWindManagerBase	*Get() { return s_Self; }
 
-private:
+protected:
 	bool							_BindSceneSimInterface() const;
 	void							_UnbindSceneSimInterface();
 
