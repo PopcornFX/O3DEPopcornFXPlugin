@@ -24,7 +24,7 @@ void	CSceneViewsManager::Activate()
 
 void	CSceneViewsManager::Deactivate()
 {
-	m_SceneViews.m_Views.Clear();
+	m_SceneViews.m_Views.Clean();
 }
 
 void	CSceneViewsManager::Update(CParticleMediumCollection *mediumCollection)

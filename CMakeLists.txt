@@ -4,13 +4,14 @@
 #----------------------------------------------------------------------------
 
 #List of supported O3DE versions, uncomment one of the line to force the version
+#set(PK_O3DE_ENGINE_VERSION "2305.0")
 #set(PK_O3DE_ENGINE_VERSION "2210.0")
 #set(PK_O3DE_ENGINE_VERSION "2205.0")
 #set(PK_O3DE_ENGINE_VERSION "2111.2")
 #set(PK_O3DE_ENGINE_VERSION "2111.1")
 
 #Latest supported O3DE version
-set(PK_O3DE_ENGINE_VERSION_LATEST "2210.0")
+set(PK_O3DE_ENGINE_VERSION_LATEST "2305.0")
 
 if (${PK_O3DE_ENGINE_VERSION})
     set(o3de_build_number ${PK_O3DE_ENGINE_VERSION})

@@ -3,7 +3,7 @@
 # https://www.popcornfx.com/terms-and-conditions/
 #----------------------------------------------------------------------------
 
-set(POPCORNFX_VERSION 2.15.7)
+set(POPCORNFX_VERSION 2.15.8)
 set(POPCORNFX_LICENSE O3DE)
 
 if (PK_O3DE_MAJOR_VERSION GREATER_EQUAL 2205)
@@ -95,6 +95,7 @@ ly_add_target(
 )
 
 ly_create_alias(NAME PopcornFX.Clients NAMESPACE Gem TARGETS Gem::PopcornFX)
+ly_create_alias(NAME PopcornFX.Unified NAMESPACE Gem TARGETS Gem::PopcornFX)
 #ly_create_alias(NAME PopcornFX.Servers NAMESPACE Gem TARGETS Gem::PopcornFX)
 
 if(PAL_TRAIT_BUILD_HOST_TOOLS)
