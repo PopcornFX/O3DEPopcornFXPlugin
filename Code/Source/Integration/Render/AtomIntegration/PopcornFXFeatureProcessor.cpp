@@ -61,9 +61,6 @@ void	CPopcornFXFeatureProcessor::Deactivate()
 void	CPopcornFXFeatureProcessor::Simulate(const SimulatePacket &packet)
 {
 	AZ_UNUSED(packet);
-	if (!CCurrentThread::IsRegistered())
-		CCurrentThread::RegisterUserThread();
-
 	// To enable once O3DE moves the simple point light processor GPU buffer update into their Render() function instead of Simulate()
 #if 0
 	AppendLightParticles();
