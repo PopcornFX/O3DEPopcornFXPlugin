@@ -44,6 +44,11 @@ else()
     endif()
 endif()
 
+# O3DE version 1.2.0 (23.05.0) and higher provide version major/minor/patch global properties
+get_property(O3DE_VERSION_MAJOR GLOBAL PROPERTY O3DE_VERSION_MAJOR)
+get_property(O3DE_VERSION_MINOR GLOBAL PROPERTY O3DE_VERSION_MINOR)
+get_property(O3DE_VERSION_PATCH GLOBAL PROPERTY O3DE_VERSION_PATCH)
+
 # Note: converting a float to string may result in a bad conversion
 # e.g. 2111.2 becomes the string 2111.1999999999998
 string(REPLACE "." ";" o3de_version_list ${o3de_build_number})
@@ -75,6 +80,19 @@ function(pk_patch_file old_string new_string path)
     string(REPLACE ${old_string} ${new_string} shader_content "${shader_content}")
     file(WRITE ${path} "${shader_content}")
 endfunction()
+
+if(DEFINED O3DE_VERSION_MAJOR)
+    # Between engine version 1.2.0 -> 2.2.0 there is an issue that prevents
+    # PopcornFX from being added to the .setreg files for loading .dlls at runtime
+    # In addition there is a bug where the engine version in the SDK is the display version
+    # instead of matching the version field in the source code
+    if((O3DE_VERSION_MAJOR EQUAL 23 AND O3DE_VERSION_MINOR EQUAL 05 AND O3DE_VERSION_PATCH EQUAL 0) OR 
+       (O3DE_VERSION_MAJOR EQUAL 1 AND O3DE_VERSION_MINOR GREATER_EQUAL 2) OR 
+       (O3DE_VERSION_MAJOR EQUAL 2 AND O3DE_VERSION_MINOR LESS_EQUAL 1))
+        message(VERBOSE "Activating PopcornFX gem for O3DE ${PK_O3DE_MAJOR_VERSION}")
+        ly_enable_gems(GEMS PopcornFX)
+    endif()
+endif()
 
 if (PK_O3DE_MAJOR_VERSION GREATER 2210)
     pk_patch_file("\"BlendState\"" "\"GlobalTargetBlendState\"" ${gem_path}/Assets/shaders/Billboard/Default/Billboard.shader)
