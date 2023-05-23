@@ -179,6 +179,7 @@ AZ::RHI::Ptr<AZ::RHI::Buffer>	CRenderManager::AllocBuffer(AZ::u64 bufferSize, AZ
 	AZ::RHI::Ptr<AZ::RHI::Buffer> outBuffer = AZ::RHI::Factory::Get().CreateBuffer();
 	AZ::RHI::BufferInitRequest bufferRequest;
 	bufferRequest.m_descriptor = AZ::RHI::BufferDescriptor{ binding, alignedBufferSize };
+	bufferRequest.m_descriptor.m_alignment = 0x10;
 	bufferRequest.m_buffer = outBuffer.get();
 	AZ::RHI::ResultCode result = m_BufferPool->InitBuffer(bufferRequest);
 
