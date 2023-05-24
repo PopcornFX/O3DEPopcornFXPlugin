@@ -298,7 +298,12 @@ void	CAtomPipelineCache::ConfigureDrawCall(SAtomRenderContext::SDrawCall &drawCa
 	drawCall.m_TransparentDepthMinDrawList = m_TransparentDepthMinDrawList;
 	drawCall.m_TransparentDepthMaxPipelineState = m_TransparentDepthMaxPipelineState;
 	drawCall.m_TransparentDepthMaxDrawList = m_TransparentDepthMaxDrawList;
+}
 
+//----------------------------------------------------------------------------
+
+void	CAtomPipelineCache::Clear()
+{
 	// Reset vertex and index buffers:
 	m_VertexInputs.Clear();
 	m_IndexBuffer = AZ::RHI::IndexBufferView();

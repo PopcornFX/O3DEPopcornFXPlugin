@@ -39,6 +39,7 @@ struct	SAtomRenderContext : public SRenderContext
 	struct	SDrawCall
 	{
 		ERendererClass											m_RendererType;
+		u32														m_InstanceOffset = 0; // Slices
 
 		CAABB													m_BoundingBox;
 		AZ::RHI::DrawIndexed									m_DrawIndexed;

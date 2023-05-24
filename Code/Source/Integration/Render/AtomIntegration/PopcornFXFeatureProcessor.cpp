@@ -266,6 +266,12 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 		dpBuilder.AddShaderResourceGroup(objectSrg->GetRHIShaderResourceGroup());
 	}
 
+	if (pkfxDrawCall.m_RendererType == Renderer_Billboard)
+	{
+		// See BillboardSrg.azsli, "m_instanceOffset"
+		dpBuilder.SetRootConstants(AZStd::span<const uint8_t>(reinterpret_cast<const uint8_t*>(&pkfxDrawCall.m_InstanceOffset), sizeof(u32)));
+	}
+
 	return dpBuilder.End();
 }
 

@@ -146,10 +146,9 @@ void	CRenderManager::StopUpdate(CParticleMediumCollection *mediumCollection)
 
 		m_FrameCollector.SetDrawCallsSortMethod(slicesMaxCount == 1 ? Sort_None : Sort_Slices);
 
-
 		PopcornFX::TStaticArray<SSceneView, 1>	viewsArray;
 		viewsArray[0].m_InvViewMatrix = m_SceneViews->m_Views[0].m_InvViewMatrix;
-		viewsArray[0].m_MaxSliceCount = 1;
+		viewsArray[0].m_MaxSliceCount = slicesMaxCount;
 		viewsArray[0].m_NeedsSortedIndices = true;
 		m_RenderContext.m_Views = viewsArray;
 

@@ -77,7 +77,10 @@ bool	CRibbonBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBatchD
 		return false;
 
 	for (auto &pipelineCache : m_PipelineCaches)
+	{
+		pipelineCache.Clear();
 		pipelineCache.InitFromRendererCacheIFN(rendererCache);
+	}
 	if (rendererCache->m_CachesModified)
 		_UnflagModifiedCaches(drawPass.m_RendererCaches);
 
@@ -277,6 +280,9 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchD
 	if (!PK_VERIFY(m_PipelineCaches.Count() == 1 && m_PipelineCaches[0].IsInitialized()))
 		return false;
 
+	// Configure pipeline cache only for the first slice. Following slices will configure the draw call with the same pipeline cache.
+	if (toEmit.m_IndexOffset == 0)
+	{
 	// Position:
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_Position] != null)
 		m_PipelineCaches[0].SetVertexInputBuffer(Position_Vertex, AZ::RHI::StreamBufferView(*viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_Position], 0, vertexCount * sizeof(CFloat4), sizeof(CFloat4)));
@@ -351,6 +357,7 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchD
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = alphaRemapCursor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
 		m_PipelineCaches[0].SetRibbonSrgBuffer(RibbonSrg::ParticleAlphaCursor_ShaderRead, buff);
 	}
+	}
 
 	// Fill the draw call:
 	m_PipelineCaches[0].ConfigureDrawCall(dc);
@@ -360,8 +367,8 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchD
 	dc.m_BoundingBox = toEmit.m_BBox;
 
 	// Draw call description:
-	dc.m_DrawIndexed.m_indexCount = indexCount;
-	dc.m_DrawIndexed.m_indexOffset = 0;
+	dc.m_DrawIndexed.m_indexCount = toEmit.m_TotalIndexCount; // Sliced draw calls can draw < drawPass.m_TotalIndexCount
+	dc.m_DrawIndexed.m_indexOffset = toEmit.m_IndexOffset; // Sliced draw calls can have a non-zero offset
 	dc.m_DrawIndexed.m_instanceCount = 1;
 	dc.m_DrawIndexed.m_instanceOffset = 0;
 	dc.m_DrawIndexed.m_vertexOffset = 0;

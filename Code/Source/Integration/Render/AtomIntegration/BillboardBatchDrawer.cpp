@@ -157,7 +157,10 @@ bool	CBillboardBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBat
 		return false;
 
 	for (auto &pipelineCache : m_PipelineCaches)
+	{
+		pipelineCache.Clear();
 		pipelineCache.InitFromRendererCacheIFN(rendererCache);
+	}
 	if (rendererCache->m_CachesModified)
 		_UnflagModifiedCaches(drawPass.m_RendererCaches);
 	
@@ -327,6 +330,9 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBat
 	if (!PK_VERIFY(m_PipelineCaches.Count() == 1 && m_PipelineCaches[0].IsInitialized()))
 		return false;
 
+	// Configure pipeline cache only for the first slice. Following slices will configure the draw call with the same pipeline cache.
+	if (toEmit.m_IndexOffset == 0)
+	{
 	// ----------------------------------------------------------------
 	// The pipeline cache handles the buffer bindings for the draw call:
 	// Add draw instance vertex and index buffers:
@@ -421,6 +427,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBat
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_DrawRequests->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, drawRequestsCount, sizeof(Drawers::SBillboardDrawRequest)));
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::DrawRequest_ShaderRead, buff);
 	}
+	}
 
 	// Fill the draw call:
 	m_PipelineCaches[0].ConfigureDrawCall(dc);
@@ -432,9 +439,12 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBat
 	// Draw call description:
 	dc.m_DrawIndexed.m_indexCount = m_DrawInstanceIdxCount;
 	dc.m_DrawIndexed.m_indexOffset = 0;
-	dc.m_DrawIndexed.m_instanceCount = particleCount;
+	dc.m_DrawIndexed.m_instanceCount = toEmit.m_TotalParticleCount; // Sliced draw calls can draw < drawPass.m_TotalParticleCount
 	dc.m_DrawIndexed.m_instanceOffset = 0;
 	dc.m_DrawIndexed.m_vertexOffset = 0;
+
+	// See CPopcornFXFeatureProcessor::BuildDrawPacket()
+	dc.m_InstanceOffset = toEmit.m_IndexOffset; // Sliced draw calls can have a non-zero offset
 
 	// Draw instance indices and tex-coords:
 	return PK_VERIFY(m_RenderContext->m_DrawCalls.PushBack(dc).Valid());
