@@ -62,7 +62,7 @@ void	PopcornFXBuilderComponent::Init()
 
 void	PopcornFXBuilderComponent::Activate()
 {
-	AZ_TracePrintf(AssetBuilderSDK::InfoWindow, "[PopcornFX] Asset builder activated.\n");
+	AZ_Info("PopcornFX", "Asset builder activated.");
 	AssetBuilderSDK::AssetBuilderDesc builderDescriptor;
 	builderDescriptor.m_name = "PopcornFX Worker Builder";
 	builderDescriptor.m_version = 2;

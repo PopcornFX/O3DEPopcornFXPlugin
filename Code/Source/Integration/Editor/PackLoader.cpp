@@ -218,7 +218,6 @@ namespace PopcornFX
 	
 			if (!packPath.empty() && rootPath == packPath)
 			{
-				//AZ_TracePrintf(AssetBuilderSDK::InfoWindow, "[PopcornFX] Pack %s already mounted", packPath.c_str());
 				if (!assetProcessor)
 					packPath = CFilePath::Relativize(projectPath.c_str(), rootPath.c_str()).Data();
 				outRootPath = packPath;
@@ -226,7 +225,6 @@ namespace PopcornFX
 			}
 			else
 			{
-				//AZ_TracePrintf(AssetBuilderSDK::InfoWindow, "[PopcornFX] Asset not in pack %s, unmounting it.", packPath.c_str());
 				fileSystem->UnmountAllPacks();
 			}
 		}
@@ -236,7 +234,6 @@ namespace PopcornFX
 		{
 			AZStd::string	packPath = rootPath;
 			PFilePack		filePack = null;
-			//AZ_TracePrintf(AssetBuilderSDK::InfoWindow, "[PopcornFX] Mounting RootDir %s", folderPath.Data());
 	
 			if (!assetProcessor)
 				packPath = CFilePath::Relativize(projectPath.c_str(), rootPath.c_str()).Data();

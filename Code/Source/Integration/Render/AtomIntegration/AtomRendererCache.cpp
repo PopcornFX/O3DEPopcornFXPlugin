@@ -11,8 +11,7 @@
 
 #include "Integration/PopcornFXIntegrationBus.h"
 
-#include "Integration/Render/BasicEditorRendererFeatures.h"
-
+#include <pk_render_helpers/include/render_features/rh_features_basic.h>
 #include <pk_render_helpers/include/frame_collector/rh_particle_render_data_factory.h>
 
 namespace PopcornFX {
@@ -260,7 +259,6 @@ SParticleMaterialBasicDesc::SParticleMaterialBasicDesc()
 ,	m_Metalness(0)
 ,	m_Roughness(0)
 ,	m_MaskThreshold(0)
-,	m_SortDepthOffset(0)
 ,	m_MotionVectorsScale(CFloat2::ZERO)
 {
 }
@@ -269,6 +267,8 @@ SParticleMaterialBasicDesc::SParticleMaterialBasicDesc()
 
 void	SParticleMaterialBasicDesc::InitFromRenderer(const CRendererDataBase &renderer, CAtomRendererCache *rendererCache)
 {
+	using namespace PopcornFX;
+	using namespace PopcornFX::BasicRendererProperties;
 	PK_ASSERT(	renderer.m_RendererType == Renderer_Billboard ||
 				renderer.m_RendererType == Renderer_Ribbon ||
 				renderer.m_RendererType == Renderer_Mesh ||
@@ -279,50 +279,7 @@ void	SParticleMaterialBasicDesc::InitFromRenderer(const CRendererDataBase &rende
 	//-----------------------------
 	// Choose the material variation:
 	//-----------------------------
-	const SRendererFeaturePropertyValue	*bbMode = renderer.m_Declaration.FindProperty(BasicFeatures::SID_GeometryBillboard_BillboardingMode());
-	const SRendererFeaturePropertyValue	*atlas = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Atlas());
-	const SRendererFeaturePropertyValue	*billboardSize2 = renderer.m_Declaration.FindProperty(BasicFeatures::SID_GeometryBillboard_EnableSize2D());
-	// Diffuse feature:
-	const SRendererFeaturePropertyValue	*diffuse = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Diffuse());
-	const SRendererFeaturePropertyValue	*diffuseMap = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Diffuse_DiffuseMap());
-	const SRendererFeaturePropertyValue	*diffuseRamp = renderer.m_Declaration.FindProperty(BasicFeatures::SID_DiffuseRamp());
-	const SRendererFeaturePropertyValue	*diffuseRampMap = renderer.m_Declaration.FindProperty(BasicFeatures::SID_DiffuseRamp_RampMap());
-	CGuid								diffuseColorInput = renderer.m_Declaration.FindAdditionalFieldIndex(BasicFeatures::SID_Diffuse_Color());
-	// Emissive feature:
-	const SRendererFeaturePropertyValue	*emissive = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Emissive());
-	const SRendererFeaturePropertyValue	*emissiveMap = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Emissive_EmissiveMap());
-	const SRendererFeaturePropertyValue	*emissiveRamp = renderer.m_Declaration.FindProperty(BasicFeatures::SID_EmissiveRamp());
-	const SRendererFeaturePropertyValue	*emissiveRampMap = renderer.m_Declaration.FindProperty(BasicFeatures::SID_EmissiveRamp_RampMap());
-	CGuid								emissiveColorInput = renderer.m_Declaration.FindAdditionalFieldIndex(BasicFeatures::SID_Emissive_EmissiveColor());
-	// Tint feature:
-	// const SRendererFeaturePropertyValue	*tint = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Tint());
-	// const SRendererFeaturePropertyValue	*tintMap = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Tint_TintMap());
-	// CGuid								tintColorInput = renderer.m_Declaration.FindAdditionalFieldIndex(BasicFeatures::SID_Tint_TintMap());
-
-	// Distortion feature:
-	const SRendererFeaturePropertyValue	*distortion = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Distortion());
-	const SRendererFeaturePropertyValue	*distortionMap = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Distortion_DistortionMap());
-	CGuid								distortionColorInput = renderer.m_Declaration.FindAdditionalFieldIndex(BasicFeatures::SID_Distortion_Color());
-
-	const SRendererFeaturePropertyValue	*linearAtlasBlending = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Atlas_Blending());
-	const SRendererFeaturePropertyValue	*motionVectorsMap = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Atlas_MotionVectorsMap());
-	const SRendererFeaturePropertyValue	*motionVectorsScale = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Atlas_DistortionStrength());
-	const SRendererFeaturePropertyValue	*alphaRemap = renderer.m_Declaration.FindProperty(BasicFeatures::SID_AlphaRemap());
-	const SRendererFeaturePropertyValue	*alphaRemapAlphaMap = renderer.m_Declaration.FindProperty(BasicFeatures::SID_AlphaRemap_AlphaMap());
-	CGuid								alphaRemapCursor = renderer.m_Declaration.FindAdditionalFieldIndex(BasicFeatures::SID_AlphaRemap_Cursor());
-	const SRendererFeaturePropertyValue	*lit = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Lit());
-	const SRendererFeaturePropertyValue	*normalMap = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Lit_NormalMap());
-
-	const SRendererFeaturePropertyValue	*litRoughness = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Lit_Roughness());
-	const SRendererFeaturePropertyValue	*litMetalness = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Lit_Metalness());
-	const SRendererFeaturePropertyValue	*softParticles = renderer.m_Declaration.FindProperty(BasicFeatures::SID_SoftParticles());
-	const SRendererFeaturePropertyValue	*softnessDistance = renderer.m_Declaration.FindProperty(BasicFeatures::SID_SoftParticles_SoftnessDistance());
-
-	// For ribbons only:
-	const SRendererFeaturePropertyValue	*correctDeformation = renderer.m_Declaration.FindProperty(BasicFeatures::SID_CorrectDeformation());
-	// For meshes only:
-	const SRendererFeaturePropertyValue	*meshPath = renderer.m_Declaration.FindProperty(BasicFeatures::SID_GeometryMesh_Mesh());
-	const SRendererFeaturePropertyValue	*meshAtlas = renderer.m_Declaration.FindProperty(BasicFeatures::SID_MeshAtlas());
+	const SRendererDeclaration	&decl = renderer.m_Declaration;
 
 	CString	packPath = rendererCache->m_PackPath;
 	if (packPath == ".")
@@ -331,145 +288,167 @@ void	SParticleMaterialBasicDesc::InitFromRenderer(const CRendererDataBase &rende
 	_ResetRendererFlags();
 
 	// Has_Capsules:
+	const bool	hasAtlas = decl.IsFeatureEnabled(SID_Atlas());
 	if (renderer.m_RendererType == Renderer_Billboard)
 	{
 		// GPU billboarding shader variations: we set changesPipelineState to true
-		if (atlas != null && atlas->ValueB())
+		if (hasAtlas)
 			_AddRendererFlags(RendererFlags::Has_Atlas, true, true);
-		if (bbMode != null)
-		{
-			EBillboardMode	mode = Drawers::SBillboard_BillboardingRequest::BillboardProperty_BillboardMode_ToInternal(bbMode->ValueI().x());
-			if (mode == BillboardMode_AxisAlignedCapsule)
-				_AddRendererFlags(RendererFlags::Has_Capsules, true, true);
-			else if (mode == BillboardMode_AxisAligned || mode == BillboardMode_AxisAlignedSpheroid)
-				_AddRendererFlags(RendererFlags::HAS_Axis0, true, false);
-			else if (mode == BillboardMode_PlaneAligned)
-				_AddRendererFlags(RendererFlags::HAS_Axis1, true, false);
-		}
-		if (billboardSize2 != null && billboardSize2->ValueB())
+
+		const EBillboardMode	bbMode = decl.GetPropertyValue_Enum<EBillboardMode>(SID_BillboardingMode(), BillboardMode_ScreenAligned);
+		if (bbMode == BillboardMode_AxisAlignedCapsule)
+			_AddRendererFlags(RendererFlags::Has_Capsules, true, true);
+		else if (bbMode == BillboardMode_AxisAligned || bbMode == BillboardMode_AxisAlignedSpheroid)
+			_AddRendererFlags(RendererFlags::HAS_Axis0, true, false);
+		else if (bbMode == BillboardMode_PlaneAligned)
+			_AddRendererFlags(RendererFlags::HAS_Axis1, true, false);
+
+		if (decl.IsFeatureEnabled(SID_EnableSize2D()))
 		{
 			_AddRendererFlags(RendererFlags::Has_Size2, false, false);
 		}
 	}
 
 	// Has_Diffuse:
-	if (diffuse != null && diffuse->ValueB() &&
-		diffuseMap != null && !diffuseMap->ValuePath().Empty() &&
-		diffuseColorInput.Valid())
+	if (decl.IsFeatureEnabled(SID_Diffuse()))
 	{
-		// With the new "Experimental" shaders, emissive, diffuse, distortion and tint are features you can disable
-		// to handle that we set changesPipelineState to true:
-		_AddRendererFlags(RendererFlags::Has_Diffuse, true, true);
-		m_MaterialKey.m_DiffuseMapPath = CStringId(packPath / diffuseMap->ValuePath());
-		if (diffuseRamp != null && diffuseRamp->ValueB() && diffuseRampMap != null && !diffuseRampMap->ValuePath().Empty())
+		const CString	diffuseMap = decl.GetPropertyValue_Path(SID_Diffuse_DiffuseMap(), CString::EmptyString);
+		if (!diffuseMap.Empty())
 		{
-			_AddRendererFlags(RendererFlags::Has_DiffuseRamp, true, false);
-			m_MaterialKey.m_DiffuseRampMapPath = CStringId(packPath / diffuseRampMap->ValuePath());
+			PK_ASSERT(renderer.m_Declaration.FindAdditionalFieldIndex(SID_Diffuse_Color()).Valid());
+			// With the new "Experimental" shaders, emissive, diffuse, distortion and tint are features you can disable
+			// to handle that we set changesPipelineState to true:
+			_AddRendererFlags(RendererFlags::Has_Diffuse, true, true);
+			m_MaterialKey.m_DiffuseMapPath = CStringId(packPath / diffuseMap);
+			if (decl.IsFeatureEnabled(SID_DiffuseRamp()))
+			{
+				const CString	diffuseRampMap = decl.GetPropertyValue_Path(SID_DiffuseRamp_RampMap(), CString::EmptyString);
+				if (!diffuseRampMap.Empty())
+				{
+					_AddRendererFlags(RendererFlags::Has_DiffuseRamp, true, false);
+					m_MaterialKey.m_DiffuseRampMapPath = CStringId(packPath / diffuseRampMap);
+				}
+			}
 		}
 	}
 
 	// Has_Emissive:
-	if (emissive != null && emissive->ValueB() &&
-		emissiveMap != null && !emissiveMap->ValuePath().Empty() &&
-		emissiveColorInput.Valid())
+	if (decl.IsFeatureEnabled(SID_Emissive()))
 	{
-		// With the new "Experimental" shaders, emissive, diffuse, distortion and tint are features you can disable
-		// to handle that we set changesPipelineState to true:
-		_AddRendererFlags(RendererFlags::Has_Emissive, true, true);
-		m_MaterialKey.m_EmissiveMapPath = CStringId(packPath / emissiveMap->ValuePath());
-		if (emissiveRamp != null && emissiveRamp->ValueB() && emissiveRampMap != null && !emissiveRampMap->ValuePath().Empty())
+		const CString	emissiveMap = decl.GetPropertyValue_Path(SID_Emissive_EmissiveMap(), CString::EmptyString);
+		if (!emissiveMap.Empty())
 		{
-			_AddRendererFlags(RendererFlags::Has_EmissiveRamp, true, false);
-			m_MaterialKey.m_EmissiveRampMapPath = CStringId(packPath / emissiveRampMap->ValuePath());
+			PK_ASSERT(renderer.m_Declaration.FindAdditionalFieldIndex(SID_Emissive_EmissiveColor()).Valid());
+			// With the new "Experimental" shaders, emissive, diffuse, distortion and tint are features you can disable
+			// to handle that we set changesPipelineState to true:
+			_AddRendererFlags(RendererFlags::Has_Emissive, true, true);
+			m_MaterialKey.m_EmissiveMapPath = CStringId(packPath / emissiveMap);
+			if (decl.IsFeatureEnabled(SID_EmissiveRamp()))
+			{
+				const CString	emissiveRampMap = decl.GetPropertyValue_Path(SID_EmissiveRamp_RampMap(), CString::EmptyString);
+				if (!emissiveRampMap.Empty())
+				{
+					_AddRendererFlags(RendererFlags::Has_EmissiveRamp, true, false);
+					m_MaterialKey.m_EmissiveRampMapPath = CStringId(packPath / emissiveRampMap);
+				}
+			}
 		}
 	}
 
-	// Has_Tint:
-
 	// Has_AtlasBlending:
-	if (linearAtlasBlending != null)
+	if (hasAtlas)
 	{
-		BasicFeatures::AtlasBlending::EAtlasBlending	atlasBlending = static_cast<BasicFeatures::AtlasBlending::EAtlasBlending>(linearAtlasBlending->ValueI().x());
+		const EAtlasBlendingType	atlasBlending = decl.GetPropertyValue_Enum<EAtlasBlendingType>(SID_Atlas_Blending(), BasicRendererProperties::None);
 
 		// For billboards, the atlas blending uses the same shader (changesPipelineState set to false):
-		if (atlasBlending != BasicFeatures::AtlasBlending::None)
+		if (atlasBlending != BasicRendererProperties::None)
 		{
 			const bool	changesPipelineState = renderer.m_RendererType != ERendererClass::Renderer_Billboard;
 			_AddRendererFlags(RendererFlags::Has_AnimBlend, true, changesPipelineState);
 		}
-		if (atlasBlending == BasicFeatures::AtlasBlending::Linear)
+		if (atlasBlending == BasicRendererProperties::Linear)
 			_AddRendererFlags(RendererFlags::Has_AnimBlend_Linear, true, false);
-		else if (atlasBlending == BasicFeatures::AtlasBlending::MotionVectors && motionVectorsMap != null && !motionVectorsMap->ValuePath().Empty())
+		else if (atlasBlending == BasicRendererProperties::MotionVectors)
 		{
-			_AddRendererFlags(RendererFlags::Has_AnimBlend_MotionVectors, true, false);
-			m_MaterialKey.m_MotionVectorsMapPath = CStringId(packPath / motionVectorsMap->ValuePath());
-			if (motionVectorsScale != null)
-				m_MotionVectorsScale = motionVectorsScale->ValueF().xy();
-			else
-				m_MotionVectorsScale = CFloat2::ONE;
+			const CString	motionVectorsMap = decl.GetPropertyValue_Path(SID_Atlas_MotionVectorsMap(), CString::EmptyString);
+			if (!motionVectorsMap.Empty())
+			{
+				_AddRendererFlags(RendererFlags::Has_AnimBlend_MotionVectors, true, false);
+				m_MaterialKey.m_MotionVectorsMapPath = CStringId(packPath / motionVectorsMap);
+				m_MotionVectorsScale = decl.GetPropertyValue_F2(SID_Atlas_DistortionStrength(), CFloat2::ONE);
+			}
 		}
 	}
 	// Has_CorrectDeformation:
-	if (correctDeformation != null && correctDeformation->ValueB())
+	if (decl.IsFeatureEnabled(SID_CorrectDeformation()))
 	{
 		// We use a different shader for correct deformation, so changesPipelineState is set to true:
 		_AddRendererFlags(RendererFlags::Has_CorrectDeformation, true, true);
 	}
 
 	// Has_AlphaRemap:
-	if (alphaRemap != null && alphaRemap->ValueB() && alphaRemapAlphaMap != null && !alphaRemapAlphaMap->ValuePath().Empty() && alphaRemapCursor.Valid())
+	if (decl.IsFeatureEnabled(SID_AlphaRemap()))
 	{
-		_AddRendererFlags(RendererFlags::Has_AlphaRemap, true, false);
-		m_MaterialKey.m_AlphaMapPath = CStringId(packPath / alphaRemapAlphaMap->ValuePath());
-	}
-	if (lit != null && lit->ValueB())
-	{
-		_AddRendererFlags(RendererFlags::Has_Lighting, true, true);
-		if (litRoughness != null)
-			m_Roughness = litRoughness->ValueF().x();
-		if (litMetalness != null)
-			m_Metalness = litMetalness->ValueF().x();
-		if (normalMap != null && !normalMap->ValuePath().Empty())
+			PK_ASSERT(renderer.m_Declaration.FindAdditionalFieldIndex(SID_AlphaRemap_Cursor()).Valid());
+		const CString	alphaRemapMap = decl.GetPropertyValue_Path(SID_AlphaRemap_AlphaMap(), CString::EmptyString);
+		if (!alphaRemapMap.Empty())
 		{
-			_AddRendererFlags(RendererFlags::Has_NormalMap, true, false);
-			m_MaterialKey.m_NormalMapPath = CStringId(packPath / normalMap->ValuePath());
+			_AddRendererFlags(RendererFlags::Has_AlphaRemap, true, false);
+			m_MaterialKey.m_AlphaMapPath = CStringId(packPath / alphaRemapMap);
 		}
 	}
-	if (softParticles != null && softParticles->ValueB() && softnessDistance != null && softnessDistance->ValueF().x() != 0.0f)
+	if (decl.IsFeatureEnabled(SID_Lit()))
 	{
-		_AddRendererFlags(RendererFlags::Has_Soft, true, true);
-		m_InvSoftnessDistance = 1.0f / softnessDistance->ValueF().x(); 
+		_AddRendererFlags(RendererFlags::Has_Lighting, true, true);
+
+		m_Roughness = decl.GetPropertyValue_F1(SID_Lit_Roughness(), 0.0f);
+		m_Metalness = decl.GetPropertyValue_F1(SID_Lit_Metalness(), 0.0f);
+
+		const CString	normalMap = decl.GetPropertyValue_Path(SID_Lit_NormalMap(), CString::EmptyString);
+		if (!normalMap.Empty())
+		{
+			_AddRendererFlags(RendererFlags::Has_NormalMap, true, false);
+			m_MaterialKey.m_NormalMapPath = CStringId(packPath / normalMap);
+		}
+	}
+	if (decl.IsFeatureEnabled(SID_SoftParticles()))
+	{
+		const float	softnessDistance = decl.GetPropertyValue_F1(SID_SoftParticles_SoftnessDistance(), 0.0f);
+		if (softnessDistance != 0.0f)
+		{
+			_AddRendererFlags(RendererFlags::Has_Soft, true, true);
+			m_InvSoftnessDistance = 1.0f / softnessDistance; 
+		}
 	}
 
 	// Has_Distortion:
-	if (distortion != null && distortion->ValueB() && distortionMap != null && !distortionMap->ValuePath().Empty() && distortionColorInput.Valid())
+	const bool	distortion = decl.IsFeatureEnabled(SID_Distortion());
+	if (distortion)
 	{
-		_AddRendererFlags(RendererFlags::Has_Distortion, true, true);
-		m_MaterialKey.m_DistortionMapPath = CStringId(packPath / distortionMap->ValuePath());
+		PK_ASSERT(renderer.m_Declaration.FindAdditionalFieldIndex(SID_Distortion_Color()).Valid());
+		const CString	distortionMap = decl.GetPropertyValue_Path(SID_Distortion_DistortionMap(), CString::EmptyString);
+		if (!distortionMap.Empty())
+		{
+			_AddRendererFlags(RendererFlags::Has_Distortion, true, true);
+			m_MaterialKey.m_DistortionMapPath = CStringId(packPath / distortionMap);
+		}
 	}
 
 	//-----------------------------
 	// Get the UV generation flags:
 	//-----------------------------
-	const SRendererFeaturePropertyValue	*texUV = renderer.m_Declaration.FindProperty(BasicFeatures::SID_TextureUVs());
-	const SRendererFeaturePropertyValue	*flipU = renderer.m_Declaration.FindProperty(BasicFeatures::SID_TextureUVs_FlipU());
-	const SRendererFeaturePropertyValue	*flipV = renderer.m_Declaration.FindProperty(BasicFeatures::SID_TextureUVs_FlipV());
-	const SRendererFeaturePropertyValue	*flipUV = renderer.m_Declaration.FindProperty(BasicFeatures::SID_FlipUVs());
-	const SRendererFeaturePropertyValue	*rotateTexture = renderer.m_Declaration.FindProperty(BasicFeatures::SID_TextureUVs_RotateTexture());
 
-	const bool	isTexUVActivated = texUV != null ? texUV->ValueB() : false;
-	if (isTexUVActivated)
+	if (decl.IsFeatureEnabled(SID_TextureUVs()))
 	{
 		u32		genUVFlags = 0;
 		PK_ASSERT(renderer.m_RendererType == Renderer_Ribbon);
-		genUVFlags |= (flipU != null && flipU->ValueB()) ? RendererFlags::HAS_FlipU : 0;
-		genUVFlags |= (flipV != null && flipV->ValueB()) ? RendererFlags::HAS_FlipV : 0;
-		genUVFlags |= (rotateTexture != null && rotateTexture->ValueB()) ? RendererFlags::HAS_RotateUV : 0;
+		genUVFlags |= decl.GetPropertyValue_B(SID_TextureUVs_FlipU(), false) ? RendererFlags::HAS_FlipU : 0;
+		genUVFlags |= decl.GetPropertyValue_B(SID_TextureUVs_FlipV(), false) ? RendererFlags::HAS_FlipV : 0;
+		genUVFlags |= decl.GetPropertyValue_B(SID_TextureUVs_RotateTexture(), false) ? RendererFlags::HAS_RotateUV : 0;
 		_AddRendererFlags(genUVFlags, true, false);
 	}
 
-	const bool	isUVFlipped = flipUV != null ? flipUV->ValueB() : false;
-	if (isUVFlipped)
+	if (decl.IsFeatureEnabled(SID_FlipUVs()))
 	{
 		u32		genUVFlags = 0;
 		PK_ASSERT(renderer.m_RendererType == Renderer_Billboard);
@@ -478,61 +457,62 @@ void	SParticleMaterialBasicDesc::InitFromRenderer(const CRendererDataBase &rende
 		_AddRendererFlags(genUVFlags, false, false);
 	}
 
-	if (meshPath != null && !meshPath->ValuePath().Empty())
+	const CString	meshPath = decl.GetPropertyValue_Path(SID_Mesh(), CString::EmptyString);
+	if (!meshPath.Empty())
 	{
-		m_UseMeshAtlas = (meshAtlas != null && meshAtlas->ValueB());
-		m_MeshPath = CStringId(packPath / meshPath->ValuePath());
+		m_UseMeshAtlas = decl.IsFeatureEnabled(SID_MeshAtlas());
+		m_MeshPath = CStringId(packPath / meshPath);
 	}
 
 	//-----------------------------
 	// Choose the blending mode:
 	//-----------------------------
-	const SRendererFeaturePropertyValue	*transparent = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Transparent());
-	const SRendererFeaturePropertyValue	*transparentType = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Transparent_Type());
-	const SRendererFeaturePropertyValue	*transparentCameraSortOffset = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Transparent_CameraSortOffset());
-	const SRendererFeaturePropertyValue	*opaque = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Opaque());
-	const SRendererFeaturePropertyValue	*opaqueType = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Opaque_Type());
-	const SRendererFeaturePropertyValue	*opaqueMaskThreshold = renderer.m_Declaration.FindProperty(BasicFeatures::SID_Opaque_MaskThreshold());
 
-	if (transparent != null && transparent->ValueB() && transparentType != null)
+	if (decl.IsFeatureEnabled(SID_Transparent()))
 	{
-		if (transparentType->ValueI().x() == BasicFeatures::TransparentType::Additive)
+		const ETransparentType	transparentType = decl.GetPropertyValue_Enum<ETransparentType>(SID_Transparent_Type(), Additive);
+
+		m_PipelineStateKey.m_BlendMode = BlendMode::Additive;
+		switch (transparentType)
 		{
+		case	Additive:
 			m_PipelineStateKey.m_BlendMode = BlendMode::Additive;
-		}
-		else if (transparentType->ValueI().x() == BasicFeatures::TransparentType::AdditiveNoAlpha)
-		{
+			break;
+		case	AdditiveNoAlpha:
 			m_PipelineStateKey.m_BlendMode = BlendMode::AdditiveNoAlpha;
-		}
-		else if (transparentType->ValueI().x() == BasicFeatures::TransparentType::AlphaBlend)
-		{
+			break;
+		case	AlphaBlend:
 			m_PipelineStateKey.m_BlendMode = BlendMode::AlphaBlend;
-		}
-		else if (transparentType->ValueI().x() == BasicFeatures::TransparentType::PremultipliedAlpha)
-		{
+			break;
+		case	PremultipliedAlpha:
 			m_PipelineStateKey.m_BlendMode = BlendMode::PremultipliedAlpha;
-		}
-
-		if (transparentCameraSortOffset != null)
-			m_SortDepthOffset += transparentCameraSortOffset->ValueF().x();
+			break;
+		default:
+			PK_ASSERT_NOT_REACHED();
+			break;
+		};
 	}
-	else if (opaque != null && opaque->ValueB() && opaqueType != null)
+	else if (decl.IsFeatureEnabled(SID_Opaque()))
 	{
-		if (opaqueType->ValueI().x() == BasicFeatures::OpaqueType::Solid)
+		const EOpaqueType	opaqueType = decl.GetPropertyValue_Enum<EOpaqueType>(SID_Opaque_Type(), Solid);
+		switch (opaqueType)
 		{
+		case	Solid:
 			m_PipelineStateKey.m_BlendMode = BlendMode::Solid;
-		}
-		else if (opaqueType->ValueI().x() == BasicFeatures::OpaqueType::Masked)
-		{
+			break;
+		case	Masked:
 			m_PipelineStateKey.m_BlendMode = BlendMode::Masked;
 			_AddRendererFlags(RendererFlags::HAS_Masked, true, false);
-			if (opaqueMaskThreshold != null)
-				m_MaskThreshold = opaqueMaskThreshold->ValueF().x();
-		}
+			m_MaskThreshold = decl.GetPropertyValue_F1(SID_Opaque_MaskThreshold(), 0.0f);
+			break;
+		default:
+			PK_ASSERT_NOT_REACHED();
+			break;
+		};
 	}
 
 	// Find the associated shader:
-	if (distortion != null && distortion->ValueB())
+	if (distortion)
 	{
 		if (renderer.m_RendererType == ERendererClass::Renderer_Billboard)
 			m_PipelineStateKey.m_UsedShader = EPopcornFXShader::BillboardDistortion_Shader;
@@ -606,7 +586,6 @@ bool	SParticleMaterialBasicDesc::operator == (const SParticleMaterialBasicDesc &
 			m_Metalness == oth.m_Metalness &&
 			m_Roughness == oth.m_Roughness &&
 			m_MaskThreshold == oth.m_MaskThreshold &&
-			m_SortDepthOffset == oth.m_SortDepthOffset &&
 			m_MotionVectorsScale == oth.m_MotionVectorsScale &&
 			m_MaterialKey == oth.m_MaterialKey &&
 			m_PipelineStateKey == oth.m_PipelineStateKey;

@@ -77,7 +77,7 @@ PRendererCacheBase		CAtomRenderDataFactory::CreateRendererCache(const PRendererD
 	PAtomRendererCache	rendererCache = PK_NEW(CAtomRendererCache);
 	if (!PK_VERIFY(rendererCache != null))
 	{
-		AZ_Error("PopcornFX", false, "Could not allocate the renderer cache");
+		AZ_Error("PopcornFX", false, "Could not allocate the renderer cache (effect: '%s')", particleDesc->ParentEffect()->FilePath().Data());
 		return null;
 	}
 
