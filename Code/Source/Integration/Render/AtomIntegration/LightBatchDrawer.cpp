@@ -29,6 +29,8 @@ CLightBatchDrawer::~CLightBatchDrawer()
 
 bool	CLightBatchDrawer::AreRenderersCompatible(const CRendererDataBase *rendererA, const CRendererDataBase *rendererB) const
 {
+	if (!Super::AreRenderersCompatible(rendererA, rendererB))
+		return false;
 	const CAtomRendererCache	*firstAtomCache = static_cast<const CAtomRendererCache*>(rendererA->m_RendererCache.Get());
 	const CAtomRendererCache	*secondAtomCache = static_cast<const CAtomRendererCache*>(rendererB->m_RendererCache.Get());
 

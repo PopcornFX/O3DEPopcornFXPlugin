@@ -330,17 +330,17 @@ AZStd::string	CBakerManager::BakeSingleAsset(const AZStd::string &assetPath, con
 
 	_SetBuildVersion(platform);
 
-	AZ_TracePrintf(AssetBuilderSDK::InfoWindow, "[PopcornFX] Baking effect '%s'", virtualPath.Data());
+	CLog::Log(PK_INFO, "Baking effect '%s'", virtualPath.Data());
 
 	const bool	bakeOk = m_Cookery->BakeAsset(virtualPath, m_Cookery->m_BaseConfigFile, bakerMessages, dstPackPaths);
 	LogBakerMessages(bakerMessages);
 	if (!bakeOk)
 	{
-		AZ_TracePrintf(AssetBuilderSDK::ErrorWindow, "[PopcornFX] Bake FAILED");
+		CLog::Log(PK_ERROR, "Failed baking effect '%s'", virtualPath.Data());
 		return "";
 	}
 
-	AZ_TracePrintf(AssetBuilderSDK::InfoWindow, "[PopcornFX] Bake OK");
+	CLog::Log(PK_INFO, "Successfully baked effect '%s'", virtualPath.Data());
 	return virtualPath.Data();
 }
 
@@ -365,7 +365,7 @@ bool	CBakerManager::GatherDependencies(const AZStd::string &assetPath, AZStd::ve
 
 	if (srcFile == null)
 	{
-		AZ_TracePrintf(AssetBuilderSDK::InfoWindow, "[PopcornFX] Couldn't find asset '%s'", virtualPath.Data());
+		CLog::Log(PK_INFO, "Couldn't find asset '%s'", virtualPath.Data());
 		return false;
 	}
 
@@ -376,7 +376,7 @@ bool	CBakerManager::GatherDependencies(const AZStd::string &assetPath, AZStd::ve
 	PopcornFX::TArray<PopcornFX::SResourceDependency>	effectDepends;
 	if (!effect->GatherRuntimeDependencies(effectDepends) || !effect->GatherStaticDependencies(effectDepends))
 	{
-		AZ_TracePrintf(AssetBuilderSDK::InfoWindow, "[PopcornFX] Couldn't gather dependencies from '%s'", effect->File()->Path().Data());
+		CLog::Log(PK_INFO, "Couldn't gather effect dependencies for '%s'", effect->File()->Path().Data());
 		return false;
 	}
 	const u32	dependsCount = effectDepends.Count();
@@ -420,13 +420,13 @@ void	CBakerManager::LogBakerMessages(const CMessageStream &messages)
 			switch (msg.m_Level)
 			{
 			case	CMessageStream::Info:
-				AZ_TracePrintf(AssetBuilderSDK::InfoWindow, "[PopcornFX] %s", messageLines[j].Data());
+				CLog::Log(PK_INFO, "%s", messageLines[j].Data());
 				break;
 			case	CMessageStream::Warning:
-				AZ_TracePrintf(AssetBuilderSDK::WarningWindow, "[PopcornFX] %s", messageLines[j].Data());
+				CLog::Log(PK_WARN, "%s", messageLines[j].Data());
 				break;
 			case	CMessageStream::Error:
-				AZ_TracePrintf(AssetBuilderSDK::ErrorWindow, "[PopcornFX] %s", messageLines[j].Data());
+				CLog::Log(PK_ERROR, "%s", messageLines[j].Data());
 				break;
 			default:
 				PK_ASSERT_NOT_REACHED();

@@ -22,7 +22,7 @@
 #include <pk_kernel/include/kr_file.h>
 
 namespace PopcornFX {
-	bool	PopcornStartup(const char *assertScriptFilePath = null, bool installDefaultLogger = true);
+	bool	PopcornStartup(const char *assertScriptFilePath = null);
 	void	PopcornShutdown();
 }
 

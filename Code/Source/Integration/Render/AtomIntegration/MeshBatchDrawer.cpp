@@ -29,6 +29,8 @@ CMeshBatchDrawer::~CMeshBatchDrawer()
 
 bool	CMeshBatchDrawer::AreRenderersCompatible(const CRendererDataBase *rendererA, const CRendererDataBase *rendererB) const
 {
+	if (!Super::AreRenderersCompatible(rendererA, rendererB))
+		return false;
 	const CAtomRendererCache	*firstAtomCache = static_cast<const CAtomRendererCache*>(rendererA->m_RendererCache.Get());
 	const CAtomRendererCache	*secondAtomCache = static_cast<const CAtomRendererCache*>(rendererB->m_RendererCache.Get());
 
@@ -114,7 +116,6 @@ bool	CMeshBatchDrawer::MapBuffers(SRenderContext &ctx, const SRendererBatchDrawP
 {
 	AZ_UNUSED(ctx);
 	const u32									particleCount = drawPass.m_TotalParticleCount;
-	[[maybe_unused]] const u32									drawRequestsCount = drawPass.m_DrawRequests.Count();
 	CRenderManager								*renderManager = m_RenderContext->m_RenderManager;
 	const CParticleBuffers::SViewIndependent	&viewIndependent = GetCurBuffers().m_ViewIndependent;
 
@@ -177,7 +178,6 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchDra
 
 	const u32									particleCount = drawPass.m_TotalParticleCount;
 	const SRendererBatchDrawPass_Mesh_CPUBB		*meshDrawPass = static_cast<const SRendererBatchDrawPass_Mesh_CPUBB*>(&drawPass);
-	[[maybe_unused]] const u32					drawRequestsCount = drawPass.m_DrawRequests.Count();
 	const CParticleBuffers::SViewIndependent	&viewIndependent = GetCurBuffers().m_ViewIndependent;
 	const CAtomRendererCache					*rendererCache = static_cast<const CAtomRendererCache*>(toEmit.m_RendererCaches.First().Get());
 
@@ -185,7 +185,8 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchDra
 		return false;
 
 	dc.m_RendererType = Renderer_Mesh;
-
+	dc.m_CastShadows = rendererCache->m_BasicDescription.m_CastShadows;
+	dc.m_GlobalSortOverride = drawPass.m_DrawRequests.Empty() ? 0 : drawPass.DrawRequests<Drawers::SBase_DrawRequest>()[0]->BaseBillboardingRequest().m_DrawOrder;
 	if (!PK_VERIFY(m_GeometryCache != null && m_PipelineCaches.Count() == m_GeometryCache->m_PerGeometryViews.Count()))
 		return false;
 	for (const auto &pipelineCache : m_PipelineCaches)

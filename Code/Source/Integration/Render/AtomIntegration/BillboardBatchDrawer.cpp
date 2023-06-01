@@ -29,6 +29,8 @@ CBillboardBatchDrawer::~CBillboardBatchDrawer()
 
 bool	CBillboardBatchDrawer::AreRenderersCompatible(const CRendererDataBase *rendererA, const CRendererDataBase *rendererB) const
 {
+	if (!Super::AreRenderersCompatible(rendererA, rendererB))
+		return false;
 	const CAtomRendererCache	*firstAtomCache = static_cast<const CAtomRendererCache*>(rendererA->m_RendererCache.Get());
 	const CAtomRendererCache	*secondAtomCache = static_cast<const CAtomRendererCache*>(rendererB->m_RendererCache.Get());
 
@@ -323,6 +325,8 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBat
 		return false;
 
 	dc.m_RendererType = Renderer_Billboard;
+	dc.m_CastShadows = rendererCache->m_BasicDescription.m_CastShadows;
+	dc.m_GlobalSortOverride = drawPass.m_DrawRequests.Empty() ? 0 : drawPass.DrawRequests<Drawers::SBase_DrawRequest>()[0]->BaseBillboardingRequest().m_DrawOrder;
 	// For billboard renderer, we use a draw instance
 	if (!PK_VERIFY(m_PipelineCaches.Count() == 1 && m_PipelineCaches[0].IsInitialized()))
 		return false;

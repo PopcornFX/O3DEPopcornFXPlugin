@@ -32,7 +32,7 @@ void	PopcornFXBuilderWorker::ShutDown()
 // You should create the same jobs, and avoid checking whether the job is up to date or not. The Asset Processor will manage this for you
 void	PopcornFXBuilderWorker::CreateJobs(const AssetBuilderSDK::CreateJobsRequest &request, AssetBuilderSDK::CreateJobsResponse &response)
 {
-	AZ_TracePrintf(AssetBuilderSDK::InfoWindow, "[PopcornFX] Begin jobs creation for '%s'", request.m_sourceFile.c_str());
+	AZ_Info("PopcornFX", "Begin jobs creation for '%s'.", request.m_sourceFile.c_str());
 	if (m_IsShuttingDown)
 	{
 		response.m_result = AssetBuilderSDK::CreateJobsResultCode::ShuttingDown;
@@ -64,7 +64,7 @@ void	PopcornFXBuilderWorker::CreateJobs(const AssetBuilderSDK::CreateJobsRequest
 
 		if (!ok)
 		{
-			AZ_TracePrintf(AssetBuilderSDK::ErrorWindow, "[PK] - _GatherDependencies failed on '%s'.", fullPath.c_str());
+			AZ_Error("PopcornFX", false, "_GatherDependencies failed on '%s'.", fullPath.c_str());
 			return;
 		}
 		for (int i = 0; i < dependencies.size(); ++i)
@@ -73,7 +73,7 @@ void	PopcornFXBuilderWorker::CreateJobs(const AssetBuilderSDK::CreateJobsRequest
 			dependencyInfo.m_sourceFileDependencyPath = dependencies[i];
 			response.m_sourceFileDependencyList.push_back(dependencyInfo);
 
-			AZ_TracePrintf(AssetBuilderSDK::InfoWindow, "[PopcornFX] '%s': New dependency added '%s'", relPath.data(), dependencies[i].c_str());
+			AZ_Info("PopcornFX", "'%s': New dependency added '%s'", relPath.data(), dependencies[i].c_str());
 		}
 		for (const AssetBuilderSDK::PlatformInfo &platformInfo : request.m_enabledPlatforms)
 		{
@@ -101,7 +101,7 @@ void	PopcornFXBuilderWorker::CreateJobs(const AssetBuilderSDK::CreateJobsRequest
 		response.m_result = AssetBuilderSDK::CreateJobsResultCode::Success;
 		return;
 	}
-	AZ_TracePrintf(AssetBuilderSDK::ErrorWindow, "[PK] - Unhandled extension type in PopcornFXBuilderWorker for '%s'", request.m_sourceFile.c_str());
+	AZ_Error("PopcornFX", false, "Unhandled extension type in PopcornFXBuilderWorker for '%s'", request.m_sourceFile.c_str());
 }
 
 
@@ -121,26 +121,26 @@ void	PopcornFXBuilderWorker::ProcessJob(const AssetBuilderSDK::ProcessJobRequest
 	if (!AZ::StringFunc::Equal(ext.c_str(), "pkfx") &&
 		!isDepend)
 	{
-		AZ_TracePrintf(AssetBuilderSDK::WarningWindow, "[PopcornFX] Wrong file type for job '%s', ignoring.\n", request.m_fullPath.c_str());
+		AZ_Warning("PopcornFX", false, "Wrong file type for job '%s', ignoring.", request.m_fullPath.c_str());
 		return;
 	}
 	if (!(AZ::StringFunc::Equal(request.m_jobDescription.m_jobKey.c_str(), "PK_MainAsset")
 		|| AZ::StringFunc::Equal(request.m_jobDescription.m_jobKey.c_str(), "PK_Dependency")))
 	{
-		AZ_TracePrintf(AssetBuilderSDK::WarningWindow, "[PopcornFX] Wrong job description for job '%s', ignoring.\n", request.m_fullPath.c_str());
+		AZ_Warning("PopcornFX", false, "Wrong job description for job '%s', ignoring.", request.m_fullPath.c_str());
 		return;
 	}
 	if (jobCancelListener.IsCancelled() || m_IsShuttingDown)
 	{
-		AZ_TracePrintf(AssetBuilderSDK::WarningWindow, "[PopcornFX] Cancel was requested for job '%s'.\n", request.m_fullPath.c_str());
+		AZ_Warning("PopcornFX", false, "Cancel was requested for job '%s'.", request.m_fullPath.c_str());
 		return;
 	}
 	response.m_resultCode = AssetBuilderSDK::ProcessJobResult_Failed;
 
 	AZStd::string	fullSrcPath = request.m_fullPath;
 
-	AZ_TracePrintf(AssetBuilderSDK::InfoWindow, "[PopcornFX] Processing asset '%s'", fullSrcPath.c_str());
-	AZ_TracePrintf(AssetBuilderSDK::InfoWindow, "[PopcornFX] Asset temp bake directory: '%s'", request.m_tempDirPath.c_str());
+	AZ_Info("PopcornFX", "Processing asset '%s'", fullSrcPath.c_str());
+	AZ_Info("PopcornFX", "Asset temp bake directory: '%s'", request.m_tempDirPath.c_str());
 
 	AZStd::string	virtualPath;
 	PopcornFX::PopcornFXIntegrationBus::BroadcastResult(virtualPath, &PopcornFX::PopcornFXIntegrationBus::Handler::BakeSingleAsset, fullSrcPath, request.m_tempDirPath, request.m_platformInfo.m_identifier);
