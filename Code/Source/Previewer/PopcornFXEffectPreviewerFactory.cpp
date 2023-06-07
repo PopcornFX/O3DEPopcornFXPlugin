@@ -11,6 +11,7 @@
 
 #include <AzToolsFramework/AssetBrowser/AssetBrowserEntry.h>
 #include <AzFramework/StringFunc/StringFunc.h>
+#include <AzCore/std/string/conversions.h>
 
 namespace PopcornFX {
 
