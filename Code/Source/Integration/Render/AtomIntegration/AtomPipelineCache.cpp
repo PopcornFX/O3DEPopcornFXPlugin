@@ -193,7 +193,10 @@ bool	CAtomPipelineCache::InitFromRendererCacheIFN(const CAtomRendererCache *rend
 	if (!m_MaterialSrg->IsQueuedForCompile())
 		m_MaterialSrg->Compile();
 
-	if (rendererCache->m_RendererType == Renderer_Mesh)
+	// Note: object SRG is required for lit ribbons/billboards only while mesh shaders always require it
+	const bool	isRendererLit = rendererCache->m_BasicDescription.HasOneRendererFlags(RendererFlags::Has_Lighting);
+	const bool	requiresObjectSRG = isRendererLit || rendererCache->m_RendererType == Renderer_Mesh;
+	if (requiresObjectSRG)
 	{
 		// Create the object SRG
 		m_ObjectSrg = _CreateShaderResourceGroup(pipelineStateCache->m_MaterialShader, "ObjectSrg");
