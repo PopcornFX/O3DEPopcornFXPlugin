@@ -41,6 +41,7 @@ struct	SAtomRenderContext : public SRenderContext
 		ERendererClass											m_RendererType = Renderer_Invalid;
 		bool													m_CastShadows = false;
 		s32														m_GlobalSortOverride = 0;
+		u32														m_InstanceOffset = 0; // Slices
 
 		CAABB													m_BoundingBox;
 		AZ::RHI::DrawIndexed									m_DrawIndexed;

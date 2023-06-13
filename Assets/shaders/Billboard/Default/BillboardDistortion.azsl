@@ -39,7 +39,7 @@ struct VertexOutput
 VertexOutput BillboardVS(VertexInput input)
 {
     VertexOutput    output;
-    uint            particleIdx = RendererSrg::m_indices[input.m_instanceID];
+    uint            particleIdx = RendererSrg::m_indices[GetParticleId_Sliced(input.m_instanceID)];
 
     // Billboarding outputs:
     float3  vtxWorldPos;

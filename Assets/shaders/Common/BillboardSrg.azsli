@@ -44,6 +44,9 @@ ShaderResourceGroup RendererSrg : SRG_PerDraw
     StructuredBuffer<SBillboardDrawRequest>      m_drawRequests;
 }
 
+// Slice instance offset
+rootconstant uint   m_instanceOffset;
+
 #include "RendererSrg.azsli"
 
 // Billboarder Types:
@@ -86,6 +89,11 @@ float3    GetParticleAxis1(uint particleIdx)
     return float3(  RendererSrg::m_axis1[particleIdx * 3 + 0],
                     RendererSrg::m_axis1[particleIdx * 3 + 1],
                     RendererSrg::m_axis1[particleIdx * 3 + 2]);
+}
+
+uint    GetParticleId_Sliced(uint particleIdx)
+{
+    return particleIdx + m_instanceOffset;
 }
 
 #include "RendererSrg.azsli"
