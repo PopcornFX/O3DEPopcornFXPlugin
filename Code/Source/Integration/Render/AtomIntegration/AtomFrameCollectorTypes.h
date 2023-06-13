@@ -38,7 +38,9 @@ struct	SAtomRenderContext : public SRenderContext
 
 	struct	SDrawCall
 	{
-		ERendererClass											m_RendererType;
+		ERendererClass											m_RendererType = Renderer_Invalid;
+		bool													m_CastShadows = false;
+		s32														m_GlobalSortOverride = 0;
 		u32														m_InstanceOffset = 0; // Slices
 
 		CAABB													m_BoundingBox;
@@ -58,7 +60,6 @@ struct	SAtomRenderContext : public SRenderContext
 		AZ::RHI::DrawListTag									m_TransparentDepthMinDrawList;
 		AZ::RHI::ConstPtr<AZ::RHI::PipelineState>				m_TransparentDepthMaxPipelineState;
 		AZ::RHI::DrawListTag									m_TransparentDepthMaxDrawList;
-
 	};
 
 	void	Clear(AZ::RPI::Scene *scene)

@@ -61,7 +61,7 @@ void	CRenderManager::Activate(CParticleMediumCollection *mediumCollection, const
 
 	if (resultCode != AZ::RHI::ResultCode::Success)
 	{
-		AZ_Error("DynamicPrimitiveProcessor", false, "Failed to initialize AuxGeom dynamic primitive buffer pool");
+		AZ_Error("PopcornFX", false, "Failed to initialize PopcornFX Particles buffer pool");
 		return;
 	}
 }
@@ -184,7 +184,7 @@ AZ::RHI::Ptr<AZ::RHI::Buffer>	CRenderManager::AllocBuffer(AZ::u64 bufferSize, AZ
 
 	if (result != AZ::RHI::ResultCode::Success)
 	{
-		AZ_Error("PopcornFXRenderManager", false, "Failed to create GPU buffers for PopcornFX");
+		AZ_Error("PopcornFX", false, "Failed allocating GPU Buffer (%d bytes, %d aligned)", bufferSize, alignSizeOn);
 		return null;
 	}
 	return outBuffer;

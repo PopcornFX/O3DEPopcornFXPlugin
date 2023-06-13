@@ -79,16 +79,24 @@ void	CPopcornFXFeatureProcessor::Render(const RenderPacket &packet)
 
 		for (const SAtomRenderContext::SDrawCall &dc : drawCalls.m_DrawCalls)
 		{
+			const bool	castShadows = dc.m_CastShadows;
+
 			for (const AZ::RPI::ViewPtr &view : packet.m_views)
 			{
-				const AZ::RHI::DrawPacket	*drawPacket = BuildDrawPacket(dc, view->GetRHIShaderResourceGroup(), 0);
+				if ((view->GetUsageFlags() & AZ::RPI::View::UsageShadow) != 0 && !castShadows)
+					continue;
+
+				const AZ::RHI::DrawPacket	*drawPacket = BuildDrawPacket(dc, view->GetRHIShaderResourceGroup(), dc.m_GlobalSortOverride);
 				m_drawPackets.emplace_back(drawPacket);
 
 				const CFloat3		&bboxCenter = dc.m_BoundingBox.Center();
 				const AZ::Matrix4x4	&cameraMatrix = view->GetViewToWorldMatrix();
 				CFloat3				cameraPosition = ToPk(cameraMatrix.GetTranslation());
 
-				view->AddDrawPacket(drawPacket, (cameraPosition - bboxCenter).Length());
+				// Note: sliced draw calls have their bbox center the center of a slice, but the bbox can't be trusted.
+				const float			drawCallDepth = (cameraPosition - bboxCenter).Length();
+
+				view->AddDrawPacket(drawPacket, drawCallDepth);
 			}
 		}
 	}

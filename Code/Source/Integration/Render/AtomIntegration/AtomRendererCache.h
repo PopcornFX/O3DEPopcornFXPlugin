@@ -255,8 +255,6 @@ struct	SParticleMaterialBasicDesc
 
 	float						m_MaskThreshold;
 
-	float						m_SortDepthOffset;
-
 	CFloat2						m_MotionVectorsScale;
 
 	SMaterialCacheKey			m_MaterialKey;

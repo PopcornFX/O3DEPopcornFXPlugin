@@ -31,8 +31,6 @@ set(FILES
     Source/Integration/Render/AtomIntegration/PopcornFXFeatureProcessor.h
     Source/Integration/Render/AtomIntegration/PopcornFXFeatureProcessor.cpp
 
-    Source/Integration/Render/BasicEditorRendererFeatures.cpp
-    Source/Integration/Render/BasicEditorRendererFeatures.h
     Source/Integration/Render/CameraInfo.h
 
     Source/Integration/Managers/EmittersManager.cpp
