@@ -73,7 +73,10 @@ bool	CMeshBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBatchDra
 		m_PipelineCaches.Resize(m_GeometryCache->m_PerGeometryViews.Count());
 
 	for (auto &pipelineCache : m_PipelineCaches)
+	{
+		pipelineCache.Clear();
 		pipelineCache.InitFromRendererCacheIFN(rendererCache);
+	}
 	if (rendererCache->m_CachesModified)
 		_UnflagModifiedCaches(drawPass.m_RendererCaches);
 

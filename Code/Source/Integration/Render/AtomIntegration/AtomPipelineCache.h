@@ -139,6 +139,7 @@ public:
 	~CAtomPipelineCache();
 
 	bool	InitFromRendererCacheIFN(const CAtomRendererCache *rendererCache);
+	void	Clear();
 
 	void	SetBillboardingSrgBuffer(BillboardSrg::EBuffersSemantic semantic, const AZ::RHI::Ptr<AZ::RHI::BufferView> bufferView);
 	template<typename T>

@@ -159,6 +159,7 @@ ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
 
     lightingOutput.m_diffuseColor.rgb *= lightingOutput.m_diffuseColor.w; // pre-multiply diffuse
     lightingOutput.m_diffuseColor.rgb += lightingOutput.m_specularColor.rgb; // add specular
+    lightingOutput.m_diffuseColor.rgb += lightingData.emissiveLighting.rgb; // add emissive
 
     ForwardPassOutput fwdOut;
 
