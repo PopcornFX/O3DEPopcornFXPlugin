@@ -4,7 +4,6 @@
 //----------------------------------------------------------------------------
 
 #include <viewsrg.srgi>
-#include <Atom/Features/PBR/DefaultObjectSrg.azsli>
 
 #define 	PK_DEPTH_ONLY_SHADER
 #include "../../Common/ComputeBillboardVertex.azsli"

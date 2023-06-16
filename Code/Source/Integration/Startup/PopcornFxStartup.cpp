@@ -320,7 +320,9 @@ namespace PopcornFX {
 		// This avoids embedding PopcornFX default assert handlers in the plugin, breaks for the first occurence of an assert.
 		// PK_USE_O3DE_ASSERTS should be turned on at some point if we can invoke O3DE's assert handler without printing out the callstack (stalls for several minutes in debug)
 		AZ_Error("PopcornFX", false, prettyMessage);
+#	if 0 // !defined(POPCORNFX_BUILDER) // Don't crash builders
 		PK_BREAKPOINT();
+#	endif // !defined(POPCORNFX_BUILDER)
 		return PopcornFX::Assert::Result_Ignore;
 #endif // (PK_USE_O3DE_ASSERTS)
 	}

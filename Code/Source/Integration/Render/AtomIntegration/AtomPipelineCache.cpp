@@ -193,7 +193,9 @@ bool	CAtomPipelineCache::InitFromRendererCacheIFN(const CAtomRendererCache *rend
 	if (!m_MaterialSrg->IsQueuedForCompile())
 		m_MaterialSrg->Compile();
 
-	if (rendererCache->m_RendererType == Renderer_Mesh)
+	// Note: object SRG is required for lit meshes/ribbons/billboards only
+	const bool	requiresObjectSRG = rendererCache->m_BasicDescription.HasOneRendererFlags(RendererFlags::Has_Lighting);
+	if (requiresObjectSRG)
 	{
 		// Create the object SRG
 		m_ObjectSrg = _CreateShaderResourceGroup(pipelineStateCache->m_MaterialShader, "ObjectSrg");
@@ -298,7 +300,12 @@ void	CAtomPipelineCache::ConfigureDrawCall(SAtomRenderContext::SDrawCall &drawCa
 	drawCall.m_TransparentDepthMinDrawList = m_TransparentDepthMinDrawList;
 	drawCall.m_TransparentDepthMaxPipelineState = m_TransparentDepthMaxPipelineState;
 	drawCall.m_TransparentDepthMaxDrawList = m_TransparentDepthMaxDrawList;
+}
 
+//----------------------------------------------------------------------------
+
+void	CAtomPipelineCache::Clear()
+{
 	// Reset vertex and index buffers:
 	m_VertexInputs.Clear();
 	m_IndexBuffer = AZ::RHI::IndexBufferView();

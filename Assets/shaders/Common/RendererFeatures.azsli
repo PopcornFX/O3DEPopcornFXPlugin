@@ -42,7 +42,7 @@ float4 	GetColorWithRamp(Texture2D colorMap, Texture2D rampMap, float2 uv, bool 
 	if (hasRamp)
 	{
 		float2 	rampUV = float2(diffuseColor.r, 0.0);
-		diffuseColor.rgb = rampMap.Sample(MaterialSrg::m_sampler, rampUV).rgb;
+		diffuseColor.rgb = rampMap.Sample(MaterialSrg::m_samplerLinearClamp, rampUV).rgb;
 	}
 	return diffuseColor;
 }
@@ -55,7 +55,7 @@ float4 	GetColorWithRamp(Texture2D colorMap, Texture2D rampMap, float2 uv0, floa
 	if (hasRamp)
 	{
 		float2 	rampUV = float2(diffuseColor.r, 0.0);
-		diffuseColor.rgb = rampMap.Sample(MaterialSrg::m_sampler, rampUV).rgb;
+		diffuseColor.rgb = rampMap.Sample(MaterialSrg::m_samplerLinearClamp, rampUV).rgb;
 	}
 	return diffuseColor;
 }
@@ -144,7 +144,7 @@ float4 	GetDistortionColor(float2 uv0, float2 uv1, float frameLerp)
 float4 	ApplyAlphaRemap(float4 diffuseColor, float cursor)
 {
 	float2    alphaTexCoord = float2(diffuseColor.a, cursor);
-	diffuseColor.a = MaterialSrg::m_alphaMap.Sample(MaterialSrg::m_sampler, alphaTexCoord).r;
+	diffuseColor.a = MaterialSrg::m_alphaMap.Sample(MaterialSrg::m_samplerLinearClamp, alphaTexCoord).r;
 	return diffuseColor;
 }
 

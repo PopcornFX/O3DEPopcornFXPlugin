@@ -272,20 +272,24 @@ void	SParticleMaterialBasicDesc::InitFromRenderer(const CRendererDataBase &rende
 	PK_ASSERT(	renderer.m_RendererType == Renderer_Billboard ||
 				renderer.m_RendererType == Renderer_Ribbon ||
 				renderer.m_RendererType == Renderer_Mesh ||
-				renderer.m_RendererType == Renderer_Light ||
-				renderer.m_RendererType == Renderer_Sound ||
-				renderer.m_RendererType == Renderer_Decal);
+				renderer.m_RendererType == Renderer_Light);
 
 	//-----------------------------
 	// Choose the material variation:
 	//-----------------------------
 	const SRendererDeclaration	&decl = renderer.m_Declaration;
 
+	_ResetRendererFlags();
+
+	if (renderer.m_RendererType == Renderer_Light)
+	{
+		// No property to grab.
+		return;
+	}
+
 	CString	packPath = rendererCache->m_PackPath;
 	if (packPath == ".")
 		packPath.Clear();
-
-	_ResetRendererFlags();
 
 	// Has_Capsules:
 	const bool	hasAtlas = decl.IsFeatureEnabled(SID_Atlas());
