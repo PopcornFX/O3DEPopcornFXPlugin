@@ -40,6 +40,8 @@ ly_add_target(
         popcornfx_autogen_files.cmake
         popcornfx_shared_files.cmake
         ../Assets/popcornfx_asset_files.cmake
+    PLATFORM_INCLUDE_FILES
+        ${pal_dir}/platform_${PAL_PLATFORM_NAME_LOWERCASE}.cmake
     COMPILE_DEFINITIONS
         PUBLIC
             O3DE_USE_PK
