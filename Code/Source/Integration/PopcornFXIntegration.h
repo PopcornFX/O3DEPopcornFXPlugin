@@ -36,6 +36,8 @@
 
 namespace PopcornFX {
 
+	class CPopcornFXFeatureProcessor;
+
 	class PopcornFXIntegration
 		: protected ISystemEventListener
 		, protected CrySystemEventBus::Handler
@@ -192,6 +194,8 @@ namespace PopcornFX {
 		void			_DeactivateManagers();
 		void			_SetEnabled(bool enable);
 		void			_Clean(bool unloadPreloadedEffects);
+
+		CPopcornFXFeatureProcessor	*_GetFeatureProcessor();
 
 		bool						m_Enabled = false;
 		bool						m_FeatureProcessorEnabled = false;

@@ -56,20 +56,18 @@ void	PopcornFXIntegration::StartUpdate(float deltaTime)
 	if (!m_Enabled)
 		return;
 
+#if !defined(POPCORNFX_BUILDER)
 	if (!m_FeatureProcessorEnabled)
 	{
-		const auto	scene = AZ::RPI::RPISystemInterface::Get()->GetSceneByName(AZ::Name(AzFramework::Scene::MainSceneName));
-		if (scene)
+		CPopcornFXFeatureProcessor	*pkfxFeatureProc = _GetFeatureProcessor();
+		if (PK_VERIFY(pkfxFeatureProc != null))
 		{
-			CPopcornFXFeatureProcessor	*pkfxFeatureProc = static_cast<CPopcornFXFeatureProcessor*>(scene->GetFeatureProcessor<CPopcornFXFeatureProcessor>());
-			if (pkfxFeatureProc)
-			{
-				pkfxFeatureProc->Init(m_MediumCollectionManager.MediumCollection(), m_SceneViewsManager.SceneViews());
-				pkfxFeatureProc->GetRenderManager().Activate(m_MediumCollectionManager.MediumCollection(), m_PackPath);
-				m_FeatureProcessorEnabled = true;
-			}
+			pkfxFeatureProc->Init(m_MediumCollectionManager.MediumCollection(), m_SceneViewsManager.SceneViews());
+			pkfxFeatureProc->GetRenderManager().Activate(m_MediumCollectionManager.MediumCollection(), m_PackPath);
+			m_FeatureProcessorEnabled = true;
 		}
 	}
+#endif
 
 	// First, we reset the stats and start the main thread overhead timer:
 	CParticleMediumCollection	*mediumCollection = m_MediumCollectionManager.MediumCollection();
@@ -85,15 +83,13 @@ void	PopcornFXIntegration::StartUpdate(float deltaTime)
 	m_WindManager.Update();
 	m_SceneViewsManager.Update(mediumCollection);
 
+#if !defined(POPCORNFX_BUILDER)
 	// This binds the CollectFrame function to the m_OnUpdateComplete:
 	//m_RenderManager.StartUpdate(mediumCollection, m_SceneViewsManager.SceneViews());
-	const auto	scene = AZ::RPI::RPISystemInterface::Get()->GetSceneByName(AZ::Name(AzFramework::Scene::MainSceneName));
-	if (scene)
-	{
-		CPopcornFXFeatureProcessor	*pkfxFeatureProc = static_cast<CPopcornFXFeatureProcessor*>(scene->GetFeatureProcessor<CPopcornFXFeatureProcessor>());
-		if (pkfxFeatureProc)
-			pkfxFeatureProc->GetRenderManager().StartUpdate(m_MediumCollectionManager.MediumCollection(), m_SceneViewsManager.SceneViews());
-	}
+	CPopcornFXFeatureProcessor	*pkfxFeatureProc = _GetFeatureProcessor();
+	if (PK_VERIFY(pkfxFeatureProc != null))
+		pkfxFeatureProc->GetRenderManager().StartUpdate(m_MediumCollectionManager.MediumCollection(), m_SceneViewsManager.SceneViews());
+#endif
 
 	// Start CPU timer (stopped by PopcornFXIntegration::_OnUpdateComplete):
 	m_StatsManager.StartUpdateSpanTimer();
@@ -122,15 +118,11 @@ void	PopcornFXIntegration::StopUpdate()
 	m_StatsManager.StartBillboardingSpanTimer();
 
 	//m_RenderManager.StopUpdate(mediumCollection);
-	const auto	scene = AZ::RPI::RPISystemInterface::Get()->GetSceneByName(AZ::Name(AzFramework::Scene::MainSceneName));
-	if (scene)
-	{
-		CPopcornFXFeatureProcessor	*pkfxFeatureProc = static_cast<CPopcornFXFeatureProcessor*>(scene->GetFeatureProcessor<CPopcornFXFeatureProcessor>());
-		if (pkfxFeatureProc)
-		{
+#if !defined(POPCORNFX_BUILDER)
+	CPopcornFXFeatureProcessor	*pkfxFeatureProc = _GetFeatureProcessor();
+	if (PK_VERIFY(pkfxFeatureProc != null))
 			pkfxFeatureProc->GetRenderManager().StopUpdate(m_MediumCollectionManager.MediumCollection());
-		}
-	}
+#endif
 
 	m_StatsManager.StopBillboardingSpanTimer();
 
@@ -153,21 +145,20 @@ void	PopcornFXIntegration::Activate()
 
 void	PopcornFXIntegration::Deactivate()
 {
-	const auto	scene = AZ::RPI::RPISystemInterface::Get()->GetSceneByName(AZ::Name(AzFramework::Scene::MainSceneName));
-	if (scene)
+#if !defined(POPCORNFX_BUILDER)
+	CPopcornFXFeatureProcessor	*pkfxFeatureProc = _GetFeatureProcessor();
+	if (PK_VERIFY(pkfxFeatureProc != null))
 	{
-		CPopcornFXFeatureProcessor	*pkfxFeatureProc = static_cast<CPopcornFXFeatureProcessor*>(scene->GetFeatureProcessor<CPopcornFXFeatureProcessor>());
-		if (pkfxFeatureProc)
-		{
-			pkfxFeatureProc->Init(null, null);
-			pkfxFeatureProc->GetRenderManager().Deactivate();
-		}
+		pkfxFeatureProc->Init(null, null);
+		pkfxFeatureProc->GetRenderManager().Deactivate();
 	}
-	m_FeatureProcessorEnabled = false;
 
 	AZ::RPI::FeatureProcessorFactory	*factory = AZ::RPI::FeatureProcessorFactory::Get();
 	if (factory != null)
 		factory->UnregisterFeatureProcessor<CPopcornFXFeatureProcessor>();
+#endif
+	m_FeatureProcessorEnabled = false;
+
 	_SetEnabled(false);
 
 #if defined(POPCORNFX_EDITOR)
@@ -239,17 +230,28 @@ void	PopcornFXIntegration::_SetEnabled(bool enable)
 void	PopcornFXIntegration::_Clean(bool unloadPreloadedEffects)
 {
 	m_MediumCollectionManager.Reset();
-	const auto	scene = AZ::RPI::RPISystemInterface::Get()->GetSceneByName(AZ::Name(AzFramework::Scene::MainSceneName));
-	if (scene)
-	{
-		CPopcornFXFeatureProcessor	*pkfxFeatureProc = static_cast<CPopcornFXFeatureProcessor*>(scene->GetFeatureProcessor<CPopcornFXFeatureProcessor>());
-		if (pkfxFeatureProc)
-			pkfxFeatureProc->GetRenderManager().Reset();
-	}
+#if !defined(POPCORNFX_BUILDER)
+	CPopcornFXFeatureProcessor	*pkfxFeatureProc = _GetFeatureProcessor();
+	if (PK_VERIFY(pkfxFeatureProc != null))
+		pkfxFeatureProc->GetRenderManager().Reset();
+#endif
 	m_EmittersManager.Reset();
 	if (unloadPreloadedEffects)
 		m_Preloader.Clear();
 }
+
+CPopcornFXFeatureProcessor	*PopcornFXIntegration::_GetFeatureProcessor()
+{
+	const auto	rpiSystem = AZ::RPI::RPISystemInterface::Get();
+	if (PK_VERIFY(rpiSystem != null))
+	{
+		const auto	scene = rpiSystem->GetSceneByName(AZ::Name(AzFramework::Scene::MainSceneName));
+		if (scene != null)
+			return static_cast<CPopcornFXFeatureProcessor*>(scene->GetFeatureProcessor<CPopcornFXFeatureProcessor>());
+	}
+	return null;
+}
+
 
 #if defined(POPCORNFX_EDITOR)
 // AzToolsFramework::EditorLegacyGameModeNotificationBus
@@ -427,18 +429,11 @@ bool	PopcornFXIntegration::LoadEffect(PopcornFXAsset *asset, const char *assetPa
 
 void	PopcornFXIntegration::UnloadEffect(PopcornFXAsset *asset)
 {
-	AZ::RPI::RPISystemInterface *rpiSystemInterface = AZ::RPI::RPISystemInterface::Get();
-
-	if (rpiSystemInterface != null)
-	{
-		const auto	scene = rpiSystemInterface->GetSceneByName(AZ::Name(AzFramework::Scene::MainSceneName));
-		if (asset->m_Effect != null && scene != null)
-		{
-			CPopcornFXFeatureProcessor	*pkfxFeatureProc = static_cast<CPopcornFXFeatureProcessor*>(scene->GetFeatureProcessor<CPopcornFXFeatureProcessor>());
-			if (pkfxFeatureProc != null)
-				pkfxFeatureProc->GetRenderManager().UnregisterEffectMaterials(asset->m_Effect);
-		}
-	}
+#if !defined(POPCORNFX_BUILDER)
+	CPopcornFXFeatureProcessor	*pkfxFeatureProc = _GetFeatureProcessor();
+	if (PK_VERIFY(pkfxFeatureProc != null) && asset->m_Effect != null)
+		pkfxFeatureProc->GetRenderManager().UnregisterEffectMaterials(asset->m_Effect);
+#endif
 
 	asset->m_Effect = null;
 	if (asset->m_File != null)
@@ -529,13 +524,14 @@ void	PopcornFXIntegration::PackChanged(const AZStd::string &packPath, const AZSt
 		m_LibraryPath = libraryPath;
 		SavePackPathToJson(m_PackPath, m_LibraryPath);
 	}
-	const auto	scene = AZ::RPI::RPISystemInterface::Get()->GetSceneByName(AZ::Name(AzFramework::Scene::MainSceneName));
-	if (scene)
+#if !defined(POPCORNFX_BUILDER)
+	if (m_FeatureProcessorEnabled)
 	{
-		CPopcornFXFeatureProcessor	*pkfxFeatureProc = static_cast<CPopcornFXFeatureProcessor*>(scene->GetFeatureProcessor<CPopcornFXFeatureProcessor>());
-		if (pkfxFeatureProc)
+		CPopcornFXFeatureProcessor	*pkfxFeatureProc = _GetFeatureProcessor();
+		if (PK_VERIFY(pkfxFeatureProc != null))
 			pkfxFeatureProc->GetRenderManager().SetPackPath(m_PackPath);
 	}
+#endif
 	m_WindManager.Reset(m_LibraryPath);
 }
 
