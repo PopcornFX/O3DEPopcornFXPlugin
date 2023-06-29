@@ -208,7 +208,9 @@ namespace PopcornFX {
 		CEmittersManager			m_EmittersManager;
 		CSceneViewsManager			m_SceneViewsManager;
 		CBroadcastManager			m_BroadcastManager;
+#if !defined(PK_RETAIL)
 		CStatsManager				m_StatsManager;
+#endif
 		CWindManager				m_WindManager;
 #if defined(POPCORNFX_BUILDER)
 		CBakerManager				m_BakerManager;

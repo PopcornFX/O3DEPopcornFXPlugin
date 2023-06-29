@@ -6,7 +6,7 @@
 #include "PopcornFX_precompiled.h"
 #include "StatsManager.h"
 
-#if defined(O3DE_USE_PK)
+#if defined(O3DE_USE_PK) && !defined(PK_RETAIL)
 
 #include <PopcornFX/PopcornFXBus.h>
 
@@ -783,4 +783,4 @@ void	CStatsManager::_OnUpdateComplete(CParticleMediumCollection *medCol)
 //----------------------------------------------------------------------------
 }
 
-#endif //O3DE_USE_PK
+#endif //O3DE_USE_PK && !PK_RETAIL

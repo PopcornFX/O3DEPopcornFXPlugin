@@ -91,8 +91,10 @@ void	PopcornFXIntegration::StartUpdate(float deltaTime)
 		pkfxFeatureProc->GetRenderManager().StartUpdate(m_MediumCollectionManager.MediumCollection(), m_SceneViewsManager.SceneViews());
 #endif
 
+#if !defined(PK_RETAIL)
 	// Start CPU timer (stopped by PopcornFXIntegration::_OnUpdateComplete):
 	m_StatsManager.StartUpdateSpanTimer();
+#endif
 
 	// Start the medium collection update:
 	m_MediumCollectionManager.StartUpdate(deltaTime);
@@ -103,19 +105,24 @@ void	PopcornFXIntegration::StopUpdate()
 	if (!m_Enabled)
 		return;
 
+#if !defined(PK_RETAIL)
 	STATS_START_MAIN_THREAD_TIMER_SCOPED(m_StatsManager);
+#endif
 
 	if (!p_PopcornFXParticles)
 		return;
 
+#if !defined(PK_RETAIL)
 	m_StatsManager.StopMainThreadUpdateSpanTimer();
+#endif
 
-	CParticleMediumCollection	*mediumCollection = m_MediumCollectionManager.MediumCollection();
 	m_MediumCollectionManager.StopUpdate();
 
 	m_BroadcastManager.Update();
 
+#if !defined(PK_RETAIL)
 	m_StatsManager.StartBillboardingSpanTimer();
+#endif
 
 	//m_RenderManager.StopUpdate(mediumCollection);
 #if !defined(POPCORNFX_BUILDER)
@@ -124,10 +131,13 @@ void	PopcornFXIntegration::StopUpdate()
 			pkfxFeatureProc->GetRenderManager().StopUpdate(m_MediumCollectionManager.MediumCollection());
 #endif
 
+#if !defined(PK_RETAIL)
 	m_StatsManager.StopBillboardingSpanTimer();
 
 	// Update scene timings
+	CParticleMediumCollection	*mediumCollection = m_MediumCollectionManager.MediumCollection();
 	m_StatsManager.Update(mediumCollection);
+#endif
 }
 
 void	PopcornFXIntegration::Activate()
@@ -175,7 +185,9 @@ bool	PopcornFXIntegration::_ActivateManagers()
 {
 	m_WindManager.Activate();
 	m_WindManager.Reset(m_LibraryPath);
+#if !defined(PK_RETAIL)
 	m_StatsManager.Activate();
+#endif
 	if (!PK_VERIFY(m_MediumCollectionManager.Activate(&m_SceneInterface)))
 		return false;
 	m_SceneViewsManager.Activate();
@@ -193,7 +205,9 @@ void	PopcornFXIntegration::_DeactivateManagers()
 
 	m_SceneViewsManager.Deactivate();
 	m_MediumCollectionManager.Deactivate();
+#if !defined(PK_RETAIL)
 	m_StatsManager.Deactivate();
+#endif
 	m_WindManager.Deactivate();
 }
 
