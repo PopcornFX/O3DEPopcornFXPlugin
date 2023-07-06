@@ -36,6 +36,8 @@
 
 namespace PopcornFX {
 
+	class CPopcornFXFeatureProcessor;
+
 	class PopcornFXIntegration
 		: protected ISystemEventListener
 		, protected CrySystemEventBus::Handler
@@ -193,6 +195,8 @@ namespace PopcornFX {
 		void			_SetEnabled(bool enable);
 		void			_Clean(bool unloadPreloadedEffects);
 
+		CPopcornFXFeatureProcessor	*_GetFeatureProcessor();
+
 		bool						m_Enabled = false;
 		bool						m_FeatureProcessorEnabled = false;
 		AZStd::string				m_PackPath;
@@ -204,7 +208,9 @@ namespace PopcornFX {
 		CEmittersManager			m_EmittersManager;
 		CSceneViewsManager			m_SceneViewsManager;
 		CBroadcastManager			m_BroadcastManager;
+#if !defined(PK_RETAIL)
 		CStatsManager				m_StatsManager;
+#endif
 		CWindManager				m_WindManager;
 #if defined(POPCORNFX_BUILDER)
 		CBakerManager				m_BakerManager;

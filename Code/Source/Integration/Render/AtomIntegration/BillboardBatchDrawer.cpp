@@ -57,21 +57,28 @@ bool	CBillboardBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBat
 		PK_ASSERT(rendererCache != null);
 		if (rendererCache->m_Atlas != null)
 		{
-			m_AtlasSubRectsCount = rendererCache->m_Atlas->m_RectsFp32.Count();
-			m_AtlasDefinition = m_RenderContext->m_RenderManager->ResizeOrCreateBufferIFN(m_AtlasDefinition, m_AtlasSubRectsCount * sizeof(CFloat4), 0x10);
-			if (!PK_VERIFY(m_AtlasDefinition != null))
+			if (PK_VERIFY(!rendererCache->m_Atlas->Empty()))
 			{
-				m_RenderContext = null;
-				return false;
+				m_AtlasSubRectsCount = rendererCache->m_Atlas->m_RectsFp32.Count();
+				m_AtlasDefinition = m_RenderContext->m_RenderManager->ResizeOrCreateBufferIFN(m_AtlasDefinition, m_AtlasSubRectsCount * sizeof(CFloat4), 0x10);
+				if (!PK_VERIFY(m_AtlasDefinition != null))
+				{
+					m_RenderContext = null;
+					return false;
+				}
+				CFloat4	*atlasSubRects = static_cast<CFloat4*>(m_RenderContext->m_RenderManager->MapBuffer(m_AtlasDefinition, m_AtlasSubRectsCount * sizeof(CFloat4)));
+				if (!PK_VERIFY(atlasSubRects != null))
+				{
+					m_RenderContext = null;
+					return false;
+				}
+				Mem::Copy(atlasSubRects, rendererCache->m_Atlas->m_RectsFp32.RawDataPointer(), m_AtlasSubRectsCount * sizeof(CFloat4));
+				m_RenderContext->m_RenderManager->UnmapBuffer(m_AtlasDefinition);
 			}
-			CFloat4	*atlasSubRects = static_cast<CFloat4*>(m_RenderContext->m_RenderManager->MapBuffer(m_AtlasDefinition, m_AtlasSubRectsCount * sizeof(CFloat4)));
-			if (!PK_VERIFY(atlasSubRects != null))
+			else
 			{
-				m_RenderContext = null;
-				return false;
+				AZ_Error("PopcornFX", false, "Couldn't load atlas rects");
 			}
-			Mem::Copy(atlasSubRects, rendererCache->m_Atlas->m_RectsFp32.RawDataPointer(), m_AtlasSubRectsCount * sizeof(CFloat4));
-			m_RenderContext->m_RenderManager->UnmapBuffer(m_AtlasDefinition);
 		}
 
 		m_PipelineCaches.Resize(1);

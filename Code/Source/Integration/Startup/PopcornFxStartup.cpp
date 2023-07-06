@@ -306,9 +306,9 @@ namespace PopcornFX {
 	{
 		PK_ASSERT_CATCHER_KILLARGS;
 
-		char			_buffer[2048];
+		char						_buffer[2048];
 		PopcornFX::PrettyFormatAssert_Unsafe(_buffer, sizeof(_buffer), PK_ASSERT_CATCHER_ARGUMENTS);
-		const char		*prettyMessage = _buffer;
+		[[maybe_unused]] const char	*prettyMessage = _buffer;
 
 #if (PK_USE_O3DE_ASSERTS != 0)
 		// Let O3DE handle the assert.
@@ -319,9 +319,11 @@ namespace PopcornFX {
 		// Reroute the assert into an O3DE error and skip additional occurences of the assert.
 		// This avoids embedding PopcornFX default assert handlers in the plugin, breaks for the first occurence of an assert.
 		// PK_USE_O3DE_ASSERTS should be turned on at some point if we can invoke O3DE's assert handler without printing out the callstack (stalls for several minutes in debug)
+#	if !defined(POPCORNFX_BUILDER) // Don't crash builders
 		AZ_Error("PopcornFX", false, prettyMessage);
-#	if 0 // !defined(POPCORNFX_BUILDER) // Don't crash builders
 		PK_BREAKPOINT();
+#else
+		AZ_Warning("PopcornFX", false, prettyMessage);
 #	endif // !defined(POPCORNFX_BUILDER)
 		return PopcornFX::Assert::Result_Ignore;
 #endif // (PK_USE_O3DE_ASSERTS)

@@ -24,25 +24,4 @@ set(FILES
     Source/Components/Helpers/PopcornFXHelperLoopEmitterEditorComponent.h
     Source/Components/Helpers/PopcornFXHelperProfilerEditorComponent.cpp
     Source/Components/Helpers/PopcornFXHelperProfilerEditorComponent.h
-    # Content browser asset preview
-    Source/Previewer/PopcornFXEffectPreviewer.cpp
-    Source/Previewer/PopcornFXEffectPreviewer.h
-    Source/Previewer/PopcornFXEffectPreviewer.ui
-    Source/Previewer/PopcornFXEffectPreviewerFactory.cpp
-    Source/Previewer/PopcornFXEffectPreviewerFactory.h
-    Source/PopcornFXPreviewersSystemComponent.cpp
-    Source/PopcornFXPreviewersSystemComponent.h
-    # Common:
-    Source/PopcornFXModule.cpp
-    Source/PopcornFXSystemComponent.cpp
-    Source/PopcornFXSystemComponent.h
-    Source/Integration/File/JsonPackPath.cpp
-    Source/Integration/File/JsonPackPath.h
-    Source/Integration/Managers/SceneViewsManager.cpp
-    Source/Integration/Managers/SceneViewsManager.h
-    Source/Integration/PopcornFXIntegration.h
-    Source/Integration/PopcornFXIntegration.cpp
-    Source/Integration/PopcornFXIntegrationBus.h
-    Source/Integration/SceneInterface/SceneInterface.cpp
-    Source/Integration/SceneInterface/SceneInterface.h
 )

@@ -13,6 +13,7 @@
 	#include <LmbrCentral/Scripting/TagComponentBus.h>
 	#include <PhysX/ColliderShapeBus.h>
 	#include <PhysX/ForceRegionComponentBus.h>
+	#include <System/PhysXSystem.h>
 #endif
 
 #include <pk_compiler/include/cp_binders.h>
@@ -54,6 +55,11 @@ CWindManagerBase::CWindManagerBase()
 	s_Self = this;
 }
 
+CWindManagerBase::~CWindManagerBase()
+{
+	s_Self = null;
+}
+
 //----------------------------------------------------------------------------
 
 #if	(PK_COMPILER_BUILD_COMPILER != 0)
@@ -67,7 +73,7 @@ static bool		_CustomRangeBuild_SceneSampleWindField(	const CCompilerIR						*ir,
 	AZ_UNUSED(ranges);
 	AZ_UNUSED(optimizerConfig);
 	if (!PK_VERIFY(op.m_Opcode == Compiler::IR::Opcode_FunctionCall) ||
-		!PK_VERIFY(op.m_Inputs.Count() == 2))	// SI_SceneSampleWindField(float3 location, pCtxS)
+		!PK_VERIFY(op.m_Inputs.Count() == 1))	// SI_SceneSampleWindField(float3 location)
 		return false;
 
 	// Set an exclusive inf range. Otherwise, it will default to inclusive inf,
@@ -92,11 +98,12 @@ static bool	_BuildSimInterfaceDef_SceneSampleWindField(SSimulationInterfaceDefin
 #if	(PK_COMPILER_BUILD_COMPILER != 0)
 	const Compiler::STypeMetaData	kMetaData_Location = u32(MetaData_XForm_World | MetaData_XForm_Full);
 	const Compiler::STypeMetaData	kMetaData_Wind = u32(MetaData_XForm_World | MetaData_XForm_Direction);
-	def.m_OptimizerDefs.m_FnRangeBuildPtr = &_CustomRangeBuild_SceneSampleWindField;
 #else
 	const Compiler::STypeMetaData	kMetaData_Location = 0;
 	const Compiler::STypeMetaData	kMetaData_Wind = 0;
 #endif
+
+	def.m_OptimizerDefs.m_FnRangeBuildPtr = &_CustomRangeBuild_SceneSampleWindField;
 
 	// Declare all inputs
 	if (!def.m_Inputs.PushBack(SSimulationInterfaceDefinition::SValueIn("Location", Nodegraph::DataType_Float3, Compiler::Attribute_Stream, kMetaData_Location)).Valid())
@@ -116,26 +123,13 @@ bool	CWindManagerBase::Reset(const AZStd::string &libraryPath)
 	if (!m_SceneWindSimInterfacePath.Empty())
 		_UnbindSceneSimInterface();
 
-	//TODO: remove this when the sim interface lookup will be case-insensitive
-	//Find the template path
-	//We cannot test with Exists because it is case-insensitive
-	//For now check if the library path has case and choose the template based on this
-	CString	pkLibraryPath = libraryPath.c_str();
-
-	if (pkLibraryPath.Contains("library"))
-	{
-		m_SceneWindSimInterfacePath = (libraryPath + "/popcornfxcore/templates/core.pkfx").c_str();
-	}
-	else if (pkLibraryPath.Contains("Library"))
-	{
-		m_SceneWindSimInterfacePath = (libraryPath + "/PopcornFXCore/Templates/Core.pkfx").c_str();
-	}
-
-	if (m_SceneWindSimInterfacePath.Empty())
+	if (libraryPath.empty())
 	{
 		//Nothing to bind
 		return true;
 	}
+
+	m_SceneWindSimInterfacePath = (libraryPath + "/PopcornFXCore/Templates/Core.pkfx").c_str();
 
 	if (!_BindSceneSimInterface())
 		return false;
@@ -147,6 +141,10 @@ bool	CWindManagerBase::Reset(const AZStd::string &libraryPath)
 
 bool	CWindManagerBase::_BindSceneSimInterface() const
 {
+	// TODO: Get the EnableSceneWind in the project settings
+	// if (!settings->Features()->EnableSceneWind())
+	//	return true;
+
 	// Build the sim interface definition
 	SSimulationInterfaceDefinition	def;
 	if (!PK_VERIFY(_BuildSimInterfaceDef_SceneSampleWindField(def)))
@@ -165,11 +163,7 @@ bool	CWindManagerBase::_BindSceneSimInterface() const
 	// Bind to CPU linker
 	Compiler::SBinding	linkBinding;
 	Compiler::Binders::Bind(linkBinding, &_SampleWindField);
-
 	const PopcornFX::CString	mangledCall0 = def.GetCallNameMangledCPU(0);
-
-	PK_ASSERT(CLinkerCPU::GetBinding(CStringView(), CStringView(mangledCall0)).Empty());
-
 	if (!CLinkerCPU::Bind(CStringView(), CStringView(mangledCall0), linkBinding))
 	{
 		AZ_Error("PopcornFX", false, "Failed linking sim interface \"%s\"", def.m_FnNameBase.Data());
@@ -181,7 +175,6 @@ bool	CWindManagerBase::_BindSceneSimInterface() const
 
 void	CWindManagerBase::_UnbindSceneSimInterface()
 {
-#if	(PK_COMPILER_BUILD_COMPILER != 0)
 	CSimulationInterfaceMapper	*simInterfaceMapper = CSimulationInterfaceMapper::DefaultMapper();
 	const CStringUnicode		simInterfaceName = L"SI_SceneSampleWindField";
 
@@ -194,7 +187,6 @@ void	CWindManagerBase::_UnbindSceneSimInterface()
 	// and will compile like in the editor: using the default implementation contained
 	// in the sim interface template node.
 	simInterfaceMapper->Unbind(m_SceneWindSimInterfacePath, simInterfaceName);
-#endif
 
 	// Build the sim interface definition
 	SSimulationInterfaceDefinition	def;
@@ -215,13 +207,30 @@ void	CWindManagerBase::_UnbindSceneSimInterface()
 
 void	CWindManager::Activate()
 {
+	m_PhysXConfigChangedHandler = AzPhysics::SystemEvents::OnConfigurationChangedEvent::Handler(
+		[this](const AzPhysics::SystemConfiguration *config) { this->OnConfigurationChanged(config); }
+	);
+
+	if (auto *physXSystem = PhysX::GetPhysXSystem())
+	{
+		physXSystem->RegisterSystemConfigurationChangedEvent(m_PhysXConfigChangedHandler);
+		UpdateLocalWindTag(physXSystem->GetPhysXConfiguration());
+	}
+
 	Physics::WindNotificationsBus::Handler::BusConnect();
 }
 
 void	CWindManager::Deactivate()
 {
+	m_PhysXConfigChangedHandler.Disconnect();
+
 	Physics::WindNotificationsBus::Handler::BusDisconnect();
+
+	if (LmbrCentral::TagGlobalNotificationBus::Handler::BusIsConnected())
+		LmbrCentral::TagGlobalNotificationBus::Handler::BusDisconnect();
+
 	m_SceneWindSimInterfacePath = CString::EmptyString;
+	m_LocalWindEntities.clear();
 }
 
 void	CWindManager::Update()
@@ -233,13 +242,10 @@ void	CWindManager::Update()
 	{
 		m_WindHelper.m_Areas.Clear();
 
-		AZ::EBusAggregateResults<AZ::EntityId> resultSet;
-		LmbrCentral::TagGlobalRequestBus::EventResult(resultSet, LmbrCentral::Tag("wind"), &LmbrCentral::TagGlobalRequests::RequestTaggedEntities);
-
-		m_WindHelper.m_Areas.Resize(static_cast<u32>(resultSet.values.size()));
+		m_WindHelper.m_Areas.Resize(static_cast<u32>(m_LocalWindEntities.size()));
 
 		u32	areaIndex = 0;
-		for (const AZ::EntityId &entityId : resultSet.values)
+		for (const AZ::EntityId &entityId : m_LocalWindEntities)
 		{
 			AZ::Aabb	forceAabb;
 			PhysX::ColliderShapeRequestBus::EventResult(forceAabb, entityId, &PhysX::ColliderShapeRequestBus::Events::GetColliderShapeAabb);
@@ -277,6 +283,20 @@ void	CWindManager::SampleWindField(	const TStridedMemoryView<CFloat3>		&dstWind,
 	PK_ASSERT(dstWind.Contiguous());
 	PK_ASSERT(srcLocation.Contiguous());
 
+#if 0
+	// For debug purpose
+	const Physics::WindRequests* windRequests = AZ::Interface<Physics::WindRequests>::Get();
+	if (windRequests)
+	{
+		const CFloat3	globalWind = ToPk(windRequests->GetGlobalWind());
+
+		for (u32 i = 0; i < srcLocation.Count(); ++i)
+		{
+			const CFloat3	wind = ToPk(windRequests->GetWind(ToAZ(srcLocation[i])));
+			dstWind[i] = globalWind + wind;
+		}
+	}
+#else
 	Mem::Fill96(dstWind.Data(), &m_WindHelper.m_GlobalWind, dstWind.Count());
 
 	const CAABB	pageBB = ComputeBounds_Point(srcLocation, TStridedMemoryView<const u8>());
@@ -354,6 +374,7 @@ void	CWindManager::SampleWindField(	const TStridedMemoryView<CFloat3>		&dstWind,
 			}
 		}
 	}
+#endif
 }
 
 void	CWindManager::OnGlobalWindChanged()
@@ -372,6 +393,46 @@ void	CWindManager::OnWindChanged([[maybe_unused]] const AZ::Aabb &aabb)
 	PK_SCOPEDLOCK_WRITE(m_WindHelper.m_Lock);
 
 	m_WindHelper.m_WindChanged = true;
+}
+
+void	CWindManager::OnConfigurationChanged(const AzPhysics::SystemConfiguration *config)
+{
+	const PhysX::PhysXSystemConfiguration	*physXConfig = azdynamic_cast<const PhysX::PhysXSystemConfiguration*>(config);
+	if (physXConfig)
+		UpdateLocalWindTag(*physXConfig);
+}
+
+void	CWindManager::UpdateLocalWindTag(const PhysX::PhysXSystemConfiguration &configuration)
+{
+	m_LocalWindTag = AZ::Crc32(configuration.m_windConfiguration.m_localWindTag);
+	m_LocalWindEntities.clear();
+
+	if (LmbrCentral::TagGlobalNotificationBus::Handler::BusIsConnected())
+		LmbrCentral::TagGlobalNotificationBus::Handler::BusDisconnect();
+	LmbrCentral::TagGlobalNotificationBus::Handler::BusConnect(m_LocalWindTag);
+}
+
+void CWindManager::OnEntityTagAdded(const AZ::EntityId& entityId)
+{
+	AZ_Error(
+		"PopcornFX",
+		AZStd::find(m_LocalWindEntities.begin(), m_LocalWindEntities.end(), entityId) == m_LocalWindEntities.end(),
+		"Wind manager entity was already registered. ID: %llu.", entityId
+	);
+
+	m_LocalWindEntities.emplace_back(entityId);
+}
+
+void CWindManager::OnEntityTagRemoved(const AZ::EntityId& entityId)
+{
+	auto it = AZStd::find(m_LocalWindEntities.begin(), m_LocalWindEntities.end(), entityId);
+	if (it != m_LocalWindEntities.end())
+	{
+		size_t index = AZStd::distance(m_LocalWindEntities.begin(), it);
+
+		AZStd::swap(m_LocalWindEntities[index], m_LocalWindEntities.back());
+		m_LocalWindEntities.pop_back();
+	}
 }
 
 //----------------------------------------------------------------------------

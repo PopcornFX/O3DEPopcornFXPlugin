@@ -69,11 +69,6 @@ void	PopcornFXBuilderComponent::Activate()
 	builderDescriptor.m_patterns.emplace_back(AssetBuilderSDK::AssetBuilderPattern("*.pkfx", AssetBuilderSDK::AssetBuilderPattern::PatternType::Wildcard));
 	builderDescriptor.m_patterns.emplace_back(AssetBuilderSDK::AssetBuilderPattern("*.fga", AssetBuilderSDK::AssetBuilderPattern::PatternType::Wildcard));
 
-#if 0
-	builderDescriptor.m_patterns.emplace_back(AssetBuilderSDK::AssetBuilderPattern("*.ttf", AssetBuilderSDK::AssetBuilderPattern::PatternType::Wildcard));
-	builderDescriptor.m_patterns.emplace_back(AssetBuilderSDK::AssetBuilderPattern("*.otf", AssetBuilderSDK::AssetBuilderPattern::PatternType::Wildcard));
-#endif
-
 	builderDescriptor.m_busId = azrtti_typeid<PopcornFXBuilderWorker>();
 	builderDescriptor.m_createJobFunction = AZStd::bind(&PopcornFXBuilderWorker::CreateJobs, &m_PKBuilder, AZStd::placeholders::_1, AZStd::placeholders::_2);
 	builderDescriptor.m_processJobFunction = AZStd::bind(&PopcornFXBuilderWorker::ProcessJob, &m_PKBuilder, AZStd::placeholders::_1, AZStd::placeholders::_2);
