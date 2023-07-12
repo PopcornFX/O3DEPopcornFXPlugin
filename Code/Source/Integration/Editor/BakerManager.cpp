@@ -53,19 +53,19 @@ CBakerManager::SBakeContext::~SBakeContext()
 	if (m_BakeResourceManager != null)
 	{
 		//PK_ASSERT(m_BakeResourceMeshHandler != null);
-		PK_ASSERT(m_BakeResourceImageHandler != null);
+		//PK_ASSERT(m_BakeResourceImageHandler != null);
 		PK_ASSERT(m_BakeResourceVectorFieldHandler != null);
 		PK_ASSERT(m_BakeResourceFontMetricsHandler != null);
 		PK_ASSERT(m_BakeResourceRectangleListHandler != null);
 
 		//m_BakeResourceManager->UnregisterHandler<PopcornFX::CResourceMesh>(m_BakeResourceMeshHandler);
-		m_BakeResourceManager->UnregisterHandler<PopcornFX::CImage>(m_BakeResourceImageHandler);
+		//m_BakeResourceManager->UnregisterHandler<PopcornFX::CImage>(m_BakeResourceImageHandler);
 		m_BakeResourceManager->UnregisterHandler<PopcornFX::CRectangleList>(m_BakeResourceRectangleListHandler);
 		m_BakeResourceManager->UnregisterHandler<PopcornFX::CFontMetrics>(m_BakeResourceFontMetricsHandler);
 		m_BakeResourceManager->UnregisterHandler<PopcornFX::CVectorField>(m_BakeResourceVectorFieldHandler);
 	}
 	//PK_SAFE_DELETE(m_BakeResourceMeshHandler);
-	PK_SAFE_DELETE(m_BakeResourceImageHandler);
+	//PK_SAFE_DELETE(m_BakeResourceImageHandler);
 	PK_SAFE_DELETE(m_BakeResourceVectorFieldHandler);
 	PK_SAFE_DELETE(m_BakeResourceFontMetricsHandler);
 	PK_SAFE_DELETE(m_BakeResourceRectangleListHandler);
@@ -86,12 +86,12 @@ bool	CBakerManager::SBakeContext::Initialize()
 
 	// Keep this updated with all PopcornFX resource types
 	//m_BakeResourceMeshHandler = PK_NEW(PopcornFX::CResourceHandlerMesh);
-	m_BakeResourceImageHandler = PK_NEW(PopcornFX::CResourceHandlerImage);
+	//m_BakeResourceImageHandler = PK_NEW(PopcornFX::CResourceHandlerImage);
 	m_BakeResourceRectangleListHandler = PK_NEW(PopcornFX::CResourceHandlerRectangleList);
 	m_BakeResourceFontMetricsHandler = PK_NEW(PopcornFX::CResourceHandlerFontMetrics);
 	m_BakeResourceVectorFieldHandler = PK_NEW(PopcornFX::CResourceHandlerVectorField);
 	if (//!PK_VERIFY(m_BakeResourceMeshHandler != null) ||
-		!PK_VERIFY(m_BakeResourceImageHandler != null) ||
+		//!PK_VERIFY(m_BakeResourceImageHandler != null) ||
 		!PK_VERIFY(m_BakeResourceRectangleListHandler != null) ||
 		!PK_VERIFY(m_BakeResourceFontMetricsHandler != null) ||
 		!PK_VERIFY(m_BakeResourceVectorFieldHandler != null))
@@ -108,8 +108,8 @@ bool	CBakerManager::SBakeContext::Initialize()
 	m_BakeResourceManager = PK_NEW(PopcornFX::CResourceManager(m_BakeFSController));
 	if (!PK_VERIFY(m_BakeResourceManager != null))
 		return false;
-	m_BakeResourceManager->RegisterHandler<PopcornFX::CResourceMesh>(m_BakeResourceMeshHandler);
-	m_BakeResourceManager->RegisterHandler<PopcornFX::CImage>(m_BakeResourceImageHandler);
+	//m_BakeResourceManager->RegisterHandler<PopcornFX::CResourceMesh>(m_BakeResourceMeshHandler);
+	//m_BakeResourceManager->RegisterHandler<PopcornFX::CImage>(m_BakeResourceImageHandler);
 	m_BakeResourceManager->RegisterHandler<PopcornFX::CRectangleList>(m_BakeResourceRectangleListHandler);
 	m_BakeResourceManager->RegisterHandler<PopcornFX::CFontMetrics>(m_BakeResourceFontMetricsHandler);
 	m_BakeResourceManager->RegisterHandler<PopcornFX::CVectorField>(m_BakeResourceVectorFieldHandler);
