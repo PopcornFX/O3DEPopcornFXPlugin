@@ -17,4 +17,6 @@ set(FILES
     Source/Integration/PopcornFXIntegrationBus.h
     Source/Integration/SceneInterface/SceneInterface.cpp
     Source/Integration/SceneInterface/SceneInterface.h
+    Source/Integration/Startup/PopcornFxStartup.cpp
+    Source/Integration/Startup/PopcornFxStartup.h
 )

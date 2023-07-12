@@ -228,11 +228,7 @@ bool			FileSystemController_O3DE::Exists(const CString &path, bool pathNotVirtua
 	if (!PK_VERIFY(fileIO != null))
 		return false;
 
-	if (!fileIO->Exists(path.Data()))
-		CLog::Log(PK_WARN, "FileSystemController_O3DE Exists FAIL '%s' pathNotVirtual:%d", path.Data(), pathNotVirtual);
-	else
-		return true;
-	return false;
+	return fileIO->Exists(path.Data());
 }
 
 //----------------------------------------------------------------------------

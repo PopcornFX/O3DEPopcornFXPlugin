@@ -5,7 +5,7 @@
 
 #pragma once
 
-#if defined(O3DE_USE_PK)
+#if defined(O3DE_USE_PK) && !defined(PK_RETAIL)
 
 #undef DrawText
 
@@ -209,4 +209,4 @@ struct	SScopedMainThreadTimer
 //----------------------------------------------------------------------------
 }
 
-#endif //O3DE_USE_PK
+#endif //O3DE_USE_PK && !PK_RETAIL
