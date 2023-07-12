@@ -16,8 +16,12 @@
 #include "Components/Samplers/PopcornFXSamplerTextEditorComponent.h"
 #include "Components/Helpers/PopcornFXHelperLoopEmitterEditorComponent.h"
 #include "Components/Helpers/PopcornFXHelperProfilerEditorComponent.h"
+#endif
+
+#if defined(POPCORNFX_EDITOR) && !defined(POPCORNFX_BUILDER)
 #include "PopcornFXPreviewersSystemComponent.h"
 #endif
+
 #if defined(POPCORNFX_BUILDER)
 #include "Asset/PopcornFXAssetBuilderComponent.h"
 #endif
@@ -48,9 +52,9 @@ namespace PopcornFX {
 			// Push results of [MyComponent]::CreateDescriptor() into m_descriptors here.
 			m_descriptors.insert(m_descriptors.end(), {
 				PopcornFXSystemComponent::CreateDescriptor(),
-#if defined(POPCORNFX_EDITOR)
+#if defined(POPCORNFX_EDITOR) && !defined(POPCORNFX_BUILDER)
 				PopcornFXPreviewersSystemComponent::CreateDescriptor(),
-#endif // POPCORNFX_EDITOR
+#endif // POPCORNFX_EDITOR && !POPCORNFX_BUILDER
 				//-------- TrackView Folder
 				PopcornFXTrackViewAttributeGameComponent::CreateDescriptor(),
 #if defined(POPCORNFX_EDITOR)
@@ -95,9 +99,9 @@ namespace PopcornFX {
 		{
 			return AZ::ComponentTypeList{
 				azrtti_typeid<PopcornFXSystemComponent>(),
-#if defined(POPCORNFX_EDITOR)
+#if defined(POPCORNFX_EDITOR) && !defined(POPCORNFX_BUILDER)
 				azrtti_typeid<PopcornFXPreviewersSystemComponent>(),
-#endif // defined(POPCORNFX_EDITOR)
+#endif // POPCORNFX_EDITOR && !POPCORNFX_BUILDER
 			};
 		}
 

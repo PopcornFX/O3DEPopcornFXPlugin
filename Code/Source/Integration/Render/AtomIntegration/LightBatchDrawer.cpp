@@ -94,13 +94,37 @@ bool	CLightBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchDr
 		for (u32 iPage = 0; iPage < pageCount; ++iPage)
 		{
 			const CParticlePageToRender_MainMemory	*page = streamToRender->Page(iPage);
+			PK_ASSERT(page != null);
 			if (page->Culled())
 				continue;
+			const u32	pcount = page == null ? 0 : page->InputParticleCount();
+			if (pcount == 0)
+				continue;
 
-			TMemoryView<const CFloat3>	positions = page->StreamForReading<const CFloat3>(br.m_PositionStreamId).ToMemoryView();
-			TMemoryView<const CFloat4>	colors = page->StreamForReading<const CFloat4>(br.m_ColorStreamId).ToMemoryView();
-			TMemoryView<const float>	ranges = page->StreamForReading<const float>(br.m_RangeStreamId).ToMemoryView();
-			TMemoryView<const bool>		enableds = page->StreamForReading<const bool>(br.m_EnabledStreamId).ToMemoryView();
+			// Position
+			TStridedMemoryView<const CFloat3>	positions = page->StreamForReading<CFloat3>(br.m_PositionStreamId);
+			PK_ASSERT(positions.Count() == pcount);
+
+			// Radius
+			TStridedMemoryView<const float>		ranges;
+			PK_ALIGN(0x10) float				defaultSize = 0.0f;
+			if (PK_VERIFY(br.m_RangeStreamId.Valid()))
+				ranges = page->StreamForReading<float>(br.m_RangeStreamId);
+			else
+				ranges = TStridedMemoryView<const float>(&defaultSize, pcount, 0);
+
+			// Color
+			TStridedMemoryView<const CFloat3>	colors(&CFloat3::ONE, pcount, 0);
+			if (br.m_ColorStreamId.Valid())
+				colors = TStridedMemoryView<const CFloat3>::Reinterpret(page->StreamForReading<CFloat4>(br.m_ColorStreamId));
+
+			// Enabled
+			const u8						enabledTrue = u8(-1);
+			TStridedMemoryView<const u8>	enableds;
+			if (br.m_EnabledStreamId.Valid())
+				enableds = page->StreamForReading<bool>(br.m_EnabledStreamId);
+			else
+				enableds = TStridedMemoryView<const u8>(&enabledTrue, pcount, 0);
 
 			// emergency abort, in case this material isn't supported.
 			if (!PK_VERIFY(!positions.Empty() && !colors.Empty() && !ranges.Empty() && !enableds.Empty()))
@@ -122,7 +146,7 @@ bool	CLightBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchDr
 
 				// Atom handles the falloff in the shader directly. scale down the color directly with attenuation steepness
 				// It's not entirely correct but it's visually close to rendering in PopcornFX Editor
-				light.m_Color = colors[iParticle].xyz() * br.m_AttenuationSteepness;
+				light.m_Color = colors[iParticle] * br.m_AttenuationSteepness;
 
 				light.m_AttenuationRadius = ranges[iParticle];
 			}

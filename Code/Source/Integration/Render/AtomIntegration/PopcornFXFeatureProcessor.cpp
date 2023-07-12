@@ -223,6 +223,11 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 	if (objectSrg != null)
 	{
 		// retrieve probe constant indices
+		AZ::RHI::ShaderInputConstantIndex	useReflectionProbeConstantIndex = objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_useReflectionProbe"));
+		AZ_Error("MeshDataInstance", useReflectionProbeConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
+
+#if PK_O3DE_MAJOR_VERSION == 2111
+//See : https://github.com/o3de/o3de/pull/7189 and https://github.com/o3de/o3de/issues/7434
 		AZ::RHI::ShaderInputConstantIndex	modelToWorldConstantIndex = objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_modelToWorld"));
 		AZ_Error("MeshDataInstance", modelToWorldConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
 
@@ -235,9 +240,6 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 		AZ::RHI::ShaderInputConstantIndex	innerObbHalfLengthsConstantIndex = objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_innerObbHalfLengths"));
 		AZ_Error("MeshDataInstance", innerObbHalfLengthsConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
 
-		AZ::RHI::ShaderInputConstantIndex	useReflectionProbeConstantIndex = objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_useReflectionProbe"));
-		AZ_Error("MeshDataInstance", useReflectionProbeConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
-
 		AZ::RHI::ShaderInputConstantIndex	useParallaxCorrectionConstantIndex = objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_useParallaxCorrection"));
 		AZ_Error("MeshDataInstance", useParallaxCorrectionConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
 
@@ -246,8 +248,6 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 		AZ::RHI::ShaderInputImageIndex reflectionCubeMapImageIndex = objectSrg->FindShaderInputImageIndex(reflectionCubeMapImageName);
 		AZ_Error("MeshDataInstance", reflectionCubeMapImageIndex.IsValid(), "Failed to find shader image index [%s]", reflectionCubeMapImageName.GetCStr());
 
-#if PK_O3DE_MAJOR_VERSION == 2111
-//See : https://github.com/o3de/o3de/pull/7189 and https://github.com/o3de/o3de/issues/7434
 		AZ::Render::ReflectionProbeFeatureProcessor	*reflectionProbeFeatureProcessor = GetParentScene()->GetFeatureProcessor<AZ::Render::ReflectionProbeFeatureProcessor>();
 
 		AZ::Render::ReflectionProbeFeatureProcessor::ReflectionProbeVector	reflectionProbes;

@@ -42,24 +42,6 @@ namespace PopcornFX {
 		AZStd::string	m_Path;
 	};
 
-	class PopcornFXAssetPKMM
-		: public AZ::Data::AssetData
-	{
-	public:
-
-		AZ_RTTI(PopcornFXAssetPKMM, "{4AD0B88D-4138-4A42-986B-D021995B2250}", AZ::Data::AssetData);
-		AZ_CLASS_ALLOCATOR(PopcornFXAssetPKMM, AZ::SystemAllocator, 0);
-	};
-
-	class PopcornFXAssetPKAN
-		: public AZ::Data::AssetData
-	{
-	public:
-
-		AZ_RTTI(PopcornFXAssetPKAN, "{9AA19C85-B18C-4245-831D-E589582E4B9D}", AZ::Data::AssetData);
-		AZ_CLASS_ALLOCATOR(PopcornFXAssetPKAN, AZ::SystemAllocator, 0);
-	};
-
 	class PopcornFXAssetPKVF
 		: public AZ::Data::AssetData
 	{
@@ -68,14 +50,5 @@ namespace PopcornFX {
 		AZ_RTTI(PopcornFXAssetPKVF, "{0F8F0BF4-C87E-430D-AD75-EC5A9A631F06}", AZ::Data::AssetData);
 		AZ_CLASS_ALLOCATOR(PopcornFXAssetPKVF, AZ::SystemAllocator, 0);
 	};
-
-	/*class PopcornFXAssetPKFM
-		: public AZ::Data::AssetData
-	{
-	public:
-
-		AZ_RTTI(PopcornFXAssetPKFM, "{}", AZ::Data::AssetData);
-		AZ_CLASS_ALLOCATOR(PopcornFXAssetPKFM, AZ::SystemAllocator, 0);
-	};*/
 
 }

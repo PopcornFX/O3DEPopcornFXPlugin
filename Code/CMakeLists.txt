@@ -107,6 +107,8 @@ if(PAL_TRAIT_BUILD_HOST_TOOLS)
         AUTORCC
         FILES_CMAKE
             popcornfx_editor_files.cmake
+            popcornfx_previewer_files.cmake
+            popcornfx_files.cmake
         COMPILE_DEFINITIONS
             PRIVATE
                 QT_NO_KEYWORDS
@@ -132,12 +134,10 @@ if(PAL_TRAIT_BUILD_HOST_TOOLS)
     ly_add_target(
         NAME PopcornFX.Builders GEM_MODULE
         NAMESPACE Gem
-        AUTOUIC
-        AUTOMOC
-        AUTORCC
         FILES_CMAKE
             popcornfx_builder_files.cmake
             popcornfx_editor_files.cmake # Note: pipeline tools need access to editor components in order to process .prefabs
+            popcornfx_files.cmake
         COMPILE_DEFINITIONS
             PRIVATE
                 QT_NO_KEYWORDS

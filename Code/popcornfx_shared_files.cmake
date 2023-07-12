@@ -98,8 +98,6 @@ set(FILES
     Source/Integration/PopcornFXStopUpdate.cpp
     Source/Integration/PopcornFXStopUpdate.h
     Source/Integration/PopcornFXUtils.h
-    Source/Integration/Startup/PopcornFxStartup.cpp
-    Source/Integration/Startup/PopcornFxStartup.h
     Source/Integration/Startup/PopcornFxPlugins.cpp
     Source/Integration/Startup/PopcornFxPlugins.h
     Source/Integration/File/FileSystemController_O3DE.cpp

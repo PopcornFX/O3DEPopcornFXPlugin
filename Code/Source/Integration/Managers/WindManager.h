@@ -11,8 +11,15 @@
 #include <pk_maths/include/pk_maths_primitives.h>
 
 #if defined(PK_USE_PHYSX)
-	#include <AzCore/Math/Aabb.h>
 	#include <AzFramework/Physics/WindBus.h>
+	#include <AzFramework/Physics/Common/PhysicsEvents.h>
+	#include <LmbrCentral/Scripting/TagComponentBus.h>
+
+namespace PhysX
+{
+	struct PhysXSystemConfiguration;
+}
+
 #endif
 
 namespace PopcornFX {
@@ -34,8 +41,9 @@ class CWindManagerBase
 {
 public:
 	CWindManagerBase();
-	virtual ~CWindManagerBase() {};
-	virtual bool	Reset(const AZStd::string &libraryPath);
+	virtual ~CWindManagerBase();
+
+	virtual bool	Reset(const AZStd::string &libraryPath) override;
 
 	virtual void	SampleWindField(const TStridedMemoryView<CFloat3>		&dstWind,
 									const TStridedMemoryView<const CFloat3>	&srcLocation) = 0;
@@ -53,14 +61,15 @@ protected:
 class CWindManager
 	: public CWindManagerBase
 	, public ::Physics::WindNotificationsBus::Handler
+	, private LmbrCentral::TagGlobalNotificationBus::Handler
 {
 public:
-	virtual void	Activate();
-	virtual void	Deactivate();
-	virtual void	Update();
+	virtual void	Activate() override;
+	virtual void	Deactivate() override;
+	virtual void	Update() override;
 
 	virtual void	SampleWindField(const TStridedMemoryView<CFloat3>		&dstWind,
-									const TStridedMemoryView<const CFloat3>	&srcLocation);
+									const TStridedMemoryView<const CFloat3>	&srcLocation) override;
 
 	// Physics::WindNotificationsBus::Handler overrides
 	void			OnGlobalWindChanged() override;
@@ -84,7 +93,17 @@ public:
 	SWindHelper	&WindHelper() { return m_WindHelper; }
 
 private:
-	SWindHelper	m_WindHelper;
+	void			OnConfigurationChanged(const AzPhysics::SystemConfiguration *config);
+	void			UpdateLocalWindTag(const PhysX::PhysXSystemConfiguration &configuration);
+
+	// LmbrCentral::TagGlobalNotificationBus::MultiHandler
+	void OnEntityTagAdded(const AZ::EntityId &entityId) override;
+	void OnEntityTagRemoved(const AZ::EntityId &entityId) override;
+
+	AzPhysics::SystemEvents::OnConfigurationChangedEvent::Handler	m_PhysXConfigChangedHandler;
+	AZ::Crc32														m_LocalWindTag;
+	AZStd::vector<AZ::EntityId>										m_LocalWindEntities;
+	SWindHelper														m_WindHelper;
 };
 
 #else
