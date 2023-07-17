@@ -322,7 +322,7 @@ namespace PopcornFX {
 
 	AZ::Color	PopcornFXTrackViewAttribute::GetValueColor() const
 	{
-		AZ::Color	value;
+		AZ::Color	value = AZ::Colors::HotPink;
 		if (!AttributeValid())
 			return value;
 		PopcornFX::PopcornFXEmitterComponentRequestBus::EventResult(value, m_ParentId, &PopcornFX::PopcornFXEmitterComponentRequests::GetAttributeAsColor, m_AttributeId);
