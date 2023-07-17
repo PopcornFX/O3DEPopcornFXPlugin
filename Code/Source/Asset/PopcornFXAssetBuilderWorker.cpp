@@ -78,7 +78,7 @@ void	PopcornFXBuilderWorker::CreateJobs(const AssetBuilderSDK::CreateJobsRequest
 		for (const AssetBuilderSDK::PlatformInfo &platformInfo : request.m_enabledPlatforms)
 		{
 			AssetBuilderSDK::JobDescriptor	descriptor;
-			descriptor.m_jobKey = "PK_MainAsset";
+			descriptor.m_jobKey = "PopcornFX Effect";
 			descriptor.SetPlatformIdentifier(platformInfo.m_identifier.c_str());
 
 			response.m_createJobOutputs.push_back(descriptor);
@@ -86,15 +86,12 @@ void	PopcornFXBuilderWorker::CreateJobs(const AssetBuilderSDK::CreateJobsRequest
 		response.m_result = AssetBuilderSDK::CreateJobsResultCode::Success;
 		return;
 	}
-	else if (AZ::StringFunc::Equal(ext.c_str(), "pkfbx") ||
-		//AZ::StringFunc::Equal(ext.c_str(), "ttf") ||
-		//AZ::StringFunc::Equal(ext.c_str(), "otf") ||
-		AZ::StringFunc::Equal(ext.c_str(), "fga"))
+	else if (AZ::StringFunc::Equal(ext.c_str(), "fga"))
 	{
 		for (const AssetBuilderSDK::PlatformInfo &platformInfo : request.m_enabledPlatforms)
 		{
 			AssetBuilderSDK::JobDescriptor	descriptor;
-			descriptor.m_jobKey = "PK_Dependency";
+			descriptor.m_jobKey = "PopcornFX VectorField";
 			descriptor.SetPlatformIdentifier(platformInfo.m_identifier.c_str());
 			response.m_createJobOutputs.push_back(descriptor);
 		}
@@ -114,18 +111,14 @@ void	PopcornFXBuilderWorker::ProcessJob(const AssetBuilderSDK::ProcessJobRequest
 
 	AZ::StringFunc::Path::GetExtension(request.m_sourceFile.c_str(), ext, false);
 
-	const bool	isDepend =	//AZ::StringFunc::Equal(ext.c_str(), "ttf") ||
-							//AZ::StringFunc::Equal(ext.c_str(), "otf") ||
-							AZ::StringFunc::Equal(ext.c_str(), "fga");
-
 	if (!AZ::StringFunc::Equal(ext.c_str(), "pkfx") &&
-		!isDepend)
+		!AZ::StringFunc::Equal(ext.c_str(), "fga"))
 	{
 		AZ_Warning("PopcornFX", false, "Wrong file type for job '%s', ignoring.", request.m_fullPath.c_str());
 		return;
 	}
-	if (!(AZ::StringFunc::Equal(request.m_jobDescription.m_jobKey.c_str(), "PK_MainAsset")
-		|| AZ::StringFunc::Equal(request.m_jobDescription.m_jobKey.c_str(), "PK_Dependency")))
+	if (!(AZ::StringFunc::Equal(request.m_jobDescription.m_jobKey.c_str(), "PopcornFX Effect")
+		|| AZ::StringFunc::Equal(request.m_jobDescription.m_jobKey.c_str(), "PopcornFX VectorField")))
 	{
 		AZ_Warning("PopcornFX", false, "Wrong job description for job '%s', ignoring.", request.m_fullPath.c_str());
 		return;
@@ -148,39 +141,24 @@ void	PopcornFXBuilderWorker::ProcessJob(const AssetBuilderSDK::ProcessJobRequest
 	if (virtualPath.empty())
 		return;
 
-	// Source -> Baked extension fixup
-	// The asset baker processes some source files (.ttf, .fbx, .fga, ..) and procudes baked files for those (.pkfm, .pkmm, .pkvf, ..)
-	// We need to trick the asset processor by fixing m_outputProducts, otherwise it'll fail copying the processed file from temp folder to final cache folder.
-
 	AssetBuilderSDK::JobProduct		jobProduct{ virtualPath };
-	if (isDepend)
+	if (AZ::StringFunc::Equal(ext.c_str(), "pkfx"))
+	{
+		jobProduct.m_productAssetType = AZ::AzTypeInfo<PopcornFXAsset>::Uuid();
+		jobProduct.m_dependenciesHandled = true;
+	}
+	else
 	{
 		AZ::IO::LocalFileIO	fileIO;
-		AZStd::string		buildPath = request.m_tempDirPath + "/" + AZStd::string(request.m_sourceFile);
+		AZStd::string		buildPath = request.m_tempDirPath + "/" + virtualPath;
 
-		AZ::StringFunc::Path::ReplaceExtension(buildPath, "pkmm");
-		if (fileIO.Exists(buildPath.c_str()))
-		{
-			AZ::StringFunc::Path::ReplaceExtension(jobProduct.m_productFileName, "pkmm");
-			jobProduct.m_productAssetType = AZ::AzTypeInfo<PopcornFXAssetPKMM>::Uuid();
-		}
-		AZ::StringFunc::Path::ReplaceExtension(buildPath, "pkan");
-		if (fileIO.Exists(buildPath.c_str()))
-		{
-			AZ::StringFunc::Path::ReplaceExtension(jobProduct.m_productFileName, "pkan");
-			jobProduct.m_productAssetType = AZ::AzTypeInfo<PopcornFXAssetPKAN>::Uuid();
-		}
 		AZ::StringFunc::Path::ReplaceExtension(buildPath, "pkvf");
 		if (fileIO.Exists(buildPath.c_str()))
 		{
 			AZ::StringFunc::Path::ReplaceExtension(jobProduct.m_productFileName, "pkvf");
 			jobProduct.m_productAssetType = AZ::AzTypeInfo<PopcornFXAssetPKVF>::Uuid();
+			jobProduct.m_dependenciesHandled = true;
 		}
-	}
-	else
-	{
-		jobProduct.m_productAssetType = AZ::AzTypeInfo<PopcornFXAsset>::Uuid();
-		jobProduct.m_dependenciesHandled = true; // We've output the dependencies immediately above so it's OK to tell the AP we've handled dependencies
 	}
 	response.m_outputProducts.push_back(jobProduct);
 	response.m_resultCode = AssetBuilderSDK::ProcessJobResult_Success;

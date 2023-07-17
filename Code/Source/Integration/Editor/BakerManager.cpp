@@ -8,18 +8,13 @@
 
 #if defined(O3DE_USE_PK)
 
-#include <AssetBuilderSDK/AssetBuilderSDK.h>
 #include <AzFramework/Platform/PlatformDefaults.h>
-#include <AzCore/IO/FileIO.h>
 
 #include "../Tools/PK-AssetBakerLib/AssetBaker_Cookery.h"
 #include "../Tools/PK-AssetBakerLib/AssetBaker_Startup.h"
 #include "../Tools/PK-AssetBakerLib/AssetBaker_Oven.h"
 #include "../Tools/PK-AssetBakerLib/AssetBaker_Oven_HBO.h"
-#include "../Tools/PK-AssetBakerLib/AssetBaker_Oven_Mesh.h"
 #include "../Tools/PK-AssetBakerLib/AssetBaker_Oven_VectorField.h"
-#include "../Tools/PK-AssetBakerLib/AssetBaker_Oven_Texture.h"
-#include "../Tools/PK-AssetBakerLib/AssetBaker_Oven_StraightCopy.h"
 
 #include <pk_particles/include/ps_effect.h>
 #include <pk_particles/include/ps_resources.h>
@@ -28,112 +23,11 @@
 #include <pk_geometrics/include/ge_rectangle_list.h>
 #include <pk_particles/include/ps_font_metrics_resource.h>
 #include <pk_particles/include/ps_vectorfield_resource.h>
-#include <pk_particles/include/ps_simulation_interface.h>
-#include <pk_particles/include/ps_nodegraph_nodes_render.h>
-#include <pk_particles/include/ps_event_map.h>
-#include <pk_particles/include/ps_nodegraph_frontend.h>
 
 #include "Integration/Editor/PackLoader.h"
 #include "Integration/Managers/WindManager.h"
 
 namespace PopcornFX {
-//----------------------------------------------------------------------------
-
-static bool	_ignoreRendererFeatureValidation(const CString &propertyName)
-{
-	const char	*ignoreValidateFeatures[] =
-	{
-		"LumberyardUpgraderMeshMaterial",
-		"LumberyardMeshMaterialOverride",
-		"LumberyardMeshMaterialOverride_CustomValue1",
-		"LumberyardMeshMaterialOverride_CustomValue2",
-		"LumberyardMeshMaterialOverride_CustomValue3",
-		"LumberyardMeshMaterialOverride_CustomValue4",
-	};
-
-	for (u32 i = 0; i < PK_ARRAY_COUNT(ignoreValidateFeatures); ++i)
-	{
-		if (propertyName.StartsWith(ignoreValidateFeatures[i]) == true)
-			return true;
-	}
-	return false;
-}
-
-// Custom callback:
-static bool	_validateEffect(const CCookery *owner, const PBaseObjectFile &file, const COvenBakeConfig_HBO *config, CMessageStream &outBakeReport)
-{
-	(void)config;
-
-	SEffectLoadCtl		fxLoadDesc;
-	fxLoadDesc.m_AllowUnbaked = true;
-	fxLoadDesc.m_AllowMismatchingVersions = false;	// Should be upgraded beforehand !
-	fxLoadDesc.m_AllowMismatchingPatches = true;
-	fxLoadDesc.m_AllowMismatchingBuild = true;
-	fxLoadDesc.m_AllowMismatchingCoordSystems = true;
-	fxLoadDesc.m_AutoBuildConnectionMap = false;
-	fxLoadDesc.m_AllowedEffectFileType = SEffectLoadCtl::EffectFileType_Text;
-
-	PParticleEffect			fx = CParticleEffect::Load(file, fxLoadDesc);
-	if (fx == null)
-	{
-		outBakeReport.ThrowError("Could not load effect file");
-		return false;
-	}
-
-	Nodegraph::SConnectionMapBuildState	cmBuildState;
-
-	if (!fx->BuildConnectionMapFromSource(cmBuildState, false))
-	{
-		outBakeReport.ThrowError("Could not build the event connection map");
-		return false;
-	}
-	else
-		fx->SetDefaultConnectionMap(cmBuildState);
-
-	PCEventConnectionMap	eventMap = fx->EventConnectionMap();
-
-	AZ::IO::FileIOBase		*fileIO = AZ::IO::FileIOBase::GetInstance();
-	if (fileIO == null)
-	{
-		outBakeReport.ThrowError("Could not get the engine FileIO");
-		return false;
-	}
-
-	// For each layer:
-	for (u32 layerIdx = 0; layerIdx < eventMap->m_LayerSlots.Count(); ++layerIdx)
-	{
-		const PCParticleDescriptor	&descriptor = eventMap->m_LayerSlots[layerIdx].m_ParentDescriptor;
-
-		if (descriptor == null)
-			continue;
-
-		for (u32 rendererIdx = 0; rendererIdx < descriptor->Renderers().Count(); ++rendererIdx)
-		{
-			const PCRendererDataBase	&rendererData = descriptor->Renderers()[rendererIdx];
-
-			if (rendererData == null)
-				continue;
-
-			for (u32 propIdx = 0; propIdx < rendererData->m_Declaration.m_Properties.Count(); ++propIdx)
-			{
-				const SRendererFeaturePropertyValue	&property = rendererData->m_Declaration.m_Properties[propIdx];
-
-				if ((property.m_Type == PropertyType_TexturePath || property.m_Type == PropertyType_MeshPath) && !_ignoreRendererFeatureValidation(property.m_Name.ToString()))
-				{
-					CString		absolutePath = owner->HBOContext()->FileController()->VirtualToPhysical(property.ValuePath(), IFileSystem::Access_Read);
-
-					if (absolutePath.Empty() && !fileIO->Exists(property.ValuePath().Data()))
-					{
-						CString errorMsg = CString::Format("Renderer property '%s' : Could not load asset path '%s'", property.m_Name.ToString().Data(), property.ValuePath().Data());
-						outBakeReport.ThrowError(errorMsg);
-						return false;
-					}
-				}
-			}
-		}
-	}
-	return true;
-}
 
 //----------------------------------------------------------------------------------------------------------//
 //																											//
@@ -158,19 +52,19 @@ CBakerManager::SBakeContext::~SBakeContext()
 {
 	if (m_BakeResourceManager != null)
 	{
-		PK_ASSERT(m_BakeResourceMeshHandler != null);
+		//PK_ASSERT(m_BakeResourceMeshHandler != null);
 		PK_ASSERT(m_BakeResourceImageHandler != null);
 		PK_ASSERT(m_BakeResourceVectorFieldHandler != null);
 		PK_ASSERT(m_BakeResourceFontMetricsHandler != null);
 		PK_ASSERT(m_BakeResourceRectangleListHandler != null);
 
-		m_BakeResourceManager->UnregisterHandler<PopcornFX::CResourceMesh>(m_BakeResourceMeshHandler);
+		//m_BakeResourceManager->UnregisterHandler<PopcornFX::CResourceMesh>(m_BakeResourceMeshHandler);
 		m_BakeResourceManager->UnregisterHandler<PopcornFX::CImage>(m_BakeResourceImageHandler);
 		m_BakeResourceManager->UnregisterHandler<PopcornFX::CRectangleList>(m_BakeResourceRectangleListHandler);
 		m_BakeResourceManager->UnregisterHandler<PopcornFX::CFontMetrics>(m_BakeResourceFontMetricsHandler);
 		m_BakeResourceManager->UnregisterHandler<PopcornFX::CVectorField>(m_BakeResourceVectorFieldHandler);
 	}
-	PK_SAFE_DELETE(m_BakeResourceMeshHandler);
+	//PK_SAFE_DELETE(m_BakeResourceMeshHandler);
 	PK_SAFE_DELETE(m_BakeResourceImageHandler);
 	PK_SAFE_DELETE(m_BakeResourceVectorFieldHandler);
 	PK_SAFE_DELETE(m_BakeResourceFontMetricsHandler);
@@ -182,7 +76,7 @@ CBakerManager::SBakeContext::~SBakeContext()
 
 bool	CBakerManager::SBakeContext::Initialize()
 {
-	PK_ASSERT(m_BakeResourceMeshHandler == null);
+	//PK_ASSERT(m_BakeResourceMeshHandler == null);
 	PK_ASSERT(m_BakeResourceImageHandler == null);
 	PK_ASSERT(m_BakeResourceVectorFieldHandler == null);
 	PK_ASSERT(m_BakeResourceFontMetricsHandler == null);
@@ -191,12 +85,12 @@ bool	CBakerManager::SBakeContext::Initialize()
 	PK_ASSERT(m_BakeResourceManager == null);
 
 	// Keep this updated with all PopcornFX resource types
-	m_BakeResourceMeshHandler = PK_NEW(PopcornFX::CResourceHandlerMesh);
+	//m_BakeResourceMeshHandler = PK_NEW(PopcornFX::CResourceHandlerMesh);
 	m_BakeResourceImageHandler = PK_NEW(PopcornFX::CResourceHandlerImage);
 	m_BakeResourceRectangleListHandler = PK_NEW(PopcornFX::CResourceHandlerRectangleList);
 	m_BakeResourceFontMetricsHandler = PK_NEW(PopcornFX::CResourceHandlerFontMetrics);
 	m_BakeResourceVectorFieldHandler = PK_NEW(PopcornFX::CResourceHandlerVectorField);
-	if (!PK_VERIFY(m_BakeResourceMeshHandler != null) ||
+	if (//!PK_VERIFY(m_BakeResourceMeshHandler != null) ||
 		!PK_VERIFY(m_BakeResourceImageHandler != null) ||
 		!PK_VERIFY(m_BakeResourceRectangleListHandler != null) ||
 		!PK_VERIFY(m_BakeResourceFontMetricsHandler != null) ||
@@ -254,31 +148,18 @@ bool	CBakerManager::Activate()
 	// Force set the coordinate frame
 	CCoordinateFrame::SetGlobalFrame(Frame_RightHand_Z_Up);
 
-	const CGuid	ovenIdHBO = m_Cookery->RegisterOven(PK_NEW(COven_HBO));
-	const CGuid	ovenIdMesh = m_Cookery->RegisterOven(PK_NEW(COven_Mesh));
-	const CGuid	ovenIdTexture = m_Cookery->RegisterOven(PK_NEW(COven_Texture));
-	const CGuid	ovenIdTextureAtlas = m_Cookery->RegisterOven(PK_NEW(COven_TextureAtlas));
-	//	const CGuid	ovenIdFont			= m_Cookery->RegisterOven(PK_NEW(COven_Font));
+	const CGuid	ovenIdParticle = m_Cookery->RegisterOven(PK_NEW(COven_Particle));
 	const CGuid	ovenIdVectorField = m_Cookery->RegisterOven(PK_NEW(COven_VectorField));
-	const CGuid	ovenIdParticle = m_Cookery->RegisterOven(PK_NEW(COven_Particle(null, _validateEffect)));
-	const CGuid	ovenIdStraightCopy = m_Cookery->RegisterOven(PK_NEW(COven_StraightCopy));
-	const CGuid	ovenIdAudio = m_Cookery->RegisterOven(PK_NEW(COven_Audio));
-	if (!ovenIdHBO.Valid() || !ovenIdMesh.Valid() || !ovenIdTexture.Valid() ||
-		!ovenIdTextureAtlas.Valid() || /*!ovenIdFont.Valid() || */!ovenIdVectorField.Valid() ||
-		!ovenIdParticle.Valid() || !ovenIdStraightCopy.Valid() || !ovenIdAudio.Valid())
+	if (!ovenIdParticle.Valid() ||
+		!ovenIdVectorField.Valid())
 		return false;
 
-	m_Cookery->MapOven("fbx", ovenIdMesh);				// FBX mesh
-	m_Cookery->MapOven("pkmm", ovenIdMesh);			// PopcornFX multi-mesh
 	m_Cookery->MapOven("fga", ovenIdVectorField);		// FGA vector-field
 	m_Cookery->MapOven("pkfx", ovenIdParticle);		// PopcornFX Effect
-	//m_Cookery->MapOven("ttf", ovenIdFont);				// TTF font
-	//m_Cookery->MapOven("otf", ovenIdFont);				// OTF font
-
 	m_Cookery->AddOvenFlags(PopcornFX::COven::Flags_BakeMemoryVersion);
 
 	// enable multithreaded baking
-	PK_VERIFY(m_Cookery->EnableMultithreadedBake(true));
+	PK_VERIFY(m_Cookery->EnableMultithreadedBake(false));
 
 	PK_FOREACH(it, m_Cookery->m_BaseConfigFile->ObjectList())
 	{
@@ -287,7 +168,7 @@ bool	CBakerManager::Activate()
 		{
 			config->SetRemoveEditorNodes(true);
 			config->SetBakeMode(PopcornFX::COvenBakeConfig_HBO::Bake_SaveAsBinary);
-			// We know LY has processed textures as .streamingimage files and meshes as .azmodel files
+			// We know O3DE has processed textures as .streamingimage files and meshes as .azmodel files
 			PopcornFX::COvenBakeConfig_HBO::_TypeOfExtensionsRemap	extensionsRemap = config->ExtensionsRemap();
 			if (PK_VERIFY(extensionsRemap.PushBack(CString("png=png.streamingimage")).Valid()) &&
 				PK_VERIFY(extensionsRemap.PushBack(CString("jpg=jpg.streamingimage")).Valid()) &&
