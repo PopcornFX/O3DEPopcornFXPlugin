@@ -71,9 +71,10 @@ void	PopcornFXIntegration::StartUpdate(float deltaTime)
 
 	// First, we reset the stats and start the main thread overhead timer:
 	CParticleMediumCollection	*mediumCollection = m_MediumCollectionManager.MediumCollection();
+#if !defined(PK_RETAIL)
 	m_StatsManager.Reset(mediumCollection);
-
 	STATS_START_MAIN_THREAD_TIMER_SCOPED(m_StatsManager);
+#endif
 
 	if (!p_PopcornFXParticles)
 		return;
@@ -344,7 +345,7 @@ void	PopcornFXIntegration::OnCrySystemInitialized(ISystem &system, const SSystem
 		}
 
 		//Copy the PopcornVectors.preset into the project if it doesn't exists
-		const AZStd::string	srcPresetFolderPath = "@gemroot:PopcornFX@/Config/AtomImageBuilder/";
+		const AZStd::string	srcPresetFolderPath = "@gemroot:PopcornFX_dev@/Config/AtomImageBuilder/";
 		const AZStd::string	dstPresetFolderPath = "@projectroot@/Config/AtomImageBuilder/";
 		const AZStd::string	presetName = "PopcornVectors.preset";
 		AZ::IO::FileIOBase	*fileIO = AZ::IO::FileIOBase::GetInstance();
