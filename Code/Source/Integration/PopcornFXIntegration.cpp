@@ -345,7 +345,7 @@ void	PopcornFXIntegration::OnCrySystemInitialized(ISystem &system, const SSystem
 		}
 
 		//Copy the PopcornVectors.preset into the project if it doesn't exists
-		const AZStd::string	srcPresetFolderPath = "@gemroot:PopcornFX_dev@/Config/AtomImageBuilder/";
+		const AZStd::string	srcPresetFolderPath = "@gemroot:PopcornFX@/Config/AtomImageBuilder/";
 		const AZStd::string	dstPresetFolderPath = "@projectroot@/Config/AtomImageBuilder/";
 		const AZStd::string	presetName = "PopcornVectors.preset";
 		AZ::IO::FileIOBase	*fileIO = AZ::IO::FileIOBase::GetInstance();
