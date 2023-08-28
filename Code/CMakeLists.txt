@@ -22,6 +22,10 @@ endif()
 add_compile_definitions(PK_O3DE_MAJOR_VERSION=${PK_O3DE_MAJOR_VERSION})
 add_compile_definitions(PK_O3DE_PATCH_VERSION=${PK_O3DE_PATCH_VERSION})
 
+set(PFX_COMPILE_DEFINITIONS
+    $<IF:$<CONFIG:Release>, PK_RETAIL,>
+)
+
 # The PopcornFX.API target declares the common interface that users of this gem can depend on in their targets without requiring linking.
 ly_add_target(
     NAME PopcornFX.API INTERFACE
@@ -42,6 +46,7 @@ ly_add_target(
         ../Assets/popcornfx_asset_files.cmake
     COMPILE_DEFINITIONS
         PUBLIC
+            ${PFX_COMPILE_DEFINITIONS}
             O3DE_USE_PK
             PK_USE_PHYSX
             PK_USE_EMOTIONFX
