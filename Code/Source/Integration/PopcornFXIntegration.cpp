@@ -71,9 +71,10 @@ void	PopcornFXIntegration::StartUpdate(float deltaTime)
 
 	// First, we reset the stats and start the main thread overhead timer:
 	CParticleMediumCollection	*mediumCollection = m_MediumCollectionManager.MediumCollection();
+#if !defined(PK_RETAIL)
 	m_StatsManager.Reset(mediumCollection);
-
 	STATS_START_MAIN_THREAD_TIMER_SCOPED(m_StatsManager);
+#endif
 
 	if (!p_PopcornFXParticles)
 		return;

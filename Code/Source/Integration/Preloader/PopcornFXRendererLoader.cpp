@@ -874,10 +874,9 @@ bool	PopcornFXRendererLoader::_AddGeometryToLoad(const char *geometryPath,
 	SAssetDependencies	*dependencies = _InsertAssetIFN(assetId, currentCache, cache);
 	if (!PK_VERIFY(dependencies != null))
 		return false;
-	AZ::Data::Asset<AZ::RPI::ModelAsset>	modelAsset = AZ::Data::AssetManager::Instance().GetAsset<AZ::RPI::ModelAsset>(assetId, AZ::Data::AssetLoadBehavior::QueueLoad);
-	modelAsset.QueueLoad();
-	if (modelAsset.IsReady())
-		OnAssetReady(modelAsset);
+	dependencies->m_AssetRef = AZ::Data::AssetManager::Instance().GetAsset<AZ::RPI::ModelAsset>(assetId, AZ::Data::AssetLoadBehavior::QueueLoad);
+	if (dependencies->m_AssetRef.IsReady())
+		OnAssetReady(dependencies->m_AssetRef);
 	if (!AZ::Data::AssetBus::MultiHandler::BusIsConnectedId(assetId))
 		AZ::Data::AssetBus::MultiHandler::BusConnect(assetId);
 

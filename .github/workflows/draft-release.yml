@@ -1,0 +1,30 @@
+on:
+  push:
+    tags:
+      - v*.*.*
+
+jobs:
+  release-on-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: jungwinter/split@master
+        id: split
+        with:
+          msg: ${{ github.ref_name }}
+          separator: "."
+      
+      - name: Set environment
+        run: echo "VERSION=$(echo "${GITHUB_REF_NAME#v}" | sed 's/-LTS//g')" >> $GITHUB_ENV && echo "MINOR_VERSION=${{ steps.split.outputs._0 }}.${{ steps.split.outputs._1 }}" >> $GITHUB_ENV
+
+      - uses: ncipollo/release-action@v1
+        with:
+          draft: true
+          name: "O3DE Plugin: ${{ github.ref_name }}"
+          body: "PopcornFX Plugin v${{ github.ref_name }} for O3DE\n
+                You can download the PopcornFX Editor and find the full changelog here:\n
+                https://wiki.popcornfx.com/index.php?title=PK-Editor_${{ env.MINOR_VERSION }}#Changelog_${{ env.VERSION }}"

@@ -208,7 +208,9 @@ namespace PopcornFX {
 				}
 
 				if (!success)
+				{
 					AZ_Error("PopcornFX", false, "Could not create some of the explicitely affinitized worker-threads.");
+				}
 
 				success = true;	// still keep what has been created. don't fail here.
 			}
