@@ -62,7 +62,7 @@ CWindManagerBase::~CWindManagerBase()
 
 //----------------------------------------------------------------------------
 
-#if	(PK_COMPILER_BUILD_COMPILER != 0)
+#if (PK_COMPILER_BUILD_COMPILER != 0)
 static bool		_CustomRangeBuild_SceneSampleWindField(	const CCompilerIR						*ir,
 														Compiler::IR::CRangeAnalysis			*ranges,
 														const Compiler::IR::SOptimizerConfig	&optimizerConfig,
@@ -95,7 +95,7 @@ static bool	_BuildSimInterfaceDef_SceneSampleWindField(SSimulationInterfaceDefin
 	def.m_FnNameBase = "SceneSampleWindField";
 	def.m_Traits = Compiler::F_StreamedReturnValue;
 
-#if	(PK_COMPILER_BUILD_COMPILER != 0)
+#if (PK_COMPILER_BUILD_COMPILER != 0)
 	const Compiler::STypeMetaData	kMetaData_Location = u32(MetaData_XForm_World | MetaData_XForm_Full);
 	const Compiler::STypeMetaData	kMetaData_Wind = u32(MetaData_XForm_World | MetaData_XForm_Direction);
 #else
@@ -103,7 +103,9 @@ static bool	_BuildSimInterfaceDef_SceneSampleWindField(SSimulationInterfaceDefin
 	const Compiler::STypeMetaData	kMetaData_Wind = 0;
 #endif
 
+#if (PK_COMPILER_BUILD_COMPILER != 0)
 	def.m_OptimizerDefs.m_FnRangeBuildPtr = &_CustomRangeBuild_SceneSampleWindField;
+#endif
 
 	// Declare all inputs
 	if (!def.m_Inputs.PushBack(SSimulationInterfaceDefinition::SValueIn("Location", Nodegraph::DataType_Float3, Compiler::Attribute_Stream, kMetaData_Location)).Valid())
@@ -150,7 +152,7 @@ bool	CWindManagerBase::_BindSceneSimInterface() const
 	if (!PK_VERIFY(_BuildSimInterfaceDef_SceneSampleWindField(def)))
 		return false;
 
-#if	(PK_COMPILER_BUILD_COMPILER != 0)
+#if (PK_COMPILER_BUILD_COMPILER != 0)
 	// Bind wind simultation interface
 	CSimulationInterfaceMapper	*simInterfaceMapper = CSimulationInterfaceMapper::DefaultMapper();
 	if (!simInterfaceMapper->Bind(m_SceneWindSimInterfacePath, L"SI_SceneSampleWindField", def))
@@ -175,6 +177,7 @@ bool	CWindManagerBase::_BindSceneSimInterface() const
 
 void	CWindManagerBase::_UnbindSceneSimInterface()
 {
+#if (PK_COMPILER_BUILD_COMPILER != 0)
 	CSimulationInterfaceMapper	*simInterfaceMapper = CSimulationInterfaceMapper::DefaultMapper();
 	const CStringUnicode		simInterfaceName = L"SI_SceneSampleWindField";
 
@@ -187,6 +190,7 @@ void	CWindManagerBase::_UnbindSceneSimInterface()
 	// and will compile like in the editor: using the default implementation contained
 	// in the sim interface template node.
 	simInterfaceMapper->Unbind(m_SceneWindSimInterfacePath, simInterfaceName);
+#endif // (PK_COMPILER_BUILD_COMPILER != 0)
 
 	// Build the sim interface definition
 	SSimulationInterfaceDefinition	def;
