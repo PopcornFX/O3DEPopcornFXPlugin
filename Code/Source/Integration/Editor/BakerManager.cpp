@@ -177,7 +177,7 @@ bool	CBakerManager::Activate()
 				PK_VERIFY(extensionsRemap.PushBack(CString("tif=tif.streamingimage")).Valid()) &&
 				PK_VERIFY(extensionsRemap.PushBack(CString("tiff=tiff.streamingimage")).Valid()) &&
 				PK_VERIFY(extensionsRemap.PushBack(CString("dds=dds.streamingimage")).Valid()) &&
-				PK_VERIFY(extensionsRemap.PushBack(CString("fbx=azmodel")).Valid()))
+				PK_VERIFY(extensionsRemap.PushBack(CString("fbx=fbx.azmodel")).Valid()))
 			{
 				config->SetExtensionsRemap(extensionsRemap);
 			}
