@@ -177,7 +177,11 @@ bool	CBakerManager::Activate()
 				PK_VERIFY(extensionsRemap.PushBack(CString("tif=tif.streamingimage")).Valid()) &&
 				PK_VERIFY(extensionsRemap.PushBack(CString("tiff=tiff.streamingimage")).Valid()) &&
 				PK_VERIFY(extensionsRemap.PushBack(CString("dds=dds.streamingimage")).Valid()) &&
+#if PK_O3DE_MAJOR_VERSION > 2305
 				PK_VERIFY(extensionsRemap.PushBack(CString("fbx=fbx.azmodel")).Valid()))
+#else
+				PK_VERIFY(extensionsRemap.PushBack(CString("fbx=azmodel")).Valid()))
+#endif
 			{
 				config->SetExtensionsRemap(extensionsRemap);
 			}
