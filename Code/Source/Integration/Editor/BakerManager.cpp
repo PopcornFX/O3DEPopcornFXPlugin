@@ -218,7 +218,9 @@ AZStd::string	CBakerManager::BakeSingleAsset(const AZStd::string &assetPath, con
 	CLog::Log(PK_INFO, "Baking effect '%s'", virtualPath.Data());
 
 	const bool	bakeOk = m_Cookery->BakeAsset(virtualPath, m_Cookery->m_BaseConfigFile, bakerMessages, dstPackPaths);
+#if (PK_MESSAGE_STREAM_NO_MESSAGES == 0)
 	LogBakerMessages(bakerMessages);
+#endif
 	if (!bakeOk)
 	{
 		CLog::Log(PK_ERROR, "Failed baking effect '%s'", virtualPath.Data());
@@ -294,6 +296,7 @@ bool	CBakerManager::GatherDependencies(const AZStd::string &assetPath, AZStd::ve
 	return true;
 }
 
+#if (PK_MESSAGE_STREAM_NO_MESSAGES == 0)
 void	CBakerManager::LogBakerMessages(const CMessageStream &messages)
 {
 	PopcornFX::TArray<CString>	messageLines;
@@ -319,6 +322,7 @@ void	CBakerManager::LogBakerMessages(const CMessageStream &messages)
 		}
 	}
 }
+#endif // (PK_MESSAGE_STREAM_NO_MESSAGES == 0)
 
 bool	CBakerManager::_SetPackIFN(const AZStd::string &assetPath, CWindManager &windManager)
 {
