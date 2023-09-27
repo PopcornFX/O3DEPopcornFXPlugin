@@ -59,7 +59,9 @@ private:
 		bool	Initialize();
 	};
 
+#if (PK_MESSAGE_STREAM_NO_MESSAGES == 0)
 	void	LogBakerMessages(const CMessageStream &messages);
+#endif
 	bool	_SetPackIFN(const AZStd::string &assetPath, CWindManager &windManager);
 	void	_SetBuildVersion(const AZStd::string &platform);
 
