@@ -25,6 +25,8 @@ namespace PopcornFX
 		SCRIPTCANVAS_NODE(PopcornFXBroadcastNodeable)
 
 	public:
+		AZ_CLASS_ALLOCATOR(PopcornFXBroadcastNodeable, AZ::SystemAllocator)
+
 		PopcornFXBroadcastNodeable() = default;
 		virtual ~PopcornFXBroadcastNodeable();
 		PopcornFXBroadcastNodeable(const PopcornFXBroadcastNodeable&) = default;
