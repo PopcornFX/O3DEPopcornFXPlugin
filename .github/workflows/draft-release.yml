@@ -25,6 +25,6 @@ jobs:
         with:
           draft: true
           name: "O3DE Plugin: ${{ github.ref_name }}"
-          body: "PopcornFX Plugin ${{ github.ref_name }} for O3DE\n
+          body: "PopcornFX Plugin ${{ github.ref_name }} for O3DE\n\n
                 You can download the PopcornFX Editor and find the full changelog here:\n
                 https://wiki.popcornfx.com/index.php?title=PK-Editor_${{ env.MINOR_VERSION }}#Changelog_${{ env.VERSION }}"
