@@ -37,4 +37,5 @@
     <Dependency path="shaders/depth/billboard/depthpasstransparentminbillboard.azshadervarianttree" optional="true" />
     <Dependency path="shaders/mesh/legacy/mesh_legacy.azshadervarianttree" optional="true" />
     <Dependency path="shaders/mesh/legacy/meshlit_legacy.azshadervarianttree" optional="true" />
+    <Dependency path="library/popcornfxcore/materials/defaulttextures/*" optional="true" />
 </EngineDependencies>
