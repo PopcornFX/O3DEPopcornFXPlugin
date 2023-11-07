@@ -85,6 +85,23 @@ namespace PopcornFX {
 			};
 		}
 	};
+#else
+	class	CLogListenerO3DERelease : public ILogListener
+	{
+	public:
+		virtual void	Notify(CLog::ELogLevel level, CGuid logClass, const char* message) override
+		{
+			const CString	s = CString::Format("[%s] ERROR: %s", CLog::LogClassToString(logClass), message);
+
+			switch (level)
+			{
+			case	PopcornFX::CLog::Level_Error:
+			case	PopcornFX::CLog::Level_ErrorCritical:
+				AZ_Printf("PopcornFX", s.Data());
+				break;
+			};
+		}
+	};
 #endif
 
 	//----------------------------------------------------------------------------
@@ -95,6 +112,8 @@ namespace PopcornFX {
 
 #ifndef	PK_RETAIL
 		CLog::AddGlobalListener(PK_NEW(CLogListenerO3DE));
+#else
+		CLog::AddGlobalListener(PK_NEW(CLogListenerO3DERelease));
 #endif
 	}
 
