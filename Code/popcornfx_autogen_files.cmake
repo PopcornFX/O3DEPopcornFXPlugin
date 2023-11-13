@@ -11,9 +11,9 @@ set(PK_OPTIONAL_REGISTER_NODEABLE_FILES
     )
 
 if(DEFINED O3DE_VERSION_MAJOR)
-    # O3DE 4.x.x and higher no longer need the registry source files
+    # O3DE 3.x.x and higher no longer need the registry source files
     # Also include special case to handle bug where SDK 23.05.0 engine version was set to the display version
-    if(O3DE_VERSION_MAJOR GREATER_EQUAL 4 AND 
+    if(O3DE_VERSION_MAJOR GREATER_EQUAL 3 AND 
         NOT (O3DE_VERSION_MAJOR EQUAL 23 AND O3DE_VERSION_MINOR EQUAL 05 AND O3DE_VERSION_PATCH EQUAL 0))
         unset(PK_OPTIONAL_REGISTER_NODEABLE_FILES)
     endif()
