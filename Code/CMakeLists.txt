@@ -33,6 +33,22 @@ ly_add_target(
             Include
 )
 
+set(PK_OPTIONAL_REGISTER_NODEABLE_FILES 
+    *.ScriptCanvasNodeable.xml,ScriptCanvasNodeableRegistry_Header.jinja,AutoGenNodeableRegistry.generated.h
+    *.ScriptCanvasNodeable.xml,ScriptCanvasNodeableRegistry_Source.jinja,AutoGenNodeableRegistry.generated.cpp
+    )
+set(PK_OPTIONAL_REGISTER_NODEABLE_DEFINES PK_REGISTER_NODEABLE)
+
+if(DEFINED O3DE_VERSION_MAJOR)
+    # O3DE 3.x.x and higher no longer need the autogen nodeable registry source files
+    # Also include special case to handle bug where SDK 23.05.0 engine version was set to the display version
+    if(O3DE_VERSION_MAJOR GREATER_EQUAL 3 AND 
+        NOT (O3DE_VERSION_MAJOR EQUAL 23 AND O3DE_VERSION_MINOR EQUAL 05 AND O3DE_VERSION_PATCH EQUAL 0))
+        unset(PK_OPTIONAL_REGISTER_NODEABLE_FILES)
+        unset(PK_OPTIONAL_REGISTER_NODEABLE_DEFINES)
+    endif()
+endif()
+
 ly_add_target(
     NAME PopcornFX.Static STATIC
     NAMESPACE Gem
@@ -46,6 +62,7 @@ ly_add_target(
             PK_USE_PHYSX
             PK_USE_EMOTIONFX
             PK_USE_STARTINGPOINTINPUT
+            ${PK_OPTIONAL_REGISTER_NODEABLE_DEFINES}
     INCLUDE_DIRECTORIES
         PRIVATE
             Source
@@ -72,8 +89,7 @@ ly_add_target(
     AUTOGEN_RULES
         *.ScriptCanvasNodeable.xml,ScriptCanvasNodeable_Header.jinja,$path/$fileprefix.generated.h
         *.ScriptCanvasNodeable.xml,ScriptCanvasNodeable_Source.jinja,$path/$fileprefix.generated.cpp
-        *.ScriptCanvasNodeable.xml,ScriptCanvasNodeableRegistry_Header.jinja,AutoGenNodeableRegistry.generated.h
-        *.ScriptCanvasNodeable.xml,ScriptCanvasNodeableRegistry_Source.jinja,AutoGenNodeableRegistry.generated.cpp
+        ${PK_OPTIONAL_REGISTER_NODEABLE_FILES}
 )
 
 ly_add_target(
