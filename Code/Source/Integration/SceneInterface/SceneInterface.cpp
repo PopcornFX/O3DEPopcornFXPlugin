@@ -9,57 +9,34 @@
 
 #if defined(O3DE_USE_PK)
 
+#include <AzCore/Component/ComponentApplicationBus.h>
+
 #if defined(PK_USE_PHYSX)
 	#include <AzFramework/Physics/PhysicsScene.h>
-	#include <AzFramework/Physics/Material/PhysicsMaterialManager.h>
-	#include <AzCore/Interface/Interface.h>
 	#include <AzFramework/Physics/ShapeConfiguration.h>
+	#include <AzCore/Interface/Interface.h>
 	#include <AzCore/std/smart_ptr/make_shared.h>
-	#include <PhysX/Material/PhysXMaterial.h>
+	#if RESOLVE_MATERIAL_PROPERTIES
+	#include <AzFramework/Physics/Material.h>
+	#endif
+	#if RESOLVE_CONTACT_OBJECT
+	#include <AzFramework/Physics/RigidBodyBus.h>
+	#endif
 #endif
 
-#include <AzCore/Console/IConsole.h>
-
+#include "Integration/PopcornFXIntegrationBus.h"
 #include "Integration/PopcornFXUtils.h"
 
 namespace PopcornFX {
 
-	static void PrintPopcornFXPhysicsSurfaceTypesConstants(const AZ::ConsoleCommandContainer&)
-	{
-		if (auto *materialManager = AZ::Interface<Physics::MaterialManager>::Get())
-		{
-			AZStd::shared_ptr<Physics::Material> defaultMaterial = materialManager->GetDefaultMaterial();
-			if (defaultMaterial != null)
-			{
-				AZ_Printf("PopcornFX", "physics.surfaceTypes.Default %u", AZ::Crc32(defaultMaterial->GetId().ToString<AZStd::string>()));
-			}
-		}
-
-		AZ::Data::AssetCatalogRequests::AssetEnumerationCB	popcornFxAssetReloadCb = [](const AZ::Data::AssetId id, const AZ::Data::AssetInfo& info)
-		{
-			if (info.m_assetType == ::Physics::MaterialAsset::RTTI_Type())
-			{
-				Physics::MaterialId	materialId = Physics::MaterialId::CreateFromAssetId(id);
-				AZStd::string		materialName = info.m_relativePath;
-
-				AZ::StringFunc::Replace(materialName, ".physicsmaterial", "");
-				AZ::StringFunc::Replace(materialName, "/", ".");
-				
-				AZ_Printf("PopcornFX", "physics.surfaceTypes.%s %u", materialName.c_str(), AZ::Crc32(materialId.ToString<AZStd::string>()));
-			}
-		};
-		AZ::Data::AssetCatalogRequestBus::Broadcast(&AZ::Data::AssetCatalogRequestBus::Events::EnumerateAssets, null, popcornFxAssetReloadCb, null);
-	}
-
-	AZ_CONSOLEFREEFUNC(PrintPopcornFXPhysicsSurfaceTypesConstants, AZ::ConsoleFunctorFlags::Null, "Print the physics surface types constants to add in your PopcornFX project settings.");
-
-#if defined(PK_USE_PHYSX)
 	void	CSceneInterface::RayTracePacket(const Colliders::STraceFilter	&traceFilter,
 											const Colliders::SRayPacket		&packet,
 											const Colliders::STracePacket	&results)
 	{
-		AzPhysics::SceneHandle		sceneHandle = AzPhysics::InvalidSceneHandle;
-		AzPhysics::SceneInterface	*sceneInterface = AZ::Interface<AzPhysics::SceneInterface>::Get();
+#if defined(PK_USE_PHYSX)
+		AzPhysics::SceneHandle	sceneHandle = AzPhysics::InvalidSceneHandle;
+		auto					*sceneInterface = AZ::Interface<AzPhysics::SceneInterface>::Get();
+
 		if (sceneInterface != null)
 		{
 #if defined(POPCORNFX_EDITOR)
@@ -74,14 +51,6 @@ namespace PopcornFX {
 
 		if (!PK_VERIFY(sceneHandle != AzPhysics::InvalidSceneHandle))
 			return;
-
-		Physics::MaterialManager	*materialManager = null;
-		if (results.m_ContactSurfaces_Aligned16 != null)
-		{
-			materialManager = AZ::Interface<Physics::MaterialManager>::Get();
-			if (!PK_VERIFY(materialManager != null))
-				return;
-		}
 
 		AzPhysics::CollisionGroup	collisionGroup(traceFilter.m_FilterFlags == 0 ? AzPhysics::CollisionGroup::All.GetMask() : traceFilter.m_FilterFlags);
 
@@ -109,7 +78,6 @@ namespace PopcornFX {
 				request.m_direction = ToAZ(dir);
 				request.m_distance = _rayDirAndLen.w();
 				request.m_collisionGroup = collisionGroup;
-				PK_ASSERT(request.m_reportMultipleHits == false);
 
 				hitResult = sceneInterface->QueryScene(sceneHandle, &request);
 			}
@@ -121,94 +89,81 @@ namespace PopcornFX {
 				request.m_direction = ToAZ(dir);
 				request.m_shapeConfiguration = AZStd::make_shared<Physics::SphereShapeConfiguration>(packet.m_RaySweepRadii_Aligned16[rayi]);
 				request.m_collisionGroup = collisionGroup;
-				PK_ASSERT(request.m_reportMultipleHits == false);
 
 				hitResult = sceneInterface->QueryScene(sceneHandle, &request);
 			}
 			if (!hitResult.m_hits.empty())
 			{
-				//m_reportMultipleHits in AzPhysics::RayCastRequest and AzPhysics::ShapeCastRequest are set to false by default, only 1 hit possible
+				//m_reportMultipleHits in AzPhysics::RayCastRequest and AzPhysics::ShapeCastRequest are set to false, only 1 hit possible
 				const AzPhysics::SceneQueryHit	&hit = hitResult.m_hits[0];
 
 				results.m_HitTimes_Aligned16[rayi] = hit.m_distance;
 				if (results.m_ContactObjects_Aligned16 != null)
 				{
-					const bool haveBodyHandle = hit.m_resultFlags & AzPhysics::SceneQuery::ResultFlags::BodyHandle;
-					if (!haveBodyHandle)
-						results.m_ContactObjects_Aligned16[rayi] = null;
-					else
-						results.m_ContactObjects_Aligned16[rayi] = sceneInterface->GetSimulatedBodyFromHandle(sceneHandle, hit.m_bodyHandle);
-				}
-				if (results.m_ContactSurfaces_Aligned16 != null)
-				{
-					const bool havePhysicsMaterial = hit.m_resultFlags & AzPhysics::SceneQuery::ResultFlags::Material;
-					if (!havePhysicsMaterial)
-						results.m_ContactSurfaces_Aligned16[rayi] = null;
-					else
+#if RESOLVE_CONTACT_OBJECT
+					Physics::RigidBody	*rigidbody = null;
+					AZ::Entity			*entity = null;
+					EBUS_EVENT_RESULT(entity, AZ::ComponentApplicationBus, FindEntity, hit.m_body->GetEntityId());
+					if (entity)
 					{
-						AZStd::shared_ptr<PhysX::Material>	material = AZStd::rtti_pointer_cast<PhysX::Material>(materialManager->GetMaterial(hit.m_physicsMaterialId));
-						results.m_ContactSurfaces_Aligned16[rayi] = material.get();
+						Physics::RigidBodyRequestBus::EventResult(rigidbody, hit.m_body->GetEntityId(), &Physics::RigidBodyRequests::GetRigidBody);
 					}
+					if (rigidbody)
+						results.m_ContactObjects_Aligned16[rayi] = rigidbody;
+					else
+#endif
+						results.m_ContactObjects_Aligned16[rayi] = CollidableObject::DEFAULT;
 				}
 				if (results.m_ContactPoints_Aligned16 != null)
 					results.m_ContactPoints_Aligned16[rayi].xyz() = ToPk(hit.m_position);
 				if (results.m_ContactNormals_Aligned16 != null)
 					results.m_ContactNormals_Aligned16[rayi].xyz() = ToPk(hit.m_normal);
+#if RESOLVE_MATERIAL_PROPERTIES
+				if (results.m_ContactSurfaces_Aligned16 != null)
+				{
+					AZ::Entity	*entity = null;
+					EBUS_EVENT_RESULT(entity, AZ::ComponentApplicationBus, FindEntity, hit.m_entityId);
+					if (entity)
+					{
+						Physics::RigidBody	*rigidbody;
+						Physics::RigidBodyRequestBus::EventResult(rigidbody, hit.m_body->GetEntityId(), &Physics::RigidBodyRequests::GetRigidBody);
+						if (rigidbody)
+						{
+							Physics::MaterialId	materialId = rigidbody->GetMaterialIdForShapeHierarchy(hit.m_hitShapeIdHierarchy);
+							Physics::MaterialProperties	*matProperties = null;
+							Physics::MaterialRequestBus::BroadcastResult(matProperties, &Physics::MaterialRequests::GetPhysicsMaterialProperties, materialId);
+							results.m_ContactSurfaces_Aligned16[rayi] = matProperties;
+						}
+					}
+				}
+#endif //RESOLVE_MATERIAL_PROPERTIES
 			}
 		}
+#endif
 	}
 
-	void	CSceneInterface::ResolveContactMaterials(	[[maybe_unused]] const TMemoryView<void * const>	&contactObjects,
-														const TMemoryView<void * const>						&contactSurfaces,
-														const TMemoryView<Colliders::SSurfaceProperties>	&outSurfaceProperties) const
+#if RESOLVE_MATERIAL_PROPERTIES
+void	CSceneInterface::ResolveContactMaterials(	const TMemoryView<void * const>					&contactObjects,
+													const TMemoryView<void * const>					&contactSurfaces,
+													const TMemoryView<Colliders::SSurfaceProperties>&outSurfaceProperties) const
+{
+	const u32	materialCount = contactSurfaces.Count();
+
+	for (u32 iMaterial = 0; iMaterial < materialCount; ++iMaterial)
 	{
-		PK_ASSERT(contactObjects.Count() == contactSurfaces.Count());
-		PK_ASSERT(contactObjects.Count() == outSurfaceProperties.Count());
-	
-		static const PopcornFX::Colliders::SSurfaceProperties		kDefaultSurface;
-
-		const u32	materialCount = contactSurfaces.Count();
-		for (u32 iMaterial = 0; iMaterial < materialCount; ++iMaterial)
-		{
-			PopcornFX::Colliders::SSurfaceProperties	&surface = outSurfaceProperties[iMaterial];
-			surface = kDefaultSurface;
-
-			PhysX::Material	*material = reinterpret_cast<PhysX::Material*>(contactSurfaces[iMaterial]);
-			if (material == null)
-				continue;
-
-			surface.m_Restitution = material->GetRestitution();
-			surface.m_StaticFriction = material->GetStaticFriction();
-			surface.m_DynamicFriction = material->GetDynamicFriction();
-			surface.m_SurfaceType = AZ::Crc32(material->GetId().ToString<AZStd::string>());
-
-#define REMAP_COMBINE_MODE(__member, __val) \
-		switch (__val) \
-		{ \
-			case	PhysX::CombineMode::Average: \
-				surface.__member = PopcornFX::Colliders::ECombineMode::Combine_Average; \
-				break; \
-			case	PhysX::CombineMode::Minimum: \
-				surface.__member = PopcornFX::Colliders::ECombineMode::Combine_Min; \
-				break; \
-			case	PhysX::CombineMode::Maximum: \
-				surface.__member = PopcornFX::Colliders::ECombineMode::Combine_Max; \
-				break; \
-			case	PhysX::CombineMode::Multiply: \
-				surface.__member = PopcornFX::Colliders::ECombineMode::Combine_Multiply; \
-				break; \
-			default: \
-				PK_ASSERT_NOT_REACHED(); \
-				break; \
-		}
-
-			REMAP_COMBINE_MODE(m_FrictionCombineMode, material->GetFrictionCombineMode());
-			REMAP_COMBINE_MODE(m_RestitutionCombineMode, material->GetRestitutionCombineMode());
-
-#undef REMAP_COMBINE_MODE
-		}
+		PopcornFX::Colliders::SSurfaceProperties	&surface = outSurfaceProperties[iMaterial];
+		Physics::MaterialProperties	*matProperties = reinterpret_cast<Physics::MaterialProperties*>(contactSurfaces[iMaterial]);
+		if (matProperties == null)
+			continue;
+		surface.m_Restitution = matProperties->m_restitution;
+		surface.m_StaticFriction = matProperties->m_friction;
+		surface.m_DynamicFriction = surface.m_StaticFriction;
+		surface.m_SurfaceType = AZStd::hash<AZStd::string>{}(matProperties->m_name);
+		surface.m_RestitutionCombineMode = Colliders::Combine_Average;
+		surface.m_FrictionCombineMode = Colliders::Combine_Average;
 	}
-#endif //PK_USE_PHYSX
+}
+#endif //RESOLVE_MATERIAL_PROPERTIES
 
 }
 
