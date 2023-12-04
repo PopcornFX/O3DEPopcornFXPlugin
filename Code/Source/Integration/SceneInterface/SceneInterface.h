@@ -8,23 +8,20 @@
 
 #include <pk_particles/include/ps_scene.h>
 
-#define RESOLVE_MATERIAL_PROPERTIES 0
-#define RESOLVE_CONTACT_OBJECT 0
-
 namespace PopcornFX {
 
 	class	CSceneInterface : public IParticleScene
 	{
 	public:
+#if defined(PK_USE_PHYSX)
 		virtual void	RayTracePacket(	const Colliders::STraceFilter	&traceFilter,
 										const Colliders::SRayPacket		&packet,
 										const Colliders::STracePacket	&results) override;
 
-#if RESOLVE_MATERIAL_PROPERTIES
 		virtual void	ResolveContactMaterials(const TMemoryView<void * const>					&contactObjects,
 												const TMemoryView<void * const>					&contactSurfaces,
 												const TMemoryView<Colliders::SSurfaceProperties>&outSurfaceProperties) const override;
-#endif
+#endif //PK_USE_PHYSX
 
 		void	SetInGameMode(bool inGameMode) { m_InGameMode = inGameMode; }
 
