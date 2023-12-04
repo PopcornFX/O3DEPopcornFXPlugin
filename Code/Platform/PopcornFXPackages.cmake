@@ -6,8 +6,8 @@ function(pk_package_internal_download_package package_name package_id)
 
     ly_get_package_expected_hash(${package_name} package_expected_hash)
 
-    set(server_url https://store.popcornfx.com)
-    set(download_url ${server_url}/dl/get.php?id=${package_id})
+    set(server_url https://auth.popcornfx.com)
+    set(download_url ${server_url}/ws/downloadPlugin?id=${package_id})
     set(download_target ${LY_PACKAGE_DOWNLOAD_CACHE_LOCATION}/${package_name}${LY_PACKAGE_EXT})
     
     file(REMOVE ${download_target})
