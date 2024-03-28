@@ -21,9 +21,6 @@
 #include <Atom/RPI.Public/RenderPipeline.h>
 
 #include <Atom/Feature/RenderCommon.h>
-#if PK_O3DE_MAJOR_VERSION == 2111
-#include <Atom/Feature/ReflectionProbe/ReflectionProbeFeatureProcessor.h>
-#endif
 
 #endif //O3DE_USE_PK
 
@@ -148,13 +145,8 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 		AZ::RHI::DrawPacketBuilder::DrawRequest	materialDr;
 		materialDr.m_listTag = pkfxDrawCall.m_MaterialDrawList;
 		materialDr.m_pipelineState = pkfxDrawCall.m_MaterialPipelineState.get();
-#if PK_O3DE_MAJOR_VERSION >= 2205
 		materialDr.m_streamBufferViews = AZStd::span<const AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
 																						pkfxDrawCall.m_VertexInputs.Count());
-#else
-		materialDr.m_streamBufferViews = AZStd::array_view<AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
-																						pkfxDrawCall.m_VertexInputs.Count());
-#endif
 
 		// TODO: set this depending on lit state.
 		materialDr.m_stencilRef = (AZ::Render::StencilRefs::UseIBLSpecularPass | AZ::Render::StencilRefs::UseDiffuseGIPass);
@@ -163,32 +155,18 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 		dpBuilder.AddDrawItem(materialDr);
 	}
 
-#if PK_O3DE_MAJOR_VERSION >= 2205
 	AZStd::span<const AZ::RHI::StreamBufferView>	depthVtxInput;
-#else
-	AZStd::array_view<AZ::RHI::StreamBufferView>	depthVtxInput;
-#endif
 
 	if (pkfxDrawCall.m_RendererType == Renderer_Billboard ||
 		pkfxDrawCall.m_RendererType == Renderer_Mesh)
 	{
-#if PK_O3DE_MAJOR_VERSION >= 2205
 		depthVtxInput = AZStd::span<const AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
 																		pkfxDrawCall.m_VertexInputs.Count());
-#else
-		depthVtxInput = AZStd::array_view<AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
-																		pkfxDrawCall.m_VertexInputs.Count());
-#endif
 	}
 	else
 	{
-#if PK_O3DE_MAJOR_VERSION >= 2205
 		depthVtxInput = AZStd::span<const AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
 																		1);
-#else
-		depthVtxInput = AZStd::array_view<AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
-																		1);
-#endif
 	}
 
 	if (pkfxDrawCall.m_OpaqueDepthPipelineState != null)
@@ -226,7 +204,7 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 		AZ::RHI::ShaderInputConstantIndex	useReflectionProbeConstantIndex = objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_useReflectionProbe"));
 		AZ_Error("MeshDataInstance", useReflectionProbeConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
 
-#if PK_O3DE_MAJOR_VERSION == 2111
+#if 0 //PK_O3DE_MAJOR_VERSION == 2111
 //See : https://github.com/o3de/o3de/pull/7189 and https://github.com/o3de/o3de/issues/7434
 		AZ::RHI::ShaderInputConstantIndex	modelToWorldConstantIndex = objectSrg->FindShaderInputConstantIndex(AZ::Name("m_reflectionProbeData.m_modelToWorld"));
 		AZ_Error("MeshDataInstance", modelToWorldConstantIndex.IsValid(), "Failed to find ReflectionProbe constant index");
@@ -283,7 +261,6 @@ const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SA
 	return dpBuilder.End();
 }
 
-#if PK_O3DE_MAJOR_VERSION > 2210
 void CPopcornFXFeatureProcessor::OnRenderPipelineChanged(	AZ::RPI::RenderPipeline *renderPipeline,
 															AZ::RPI::SceneNotification::RenderPipelineChangeType changeType)
 {
@@ -295,17 +272,6 @@ void	CPopcornFXFeatureProcessor::AddRenderPasses(AZ::RPI::RenderPipeline *render
 {
 	AddDistortionRenderPass(renderPipeline);
 }
-#else
-void	CPopcornFXFeatureProcessor::OnRenderPipelinePassesChanged(AZ::RPI::RenderPipeline *renderPipeline)
-{
-	UpdateDistortionRenderPassBindings(renderPipeline);
-}
-
-void	CPopcornFXFeatureProcessor::OnRenderPipelineAdded(AZ::RPI::RenderPipelinePtr renderPipeline)
-{
-	AddDistortionRenderPass(renderPipeline.get());
-}
-#endif
 
 void	CPopcornFXFeatureProcessor::AddDistortionRenderPass(AZ::RPI::RenderPipeline *renderPipeline)
 {

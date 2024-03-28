@@ -7,11 +7,7 @@
 
 #include "PopcornOptions.azsli"
 
-#if PK_O3DE_NEW_PBR
 #include <Atom/Features/Pipeline/Forward/ForwardPassOutput.azsli>
-#else
-#include <Atom/Features/PBR/ForwardPassOutput.azsli>
-#endif
 #include <Atom/Features/PBR/AlphaUtils.azsli>
 #include <Atom/Features/PBR/LightingOptions.azsli>
 
@@ -22,25 +18,16 @@
 #include <Atom/RPI/TangentSpace.azsli>
 
 #include <Atom/Features/PBR/DefaultObjectSrg.azsli>
-#if PK_O3DE_NEW_PBR
 #include <Atom/Features/Pipeline/Forward/ForwardPassSrg.azsli>
-#else
-#include <Atom/Features/PBR/ForwardPassSrg.azsli>
-#endif
 
 #include <Atom/Features/PBR/Lighting/StandardLighting.azsli>
-#if PK_O3DE_NEW_PBR
 #include <Atom/Features/PBR/Lights/IblForward.azsli>
-#endif
 #include <Atom/Features/PBR/Decals.azsli>
 #include <Atom/Features/ColorManagement/TransformColor.azsli>
 
 // Helper function to compute forward lighting output for particles:
 ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
 											float4 position,
-#if !PK_O3DE_NEW_LIT
-											float3 shadowCoords[ViewSrg::MaxCascadeCount],
-#endif
 											float3 vertexNormal,
 											float3 normal,
 											float3 tangent,
@@ -104,11 +91,6 @@ ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
     lightingData.Init(surface.position, surface.normal, surface.roughnessLinear);
 #endif
 
-#if !PK_O3DE_NEW_LIT
-    // Directional light shadow coordinates
-    lightingData.shadowCoords = shadowCoords;
-#endif
-
     // ------- Emissive -------
 
     lightingData.emissiveLighting = emissive;
@@ -138,18 +120,10 @@ ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
     ApplyDecals(lightingData.tileIterator, surface);
 
     // Apply Direct Lighting
-#if PK_O3DE_NEW_LIT
     ApplyDirectLighting(surface, lightingData, position);
-#else
-    ApplyDirectLighting(surface, lightingData);
-#endif
 
     // Apply Image Based Lighting (IBL)
-#if PK_O3DE_NEW_PBR
     ApplyIblForward(surface, lightingData);
-#else
-    ApplyIBL(surface, lightingData);
-#endif
 
     // Finalize Lighting
     lightingData.FinalizeLighting();

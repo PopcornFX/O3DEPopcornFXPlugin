@@ -133,11 +133,7 @@ namespace PopcornFX {
 		if (!PK_VERIFY(m_ImageSampler != null))
 			return false;
 
-#if PK_O3DE_MAJOR_VERSION >= 2205
-		AZStd::span<const uint8_t>	imgData = m_Texture->GetSubImageData(0, 0);
-#else
-		const AZStd::array_view<uint8_t>	imgData = m_Texture->GetSubImageData(0, 0);
-#endif
+		AZStd::span<const uint8_t>			imgData = m_Texture->GetSubImageData(0, 0);
 		const AZ::RHI::Format				imgFormat = imgDesc.m_format;
 		const AZ::RHI::Size					imgSize = imgDesc.m_size;
 
