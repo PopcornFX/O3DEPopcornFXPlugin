@@ -10,11 +10,7 @@
 
 #include <PopcornFX/PopcornFXBus.h>
 
-#if PK_O3DE_MAJOR_VERSION >= 2205
 #include <LyShine/IDraw2d.h>
-#else
-#include <LyShine/Draw2d.h>
-#endif
 
 #include <AzCore/Console/IConsole.h>
 #include <AzCore/Interface/Interface.h>

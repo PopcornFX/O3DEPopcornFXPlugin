@@ -98,21 +98,12 @@ void	*CMeshResourceHandler::Load(	const CResourceManager	*resourceManager,
 		return null;
 	}
 
-#if PK_O3DE_MAJOR_VERSION >= 2205
 	const AZStd::span<const u32>		srcIndices = mesh.GetIndexBufferTyped<u32>();
 	const AZStd::span<const CFloat3>	srcPositions = mesh.GetSemanticBufferTyped<CFloat3>(AZ::Name("POSITION"));
 	const AZStd::span<const CFloat3>	srcNormals = mesh.GetSemanticBufferTyped<CFloat3>(AZ::Name("NORMAL"));
 	const AZStd::span<const CFloat2>	srcUvs = mesh.GetSemanticBufferTyped<CFloat2>(AZ::Name("UV"));
 	const AZStd::span<const CFloat4>	srcTangents = mesh.GetSemanticBufferTyped<CFloat4>(AZ::Name("TANGENT"));
 	const AZStd::span<const CFloat4>	srcColors = mesh.GetSemanticBufferTyped<CFloat4>(AZ::Name("COLOR"));
-#else
-	const AZStd::array_view<u32>		srcIndices = mesh.GetIndexBufferTyped<u32>();
-	const AZStd::array_view<CFloat3>	srcPositions = mesh.GetSemanticBufferTyped<CFloat3>(AZ::Name("POSITION"));
-	const AZStd::array_view<CFloat3>	srcNormals = mesh.GetSemanticBufferTyped<CFloat3>(AZ::Name("NORMAL"));
-	const AZStd::array_view<CFloat2>	srcUvs = mesh.GetSemanticBufferTyped<CFloat2>(AZ::Name("UV"));
-	const AZStd::array_view<CFloat4>	srcTangents = mesh.GetSemanticBufferTyped<CFloat4>(AZ::Name("TANGENT"));
-	const AZStd::array_view<CFloat4>	srcColors = mesh.GetSemanticBufferTyped<CFloat4>(AZ::Name("COLOR"));
-#endif
 
 	if (srcIndices.empty() || srcPositions.empty())
 	{

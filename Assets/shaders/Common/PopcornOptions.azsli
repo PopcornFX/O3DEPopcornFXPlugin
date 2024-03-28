@@ -5,7 +5,5 @@
 
 #pragma once
 
-#define PK_O3DE_NEW_LIT 1
-#define PK_O3DE_NEW_PBR 1
 #define PK_O3DE_LIT_MULTI_VIEW 0
 

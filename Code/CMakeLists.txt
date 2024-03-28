@@ -3,14 +3,10 @@
 # https://www.popcornfx.com/terms-and-conditions/
 #----------------------------------------------------------------------------
 
-set(POPCORNFX_VERSION 2.18.6)
+set(POPCORNFX_VERSION 2.19.0)
 set(POPCORNFX_LICENSE O3DE)
 
-if (PK_O3DE_MAJOR_VERSION GREATER_EQUAL 2205)
-    o3de_pal_dir(pal_dir ${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME} "${gem_restricted_path}" "${gem_path}" "${gem_name}")
-else()
-    ly_get_list_relative_pal_filename(pal_dir ${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME} ${gem_restricted_path} ${gem_path} ${gem_name})
-endif()
+o3de_pal_dir(pal_dir ${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME} "${gem_restricted_path}" "${gem_path}" "${gem_name}")
 
 include(${CMAKE_CURRENT_LIST_DIR}/Platform/PopcornFXPackages.cmake)
 include(${pal_dir}/PAL_${PAL_PLATFORM_NAME_LOWERCASE}.cmake) #for PAL_TRAIT_POPCORNFX_SUPPORTED Traits
@@ -19,8 +15,11 @@ if(NOT PAL_TRAIT_POPCORNFX_SUPPORTED)
     return()
 endif()
 
-add_compile_definitions(PK_O3DE_MAJOR_VERSION=${PK_O3DE_MAJOR_VERSION})
-add_compile_definitions(PK_O3DE_PATCH_VERSION=${PK_O3DE_PATCH_VERSION})
+if(DEFINED O3DE_VERSION_MAJOR)
+    add_compile_definitions(O3DE_VERSION_MAJOR=${O3DE_VERSION_MAJOR})
+    add_compile_definitions(O3DE_VERSION_MINOR=${O3DE_VERSION_MINOR})
+    add_compile_definitions(O3DE_VERSION_PATCH=${O3DE_VERSION_PATCH})
+endif()
 
 # The PopcornFX.API target declares the common interface that users of this gem can depend on in their targets without requiring linking.
 ly_add_target(
@@ -41,9 +40,7 @@ set(PK_OPTIONAL_REGISTER_NODEABLE_DEFINES PK_REGISTER_NODEABLE)
 
 if(DEFINED O3DE_VERSION_MAJOR)
     # O3DE 3.x.x and higher no longer need the autogen nodeable registry source files
-    # Also include special case to handle bug where SDK 23.05.0 engine version was set to the display version
-    if(O3DE_VERSION_MAJOR GREATER_EQUAL 3 AND 
-        NOT (O3DE_VERSION_MAJOR EQUAL 23 AND O3DE_VERSION_MINOR EQUAL 05 AND O3DE_VERSION_PATCH EQUAL 0))
+    if(O3DE_VERSION_MAJOR GREATER_EQUAL 3)
         unset(PK_OPTIONAL_REGISTER_NODEABLE_FILES)
         unset(PK_OPTIONAL_REGISTER_NODEABLE_DEFINES)
     endif()

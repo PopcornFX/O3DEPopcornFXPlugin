@@ -19,7 +19,7 @@
 //
 //------------------------------------------------------------------------------
 
-#ifdef	PK_PLUGINS_STATIC
+#ifdef PK_PLUGINS_STATIC
 #	if defined(USE_COMPILER_BACKEND)
 PK_PLUGIN_DECLARE(CCompilerBackendCPU_VM);
 #	endif
@@ -29,7 +29,7 @@ PK_PLUGIN_DECLARE(CCompilerBackendCPU_VM);
 #	else
 #		define	PK_PLUGIN_POSTFIX_BUILD			""
 #	endif
-#	if	defined(PK_WINDOWS) || defined(PK_X360)
+#	if	defined(PK_WINDOWS)
 #		define	PK_PLUGIN_POSTFIX_EXT			".dll"
 #	else
 #		define	PK_PLUGIN_POSTFIX_EXT			""
@@ -51,18 +51,18 @@ namespace PopcornFX {
 		PK_ASSERT(g_LoadedPlugins == 0);
 
 		bool	success = true;
-#	ifndef	PK_PLUGINS_STATIC
+#ifndef	PK_PLUGINS_STATIC
 		// plugins are .dll
 		PopcornFX::CPluginManager::RegisterDirectory("Plugins", false);
-#	else
+#else
 		// plugins are linked statically
 		if (selected & EPlugin_CompilerBackendVM)
 		{
-			const char	*backendPath = "Plugins/CBCPU_VM_Win32" PK_PLUGIN_POSTFIX_BUILD PK_PLUGIN_POSTFIX_EXT;
+			const char		*backendPath = "Plugins/CBCPU_VM_Win32" PK_PLUGIN_POSTFIX_BUILD PK_PLUGIN_POSTFIX_EXT;
 			IPluginModule	*backend = StartupPlugin_CCompilerBackendCPU_VM();
 			success &= (backend != null && PopcornFX::CPluginManager::PluginRegister(backend, true, backendPath));
 		}
-#	endif
+#endif
 
 		g_LoadedPlugins = selected;
 		return success;
@@ -77,14 +77,14 @@ namespace PopcornFX {
 	void	PopcornUnregisterPlugins()
 	{
 		// unregister plugins:
-#	ifdef	PK_PLUGINS_STATIC
+#ifdef	PK_PLUGINS_STATIC
 		if (g_LoadedPlugins & EPlugin_CompilerBackendVM)
 		{
 			IPluginModule	*backend = GetPlugin_CCompilerBackendCPU_VM();
 			(backend != null && PopcornFX::CPluginManager::PluginRelease(backend));
 			ShutdownPlugin_CCompilerBackendCPU_VM();
 		}
-#	endif
+#endif
 
 		g_LoadedPlugins = 0;
 	}
