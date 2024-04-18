@@ -1,13 +1,13 @@
 {
     "gem_name": "PopcornFX",
-    "display_name": "PopcornFX 2.15.17",
+    "display_name": "PopcornFX 2.15.18",
     "license": "Community",
     "license_url": "https://www.popcornfx.com/popcornfx-community-license",
     "origin": "Persistant Studios - popcornfx.com",
     "repo_uri": "https://downloads.popcornfx.com/o3de-repo",
-    "origin_uri": "https://downloads.popcornfx.com/o3de-repo/PopcornFX-2.15/O3DE_PopcornFXGem_v2.15.17_Win64_Linux64_LinuxARM64_Mac64.zip",
-    "version": "2.15.17",
-    "last_updated": "2024-01-11",
+    "origin_uri": "https://downloads.popcornfx.com/o3de-repo/PopcornFX-2.15/O3DE_PopcornFXGem_v2.15.18_Win64_Linux64_LinuxARM64_Mac64.zip",
+    "version": "2.15.18",
+    "last_updated": "2024-04-18",
     "type": "Code",
     "summary": "The PopcornFX Gem provides real-time FX solution for particle effects.",
     "canonical_tags": [

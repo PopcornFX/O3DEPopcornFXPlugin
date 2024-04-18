@@ -92,6 +92,14 @@ if(DEFINED O3DE_VERSION_MAJOR)
         message(VERBOSE "Activating PopcornFX gem for O3DE ${PK_O3DE_MAJOR_VERSION}")
         ly_enable_gems(GEMS PopcornFX)
     endif()
+
+    # 23.05 had the display version in version property
+    if(NOT (O3DE_VERSION_MAJOR EQUAL 23 AND O3DE_VERSION_MINOR EQUAL 05))
+        # Apply patches here IFN
+        if(O3DE_VERSION_MAJOR GREATER_EQUAL 4)
+            pk_patch_file("PK_O3DE_LIT_MULTI_VIEW 0" "PK_O3DE_LIT_MULTI_VIEW 1" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
+        endif()
+    endif()
 endif()
 
 if (PK_O3DE_MAJOR_VERSION GREATER 2210)
