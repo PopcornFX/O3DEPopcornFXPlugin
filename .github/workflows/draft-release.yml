@@ -12,14 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: jungwinter/split@master
-        id: split
-        with:
-          msg: ${{ github.ref_name }}
-          separator: "."
-      
-      - name: Set environment
-        run: echo "VERSION=$(echo "${GITHUB_REF_NAME#v}" | sed 's/-LTS//g')" >> $GITHUB_ENV && echo "MINOR_VERSION=${{ steps.split.outputs._0 }}.${{ steps.split.outputs._1 }}" >> $GITHUB_ENV
+      - name: Set MINOR_VERSION
+        run: export SHORT=${GITHUB_REF_NAME%.*} && echo "MINOR_VERSION=${SHORT#v}" >> $GITHUB_ENV
 
       - uses: ncipollo/release-action@v1
         with:
