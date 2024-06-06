@@ -5,8 +5,8 @@
 
 set(LY_PACKAGE_SERVER_URLS ${LY_PACKAGE_SERVER_URLS} "https://downloads.popcornfx.com/o3de-packages")
 set(package_name PopcornFX-${POPCORNFX_VERSION}-${POPCORNFX_LICENSE}-windows)
-set(pk_package_hash 30de26850e61923b1e1afdad4237f623827649a282855e3156b09ad5b9644838)
-set(pk_package_id KAVn6cM2M9Rmy9Jp)
+set(pk_package_hash dff48baa6e92a3892d44f5a2c4d98a8357cea488abc4f0907ef0b50a047bd6ce)
+set(pk_package_id 4ZytnOdOARvKZJFR)
 
 ly_associate_package(PACKAGE_NAME ${package_name} TARGETS PopcornFX PACKAGE_HASH ${pk_package_hash})
 pk_download_package_ifn(${package_name} ${pk_package_id})
