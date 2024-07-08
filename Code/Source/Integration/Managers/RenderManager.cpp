@@ -47,17 +47,20 @@ void	CRenderManager::Activate(CParticleMediumCollection *mediumCollection, const
 	m_FrameCollector.Initialize(init);
 	m_FrameCollector.InstallToMediumCollection(mediumCollection);
 
-	AZ::RHI::RHISystemInterface	*rhiSystem = AZ::RHI::RHISystemInterface::Get();
-
 	AZ::RHI::BufferPoolDescriptor dynamicPoolDescriptor;
 	dynamicPoolDescriptor.m_heapMemoryLevel = AZ::RHI::HeapMemoryLevel::Device;
 	dynamicPoolDescriptor.m_hostMemoryAccess = AZ::RHI::HostMemoryAccess::Write;
 	dynamicPoolDescriptor.m_bindFlags = AZ::RHI::BufferBindFlags::InputAssembly | AZ::RHI::BufferBindFlags::ShaderRead;
 	dynamicPoolDescriptor.m_largestPooledAllocationSizeInBytes = 0x100000;
 
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+	m_BufferPool = aznew AZ::RHI::BufferPool;
+	AZ::RHI::ResultCode resultCode = m_BufferPool->Init(AZ::RHI::MultiDevice::DefaultDevice, dynamicPoolDescriptor);
+#else
 	m_BufferPool = AZ::RHI::Factory::Get().CreateBufferPool();
+	AZ::RHI::ResultCode resultCode = m_BufferPool->Init(*AZ::RHI::RHISystemInterface::Get()->GetDevice(), dynamicPoolDescriptor);
+#endif
 	m_BufferPool->SetName(AZ::Name("PopcornFXParticlesBufferPool"));
-	AZ::RHI::ResultCode resultCode = m_BufferPool->Init(*rhiSystem->GetDevice(), dynamicPoolDescriptor);
 
 	if (resultCode != AZ::RHI::ResultCode::Success)
 	{
@@ -121,7 +124,11 @@ void	*CRenderManager::MapBuffer(AZ::RHI::Ptr<AZ::RHI::Buffer> buffer, AZ::u64 si
 	AZ::RHI::BufferMapResponse	mapResponse;
 	m_BufferPool->MapBuffer(mapRequest, mapResponse);
 
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+	return mapResponse.m_data.begin()->second;
+#else
 	return mapResponse.m_data;
+#endif
 }
 
 void	CRenderManager::UnmapBuffer(AZ::RHI::Ptr<AZ::RHI::Buffer> buffer)
@@ -175,7 +182,11 @@ void	CRenderManager::CollectFrame(CParticleMediumCollection *mediumCollection)
 AZ::RHI::Ptr<AZ::RHI::Buffer>	CRenderManager::AllocBuffer(AZ::u64 bufferSize, AZ::RHI::BufferBindFlags binding, AZ::u32 alignSizeOn)
 {
 	AZ::u64		alignedBufferSize = Mem::Align(bufferSize, alignSizeOn);
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+	AZ::RHI::Ptr<AZ::RHI::Buffer> outBuffer = aznew AZ::RHI::Buffer;
+#else
 	AZ::RHI::Ptr<AZ::RHI::Buffer> outBuffer = AZ::RHI::Factory::Get().CreateBuffer();
+#endif
 	AZ::RHI::BufferInitRequest bufferRequest;
 	bufferRequest.m_descriptor = AZ::RHI::BufferDescriptor{ binding, alignedBufferSize };
 	bufferRequest.m_descriptor.m_alignment = 0x10;
