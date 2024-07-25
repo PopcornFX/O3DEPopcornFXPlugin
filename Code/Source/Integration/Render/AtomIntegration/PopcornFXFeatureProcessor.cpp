@@ -83,7 +83,7 @@ void	CPopcornFXFeatureProcessor::Render(const RenderPacket &packet)
 				if ((view->GetUsageFlags() & AZ::RPI::View::UsageShadow) != 0 && !castShadows)
 					continue;
 
-				const AZ::RHI::DrawPacket	*drawPacket = BuildDrawPacket(dc, view->GetRHIShaderResourceGroup(), dc.m_GlobalSortOverride);
+				DrawPacketPtr	drawPacket = BuildDrawPacket(dc, view->GetRHIShaderResourceGroup(), dc.m_GlobalSortOverride);
 				m_drawPackets.emplace_back(drawPacket);
 
 				const CFloat3		&bboxCenter = dc.m_BoundingBox.Center();
@@ -93,7 +93,11 @@ void	CPopcornFXFeatureProcessor::Render(const RenderPacket &packet)
 				// Note: sliced draw calls have their bbox center the center of a slice, but the bbox can't be trusted.
 				const float			drawCallDepth = (cameraPosition - bboxCenter).Length();
 
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+				view->AddDrawPacket(drawPacket.get(), drawCallDepth);
+#else
 				view->AddDrawPacket(drawPacket, drawCallDepth);
+#endif
 			}
 		}
 	}
@@ -127,12 +131,16 @@ void	CPopcornFXFeatureProcessor::AppendLightParticles()
 	}
 }
 
-const AZ::RHI::DrawPacket	*CPopcornFXFeatureProcessor::BuildDrawPacket(	const SAtomRenderContext::SDrawCall &pkfxDrawCall,
-																			const AZ::RHI::ShaderResourceGroup *viewSrg,
-																			AZ::RHI::DrawItemSortKey sortKey)
+CPopcornFXFeatureProcessor::DrawPacketPtr	CPopcornFXFeatureProcessor::BuildDrawPacket(const SAtomRenderContext::SDrawCall &pkfxDrawCall,
+																						const AZ::RHI::ShaderResourceGroup *viewSrg,
+																						AZ::RHI::DrawItemSortKey sortKey)
 {
 	AZ_UNUSED(viewSrg);
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+	AZ::RHI::DrawPacketBuilder	dpBuilder(AZ::RHI::MultiDevice::DefaultDevice);
+#else
 	AZ::RHI::DrawPacketBuilder	dpBuilder;
+#endif
 
 	dpBuilder.Begin(null);
 	dpBuilder.SetDrawArguments(pkfxDrawCall.m_DrawIndexed);

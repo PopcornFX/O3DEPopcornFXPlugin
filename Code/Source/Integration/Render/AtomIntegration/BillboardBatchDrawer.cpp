@@ -354,88 +354,148 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBat
 
 	if (m_AtlasDefinition != null)
 	{
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = m_AtlasDefinition->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, m_AtlasSubRectsCount, sizeof(CFloat4)));
+#else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = m_AtlasDefinition->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, m_AtlasSubRectsCount, sizeof(CFloat4)));
+#endif
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::AtlasSubRects_ShaderRead, buff);
 		m_PipelineCaches[0].SetBillboardingSrgConstantValue(BillboardSrg::AtlasSubRectsCount_ShaderRead, m_AtlasSubRectsCount);
 	}
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_Indices] != null)
 	{
 		// Unsorted indices:
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_Indices]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(u32)));
+#else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_Indices]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(u32)));
+#endif
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::ParticleIndices_ShaderRead, buff);
 	}
 	else if (viewDependent.m_GenBuffers[CParticleBuffers::GenBuffer_Indices] != null)
 	{
 		// Sorted indices:
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewDependent.m_GenBuffers[CParticleBuffers::GenBuffer_Indices]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(u32)));
+#else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewDependent.m_GenBuffers[CParticleBuffers::GenBuffer_Indices]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(u32)));
+#endif
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::ParticleIndices_ShaderRead, buff);
 	}
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticlePosition] != null)
 	{
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticlePosition]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
+#else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticlePosition]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
+#endif
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::ParticlePositions_ShaderRead, buff);
 	}
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleRotation] != null)
 	{
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleRotation]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
+#else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleRotation]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
+#endif
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::ParticleRotations_ShaderRead, buff);
 	}
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleAxis0] != null)
 	{
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleAxis0]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount * 3, sizeof(float))); // Cannot use a float3 stride
+#else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleAxis0]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount * 3, sizeof(float))); // Cannot use a float3 stride
+#endif
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::ParticleAxis0_ShaderRead, buff);
 	}
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleAxis1] != null)
 	{
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleAxis1]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount * 3, sizeof(float))); // Cannot use a float3 stride
+#else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleAxis1]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount * 3, sizeof(float))); // Cannot use a float3 stride
+#endif
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::ParticleAxis1_ShaderRead, buff);
 	}
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleSize] != null)
 	{
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleSize]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
+#else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleSize]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
+#endif
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::ParticleSizes_ShaderRead, buff);
 	}
 	else if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleSize2] != null)
 	{
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleSize2]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat2)));
+#else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleSize2]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat2)));
+#endif
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::ParticleSizes2_ShaderRead, buff);
 	}
 	// Additional field buffers:
 	AZ::RHI::Ptr<AZ::RHI::Buffer>	textureID = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Atlas_TextureID());
 	if (textureID != null)
 	{
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = textureID->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
+#else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = textureID->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
+#endif
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::ParticleAtlasID_ShaderRead, buff);
 	}
 	AZ::RHI::Ptr<AZ::RHI::Buffer>	diffuseColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Diffuse_Color());
 	if (diffuseColor != null)
 	{
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = diffuseColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
+#else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = diffuseColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
+#endif
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::ParticleDiffuseColor_ShaderRead, buff);
 	}
 	AZ::RHI::Ptr<AZ::RHI::Buffer>	emissiveColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Emissive_EmissiveColor());
 	if (emissiveColor != null)
 	{
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount * 3, sizeof(float)));
+#else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount * 3, sizeof(float)));
+#endif
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::ParticleEmissiveColor_ShaderRead, buff);
 	}
 	AZ::RHI::Ptr<AZ::RHI::Buffer>	distortionColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Distortion_Color());
 	if (distortionColor != null)
 	{
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = distortionColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
+#else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = distortionColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
+#endif
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::ParticleDistortionColor_ShaderRead, buff);
 	}
 	AZ::RHI::Ptr<AZ::RHI::Buffer>	alphaRemapCursor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_AlphaRemap_Cursor());
 	if (alphaRemapCursor != null)
 	{
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = alphaRemapCursor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
+#else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = alphaRemapCursor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
+#endif
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::ParticleAlphaCursor_ShaderRead, buff);
 	}
 
 	// Draw requests:
 	if (viewIndependent.m_DrawRequests != null)
 	{
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_DrawRequests->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, drawRequestsCount, sizeof(Drawers::SBillboardDrawRequest)));
+#else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_DrawRequests->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, drawRequestsCount, sizeof(Drawers::SBillboardDrawRequest)));
+#endif
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::DrawRequest_ShaderRead, buff);
 	}
 	}

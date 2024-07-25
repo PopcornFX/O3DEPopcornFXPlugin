@@ -44,7 +44,8 @@ if(DEFINED O3DE_VERSION_MAJOR)
     endif()
 
     # Apply patches here IFN
-    if(O3DE_VERSION_MAJOR GREATER_EQUAL 4)
+    if(O3DE_VERSION_MAJOR GREATER_EQUAL 4 OR
+       (O3DE_VERSION_MAJOR EQUAL 2 AND O3DE_VERSION_MINOR EQUAL 3)) # TempFix: Version was downgraded for 24.09 (https://github.com/PopcornFX/O3DEPopcornFXPlugin/issues/76)
         # See: https://github.com/o3de/o3de/commit/c1019253252cf475131151149b8b865815d75fb0
         pk_patch_file("PK_O3DE_LIT_MULTI_VIEW 0" "PK_O3DE_LIT_MULTI_VIEW 1" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
     endif()

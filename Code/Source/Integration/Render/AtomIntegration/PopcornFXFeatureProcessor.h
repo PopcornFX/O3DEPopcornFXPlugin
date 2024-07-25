@@ -53,11 +53,20 @@ public:
 	CRenderManager		&GetRenderManager() { return m_RenderManager; }
 
 private:
-	const AZ::RHI::DrawPacket	*BuildDrawPacket(	const SAtomRenderContext::SDrawCall &pkfxDrawCall,
-													const AZ::RHI::ShaderResourceGroup *viewSrg,
-													AZ::RHI::DrawItemSortKey sortKey);
 
-	AZStd::vector<AZStd::unique_ptr<const AZ::RHI::DrawPacket>>	m_drawPackets;
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+	using DrawPacketPtr = AZ::RHI::ConstPtr<AZ::RHI::DrawPacket>;
+	using DrawPackets = AZStd::vector<AZ::RHI::ConstPtr<AZ::RHI::DrawPacket>>;
+#else
+	using DrawPacketPtr = const AZ::RHI::DrawPacket*;
+	using DrawPackets = AZStd::vector<AZStd::unique_ptr<const AZ::RHI::DrawPacket>>;
+#endif
+
+	DrawPacketPtr			BuildDrawPacket(const SAtomRenderContext::SDrawCall &pkfxDrawCall,
+											const AZ::RHI::ShaderResourceGroup *viewSrg,
+											AZ::RHI::DrawItemSortKey sortKey);
+
+	DrawPackets													m_drawPackets;
 	CRenderManager												m_RenderManager;
 	const SSceneViews											*m_SceneViews = null;
 	CParticleMediumCollection									*m_MediumCollection = null;
