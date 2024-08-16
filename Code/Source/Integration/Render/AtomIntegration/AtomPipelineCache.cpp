@@ -441,6 +441,8 @@ void	CAtomPipelineCache::_FillRibbonSrgBindIndices(const CAtomRendererCache *ren
 	AZ::Name	constantNames[RibbonSrg::__Max_ConstantsSemantic] =
 	{
 		AZ::Name("m_rendererFlags"),
+		AZ::Name("m_tubesPlanesOffset"),
+		AZ::Name("m_vpp"),
 		AZ::Name("m_particleCount"),
 	};
 

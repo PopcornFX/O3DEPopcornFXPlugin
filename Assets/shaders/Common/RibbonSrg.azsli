@@ -11,7 +11,9 @@ ShaderResourceGroup RendererSrg : SRG_PerDraw
 {
     // Draw call flags:
     uint                        m_rendererFlags;
-    uint 						m_particleCount;
+    uint                        m_tubesPlanesOffset;
+    uint                        m_vpp;
+    uint                        m_particleCount;
     // Material:
     StructuredBuffer<float4>    m_diffuseColors;
     StructuredBuffer<float>    	m_emissiveColors;
@@ -21,9 +23,32 @@ ShaderResourceGroup RendererSrg : SRG_PerDraw
 
 uint 	GetParticleIdx(uint vertexIdx)
 {
-	uint 	particleIdx = vertexIdx / 4;
-	if (vertexIdx % 4 > 1)
-		particleIdx = min(particleIdx + 1, RendererSrg::m_particleCount - 1);
+	const int	vpp = RendererSrg::m_vpp; // Note: if tube/multiplane with differing vertex count end up being batched, this won't work.
+	const int	vppHalf = vpp / 2 - 1;
+
+
+	uint 	particleIdx = 0;
+	if (vertexIdx < RendererSrg::m_tubesPlanesOffset * 4) // No tube/multiplane batching yet with quad bb modes, but this might come.
+	{
+		// First two vertices within a quad: grab the current particle, last two: grab the next one
+		// Clamps to the total particle count to avoid overflowing the GPU sim buffers
+		//particleIdx = min(vertexIdx / 4 + saturate(vertexIdx % 4 - 1), RendererSrg::m_particleCount - 1);
+		particleIdx = vertexIdx / 4;
+		if (vertexIdx % 4 > 1)
+			particleIdx = min(particleIdx + 1, RendererSrg::m_particleCount - 1);
+	}
+	else
+	{
+		// First n (n being segmentCount/planeCount + 1) vertices: grab the current particle, last n: grab the next one
+		// Clamps to the total particle count to avoid overflowing the GPU sim buffers
+		//particleIdx = min(RendererSrg::m_tubesPlanesOffset + (vertexIdx - (RendererSrg::m_tubesPlanesOffset * 4)) / vpp +
+		//				saturate(vertexIdx % vpp - vppHalf),
+		//				RendererSrg::m_particleCount - 1);
+		particleIdx = RendererSrg::m_tubesPlanesOffset + (vertexIdx - (RendererSrg::m_tubesPlanesOffset * 4)) / vpp;
+		if (vertexIdx % vpp > vppHalf)
+			particleIdx = min(particleIdx + 1, RendererSrg::m_particleCount - 1);
+	}
+
 	return particleIdx;
 }
 
