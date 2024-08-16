@@ -52,9 +52,9 @@ void	CRenderManager::Activate(CParticleMediumCollection *mediumCollection, const
 	dynamicPoolDescriptor.m_hostMemoryAccess = AZ::RHI::HostMemoryAccess::Write;
 	dynamicPoolDescriptor.m_bindFlags = AZ::RHI::BufferBindFlags::InputAssembly | AZ::RHI::BufferBindFlags::ShaderRead;
 	dynamicPoolDescriptor.m_largestPooledAllocationSizeInBytes = 0x100000;
-	dynamicPoolDescriptor.m_deviceMask = AZ::RHI::MultiDevice::DefaultDevice;
 
 #if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+	dynamicPoolDescriptor.m_deviceMask = AZ::RHI::MultiDevice::DefaultDevice;
 	m_BufferPool = aznew AZ::RHI::BufferPool;
 	AZ::RHI::ResultCode resultCode = m_BufferPool->Init(dynamicPoolDescriptor);
 #else
