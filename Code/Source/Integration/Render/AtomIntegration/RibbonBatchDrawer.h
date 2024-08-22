@@ -23,6 +23,7 @@ public:
 	CRibbonBatchDrawer();
 	virtual ~CRibbonBatchDrawer();
 
+	virtual bool	Setup(const CRendererDataBase *renderer, const CParticleRenderMedium *owner, const CFrameCollector *fc, const CStringId &storageClass) override;
 	virtual bool	AreRenderersCompatible(const CRendererDataBase *rendererA, const CRendererDataBase *rendererB) const override;
 	virtual bool	AllocBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass) override;
 	virtual bool	MapBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass) override;
@@ -36,6 +37,7 @@ private:
 	// Atlas definition buffer:
 	AZ::RHI::Ptr<AZ::RHI::Buffer>				m_AtlasDefinition = null;
 	u32											m_AtlasSubRectsCount = 0;
+	u8											m_VPP = 0;
 };
 
 //----------------------------------------------------------------------------

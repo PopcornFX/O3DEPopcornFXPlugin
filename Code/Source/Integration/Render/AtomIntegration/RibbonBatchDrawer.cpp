@@ -27,6 +27,22 @@ CRibbonBatchDrawer::~CRibbonBatchDrawer()
 
 //----------------------------------------------------------------------------
 
+bool	CRibbonBatchDrawer::Setup(const CRendererDataBase *renderer, const CParticleRenderMedium *owner, const CFrameCollector *fc, const CStringId &storageClass)
+{
+	if (!Super::Setup(renderer, owner, fc, storageClass))
+		return false;
+
+	const ERibbonMode	mode = renderer->m_Declaration.GetPropertyValue_Enum<ERibbonMode>(BasicRendererProperties::SID_BillboardingMode(), RibbonMode_ViewposAligned);
+	if (mode == RibbonMode_SideAxisAlignedTube)
+		m_VPP = (u8)(renderer->m_Declaration.GetPropertyValue_I1(BasicRendererProperties::SID_GeometryRibbon_SegmentCount(), 8) + 1) * 2;
+	else if (mode == RibbonMode_SideAxisAlignedMultiPlane)
+		m_VPP = (u8)renderer->m_Declaration.GetPropertyValue_I1(BasicRendererProperties::SID_GeometryRibbon_PlaneCount(), 2) * 4;
+
+	return true;
+}
+
+//----------------------------------------------------------------------------
+
 bool	CRibbonBatchDrawer::AreRenderersCompatible(const CRendererDataBase *rendererA, const CRendererDataBase *rendererB) const
 {
 	if (!Super::AreRenderersCompatible(rendererA, rendererB))
@@ -334,6 +350,8 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchD
 	}
 
 	m_PipelineCaches[0].SetRibbonSrgConstantValue(RibbonSrg::RendererFlags_ShaderRead, rendererCache->m_BasicDescription.m_RendererFlags);
+	m_PipelineCaches[0].SetRibbonSrgConstantValue(RibbonSrg::TubesPlanesOffset_ShaderRead, m_VPP > 0 ? 0 : particleCount);  // For now, no batching of tube/multiplane ribbons with quad bb modes
+	m_PipelineCaches[0].SetRibbonSrgConstantValue(RibbonSrg::VPP_ShaderRead, m_VPP);
 	m_PipelineCaches[0].SetRibbonSrgConstantValue(RibbonSrg::ParticleCount_ShaderRead, particleCount);
 
 	// Additional field buffers:

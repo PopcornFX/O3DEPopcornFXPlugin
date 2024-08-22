@@ -50,6 +50,8 @@ namespace RibbonSrg
 	enum	EConstantsSemantic
 	{
 		RendererFlags_ShaderRead,
+		TubesPlanesOffset_ShaderRead,
+		VPP_ShaderRead,
 		ParticleCount_ShaderRead,
 
 		__Max_ConstantsSemantic,
