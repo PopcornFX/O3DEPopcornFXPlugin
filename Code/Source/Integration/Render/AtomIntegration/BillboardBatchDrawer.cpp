@@ -41,9 +41,15 @@ bool	CBillboardBatchDrawer::AreRenderersCompatible(const CRendererDataBase *rend
 
 //----------------------------------------------------------------------------
 
-bool	CBillboardBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass)
+bool	CBillboardBatchDrawer::AllocBuffers(SRenderContext &ctx)
 {
-	PK_NAMEDSCOPEDPROFILE("CAtomBillboardingBatchPolicy::AllocBuffers");
+	PK_NAMEDSCOPEDPROFILE("CBillboardBatchDrawer::AllocBuffers");
+
+	if (!PK_VERIFY(m_DrawPass != null))
+		return false;
+
+	const SRendererBatchDrawPass	&drawPass = *m_DrawPass;
+
 	PK_ASSERT(!drawPass.m_DrawRequests.Empty());
 	PK_ASSERT(drawPass.m_DrawRequests.Count() == drawPass.m_RendererCaches.Count());
 	PK_ASSERT(drawPass.m_TotalParticleCount > 0);
@@ -208,9 +214,14 @@ bool	CBillboardBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBat
 
 //----------------------------------------------------------------------------
 
-bool	CBillboardBatchDrawer::MapBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass)
+bool	CBillboardBatchDrawer::MapBuffers(SRenderContext &ctx)
 {
 	AZ_UNUSED(ctx);
+
+	if (!PK_VERIFY(m_DrawPass != null))
+		return false;
+
+	const SRendererBatchDrawPass				&drawPass = *m_DrawPass;
 	const u32									particleCount = drawPass.m_TotalParticleCount;
 	const u32									drawRequestsCount = drawPass.m_DrawRequests.Count();
 	CRenderManager								*renderManager = m_RenderContext->m_RenderManager;
@@ -309,10 +320,9 @@ bool	CBillboardBatchDrawer::MapBuffers(SRenderContext &ctx, const SRendererBatch
 
 //----------------------------------------------------------------------------
 
-bool	CBillboardBatchDrawer::UnmapBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass)
+bool	CBillboardBatchDrawer::UnmapBuffers(SRenderContext &ctx)
 {
 	AZ_UNUSED(ctx);
-	AZ_UNUSED(drawPass);
 	CRenderManager	*renderManager = m_RenderContext->m_RenderManager;
 	GetCurBuffers().UnmapAll(renderManager);
 	return true;
@@ -320,11 +330,15 @@ bool	CBillboardBatchDrawer::UnmapBuffers(SRenderContext &ctx, const SRendererBat
 
 //----------------------------------------------------------------------------
 
-bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass, const SDrawCallDesc &toEmit)
+bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &toEmit)
 {
 	AZ_UNUSED(ctx);
-	SAtomRenderContext::SDrawCall		dc;
 
+	if (!PK_VERIFY(m_DrawPass != null))
+		return false;
+
+	SAtomRenderContext::SDrawCall				dc;
+	const SRendererBatchDrawPass				&drawPass = *m_DrawPass;
 	const u32									particleCount = drawPass.m_TotalParticleCount;
 	const u32									drawRequestsCount = drawPass.m_DrawRequests.Count();
 	const CParticleBuffers::SViewIndependent	&viewIndependent = GetCurBuffers().m_ViewIndependent;

@@ -137,7 +137,7 @@ struct	SPipelineStateCacheKey
 	EPopcornFXShader			m_UsedShader;
 
 	SPipelineStateCacheKey() : m_PipelineStateRendererFlags(0), m_BlendMode(BlendMode::BlendMode_Count), m_UsedShader(__Shader_Count) { }
-	AZ::RPI::ShaderVariantId	GetShaderVariantId(const AZ::RPI::Shader &shader, bool precompiledOptions, bool depthOnly) const;
+	AZ::RPI::ShaderOptionGroup	GetShaderOptions(const AZ::RPI::Shader &shader, bool precompiledOptions, bool depthOnly) const;
 	bool						operator == (const SPipelineStateCacheKey &oth) const;
 };
 

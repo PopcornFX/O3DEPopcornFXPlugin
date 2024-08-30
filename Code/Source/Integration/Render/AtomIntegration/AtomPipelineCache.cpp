@@ -65,7 +65,7 @@ bool	CAtomPipelineCache::InitFromRendererCacheIFN(const CAtomRendererCache *rend
 	{
 		if (m_RendererSrg->HasShaderVariantKeyFallbackEntry())
 		{
-			AZ::RPI::ShaderVariantId	variantId = rendererCache->m_BasicDescription.m_PipelineStateKey.GetShaderVariantId(*pipelineStateCache->m_MaterialShader, false, false);
+			AZ::RPI::ShaderVariantId	variantId = rendererCache->m_BasicDescription.m_PipelineStateKey.GetShaderOptions(*pipelineStateCache->m_MaterialShader, false, false).GetShaderVariantId();
 			m_RendererSrg->SetShaderVariantKeyFallbackValue(variantId.m_key);
 		}
 	}

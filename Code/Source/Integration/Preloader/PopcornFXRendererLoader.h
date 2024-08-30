@@ -101,6 +101,7 @@ private:
 																			const AZ::RPI::ShaderVariantId &shaderVariantId);
 	AZ::RHI::ConstPtr<AZ::RHI::PipelineState>	_CreatePipelineStateCache(	AZ::RPI::Shader &shader,
 																			AZ::RPI::ShaderVariant &shaderVariant,
+																			AZ::RPI::ShaderOptionGroup &shaderOptions,
 																			EAssetType assetType,
 																			const SPipelineStateCacheKey &key);
 	bool										_AddTextureToLoad(	const char *texturePath,

@@ -281,14 +281,15 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 
 				shaderSlot = shader;
 
+				AZ::RPI::ShaderOptionGroup				shaderOptions = shader->GetDefaultShaderOptions();
 				AZ::RPI::ShaderVariantStableId			variantStableId = AZ::RPI::RootShaderVariantStableId;
 
 				const bool	isDepthShader = cache.m_Type == AssetType_OpaqueDepthShader || cache.m_Type == AssetType_TransparentDepthMinShader || cache.m_Type == AssetType_TransparentDepthMaxShader;
 
 				if (cache.m_Type == AssetType_MaterialShader || (isDepthShader && IsBillboardShader(cache.m_PipelineStateKey.m_UsedShader)))
 				{
-					AZ::RPI::ShaderVariantId			variantId = cache.m_PipelineStateKey.GetShaderVariantId(*shader, true, isDepthShader);
-					AZ::RPI::ShaderVariantSearchResult	searchResult = shader->FindVariantStableId(variantId);
+					shaderOptions = cache.m_PipelineStateKey.GetShaderOptions(*shader, true, isDepthShader);
+					AZ::RPI::ShaderVariantSearchResult	searchResult = shader->FindVariantStableId(shaderOptions.GetShaderVariantId());
 					variantStableId = searchResult.GetStableId();
 				}
 
@@ -309,7 +310,7 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 				m_LoadedVariants.Insert(variantID, shaderVariant.GetShaderVariantAsset());
 
 				AZ::RHI::ConstPtr<AZ::RHI::PipelineState>	&pipelineStateSlot = _GetPipelineStateSlot(cache.m_Type, *pipelineStateCache);
-				pipelineStateSlot = _CreatePipelineStateCache(*shader, shaderVariant, cache.m_Type, cache.m_PipelineStateKey);
+				pipelineStateSlot = _CreatePipelineStateCache(*shader, shaderVariant, shaderOptions, cache.m_Type, cache.m_PipelineStateKey);
 
 				if (!PK_VERIFY(m_ModifiedCaches.PushBack(*pipelineStateCache).Valid()))
 					return;
@@ -508,14 +509,15 @@ void	PopcornFXRendererLoader::_OnShaderVariantsReloaded(const AZ::Data::AssetId 
 
 		if (pipelineStateCache != null && *pipelineStateCache != null)
 		{
+			AZ::RPI::ShaderOptionGroup				shaderOptions = shader->GetDefaultShaderOptions();
 			AZ::RPI::ShaderVariantStableId			variantStableId = AZ::RPI::RootShaderVariantStableId;
 
 			const bool	isDepthShader = cache.m_Type == AssetType_OpaqueDepthShader || cache.m_Type == AssetType_TransparentDepthMinShader || cache.m_Type == AssetType_TransparentDepthMaxShader;
 
 			if (cache.m_Type == AssetType_MaterialShader || (isDepthShader && IsBillboardShader(cache.m_PipelineStateKey.m_UsedShader)))
 			{
-				AZ::RPI::ShaderVariantId			variantId = cache.m_PipelineStateKey.GetShaderVariantId(*shader, true, isDepthShader);
-				AZ::RPI::ShaderVariantSearchResult	searchResult = shader->FindVariantStableId(variantId);
+				shaderOptions = cache.m_PipelineStateKey.GetShaderOptions(*shader, true, isDepthShader);
+				AZ::RPI::ShaderVariantSearchResult	searchResult = shader->FindVariantStableId(shaderOptions.GetShaderVariantId());
 				variantStableId = searchResult.GetStableId();
 			}
 
@@ -539,7 +541,7 @@ void	PopcornFXRendererLoader::_OnShaderVariantsReloaded(const AZ::Data::AssetId 
 			PK_SCOPEDLOCK_WRITE((*pipelineStateCache)->m_Lock);
 
 			AZ::RHI::ConstPtr<AZ::RHI::PipelineState>	&pipelineStateSlot = _GetPipelineStateSlot(cache.m_Type, *pipelineStateCache);
-			pipelineStateSlot = _CreatePipelineStateCache(*shader, shaderVariant, cache.m_Type, cache.m_PipelineStateKey);
+			pipelineStateSlot = _CreatePipelineStateCache(*shader, shaderVariant, shaderOptions, cache.m_Type, cache.m_PipelineStateKey);
 			if (!PK_VERIFY(m_ModifiedCaches.PushBack(*pipelineStateCache).Valid()))
 				return;
 			_RemovePendingCacheDependencyIFN(*pipelineStateCache, shaderId);
@@ -558,11 +560,17 @@ void	PopcornFXRendererLoader::_OnShaderVariantsReloaded(const AZ::Data::AssetId 
 
 AZ::RHI::ConstPtr<AZ::RHI::PipelineState>	PopcornFXRendererLoader::_CreatePipelineStateCache(	AZ::RPI::Shader &shader,
 																								AZ::RPI::ShaderVariant &shaderVariant,
+																								AZ::RPI::ShaderOptionGroup &shaderOptions,
 																								EAssetType assetType,
 																								const SPipelineStateCacheKey &key)
 {
 	AZ::RHI::PipelineStateDescriptorForDraw	pipelineStateDesc = AZ::RHI::PipelineStateDescriptorForDraw();
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+	shaderVariant.ConfigurePipelineState(pipelineStateDesc, shaderOptions);
+#else
+	AZ_UNUSED(shaderOptions);
 	shaderVariant.ConfigurePipelineState(pipelineStateDesc);
+#endif
 
 	EPopcornFXShader	usedShader = key.m_UsedShader;
 

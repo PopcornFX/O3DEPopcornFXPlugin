@@ -24,10 +24,10 @@ public:
 	virtual ~CBillboardBatchDrawer();
 
 	virtual bool	AreRenderersCompatible(const CRendererDataBase *rendererA, const CRendererDataBase *rendererB) const override;
-	virtual bool	AllocBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass) override;
-	virtual bool	MapBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass) override;
-	virtual bool	UnmapBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass) override;
-	virtual bool	EmitDrawCall(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass, const SDrawCallDesc &toEmit) override;
+	virtual bool	AllocBuffers(SRenderContext &ctx) override;
+	virtual bool	MapBuffers(SRenderContext &ctx) override;
+	virtual bool	UnmapBuffers(SRenderContext &ctx) override;
+	virtual bool	EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &toEmit) override;
 
 private:
 	// Additional fields mapped buffers:

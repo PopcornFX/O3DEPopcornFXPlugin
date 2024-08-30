@@ -346,23 +346,23 @@ namespace PopcornFX {
 	AZ::u32	PopcornFXEmitter::GetAttributesCount() const
 	{
 		if (m_Asset != null && m_Asset->m_Effect->AttributeFlatList() != null)
-			return m_Asset->m_Effect->AttributeFlatList()->AttributeList().Count();
+			return m_Asset->m_Effect->AttributeFlatList()->UniqueAttributeList().Count();
 		else
 			return 0U;
 	}
 
 	AZStd::string	PopcornFXEmitter::GetAttributeName(CGuid id) const
 	{
-		if (m_Asset != null && m_Asset->m_Effect->AttributeFlatList() != null && id < m_Asset->m_Effect->AttributeFlatList()->AttributeList().Count())
-			return m_Asset->m_Effect->AttributeFlatList()->AttributeList()[id]->ExportedName().Data();
+		if (m_Asset != null && m_Asset->m_Effect->AttributeFlatList() != null && id < m_Asset->m_Effect->AttributeFlatList()->UniqueAttributeList().Count())
+			return m_Asset->m_Effect->AttributeFlatList()->UniqueAttributeList()[id]->ExportedName().Data();
 		return "";
 	}
 
 	AZ::s32	PopcornFXEmitter::GetAttributeType(CGuid id) const
 	{
-		if (m_Asset->m_Effect != null && m_Asset->m_Effect->AttributeFlatList() != null && id < m_Asset->m_Effect->AttributeFlatList()->AttributeList().Count())
+		if (m_Asset->m_Effect != null && m_Asset->m_Effect->AttributeFlatList() != null && id < m_Asset->m_Effect->AttributeFlatList()->UniqueAttributeList().Count())
 		{
-			EBaseTypeID		typeId = static_cast<EBaseTypeID>(m_Asset->m_Effect->AttributeFlatList()->AttributeList()[id]->ExportedType());
+			EBaseTypeID		typeId = static_cast<EBaseTypeID>(m_Asset->m_Effect->AttributeFlatList()->UniqueAttributeList()[id]->ExportedType());
 			return static_cast<int32>(BaseTypeToO3DEPopcornFXType(typeId));
 		}
 		return static_cast<int32>(Type_Unknown);

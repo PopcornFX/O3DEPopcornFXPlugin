@@ -50,7 +50,6 @@ public:
 		GenBuffer_Tangent,
 		GenBuffer_UV0,
 		GenBuffer_UV1,
-		GenBuffer_AtlasId,
 		GenBuffer_UVRemap,
 		GenBuffer_UVFactors,
 

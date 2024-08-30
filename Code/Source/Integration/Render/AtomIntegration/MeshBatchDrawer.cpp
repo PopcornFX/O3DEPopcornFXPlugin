@@ -41,9 +41,15 @@ bool	CMeshBatchDrawer::AreRenderersCompatible(const CRendererDataBase *rendererA
 
 //----------------------------------------------------------------------------
 
-bool	CMeshBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass)
+bool	CMeshBatchDrawer::AllocBuffers(SRenderContext &ctx)
 {
-	PK_SCOPEDPROFILE();
+	PK_NAMEDSCOPEDPROFILE("CMeshBatchDrawer::AllocBuffers");
+
+	if (!PK_VERIFY(m_DrawPass != null))
+		return false;
+
+	const SRendererBatchDrawPass	&drawPass = *m_DrawPass;
+
 	PK_ASSERT(!drawPass.m_DrawRequests.Empty());
 	PK_ASSERT(drawPass.m_DrawRequests.Count() == drawPass.m_RendererCaches.Count());
 	PK_ASSERT(drawPass.m_TotalParticleCount > 0);
@@ -115,9 +121,14 @@ bool	CMeshBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBatchDra
 
 //----------------------------------------------------------------------------
 
-bool	CMeshBatchDrawer::MapBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass)
+bool	CMeshBatchDrawer::MapBuffers(SRenderContext &ctx)
 {
 	AZ_UNUSED(ctx);
+
+	if (!PK_VERIFY(m_DrawPass != null))
+		return false;
+
+	const SRendererBatchDrawPass				&drawPass = *m_DrawPass;
 	const u32									particleCount = drawPass.m_TotalParticleCount;
 	CRenderManager								*renderManager = m_RenderContext->m_RenderManager;
 	const CParticleBuffers::SViewIndependent	&viewIndependent = GetCurBuffers().m_ViewIndependent;
@@ -163,10 +174,9 @@ bool	CMeshBatchDrawer::MapBuffers(SRenderContext &ctx, const SRendererBatchDrawP
 
 //----------------------------------------------------------------------------
 
-bool	CMeshBatchDrawer::UnmapBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass)
+bool	CMeshBatchDrawer::UnmapBuffers(SRenderContext &ctx)
 {
 	AZ_UNUSED(ctx);
-	AZ_UNUSED(drawPass);
 	CRenderManager	*renderManager = m_RenderContext->m_RenderManager;
 	GetCurBuffers().UnmapAll(renderManager);
 	return true;
@@ -174,13 +184,17 @@ bool	CMeshBatchDrawer::UnmapBuffers(SRenderContext &ctx, const SRendererBatchDra
 
 //----------------------------------------------------------------------------
 
-bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass, const SDrawCallDesc &toEmit)
+bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &toEmit)
 {
 	AZ_UNUSED(ctx);
+
+	if (!PK_VERIFY(m_DrawPass != null))
+		return false;
+
 	SAtomRenderContext::SDrawCall		dc;
 
-	const u32									particleCount = drawPass.m_TotalParticleCount;
-	const SRendererBatchDrawPass_Mesh_CPUBB		*meshDrawPass = static_cast<const SRendererBatchDrawPass_Mesh_CPUBB*>(&drawPass);
+	PK_ASSERT(m_DrawPass->m_TotalParticleCount == m_BB_Mesh.TotalParticleCount());
+	const u32									particleCount = m_BB_Mesh.TotalParticleCount();
 	const CParticleBuffers::SViewIndependent	&viewIndependent = GetCurBuffers().m_ViewIndependent;
 	const CAtomRendererCache					*rendererCache = static_cast<const CAtomRendererCache*>(toEmit.m_RendererCaches.First().Get());
 
@@ -189,7 +203,7 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchDra
 
 	dc.m_RendererType = Renderer_Mesh;
 	dc.m_CastShadows = rendererCache->m_BasicDescription.m_CastShadows;
-	dc.m_GlobalSortOverride = drawPass.m_DrawRequests.Empty() ? 0 : drawPass.DrawRequests<Drawers::SBase_DrawRequest>()[0]->BaseBillboardingRequest().m_DrawOrder;
+	dc.m_GlobalSortOverride = m_DrawPass->m_DrawRequests.Empty() ? 0 : m_DrawPass->DrawRequests<Drawers::SBase_DrawRequest>()[0]->BaseBillboardingRequest().m_DrawOrder;
 	if (!PK_VERIFY(m_GeometryCache != null && m_PipelineCaches.Count() == m_GeometryCache->m_PerGeometryViews.Count()))
 		return false;
 	for (const auto &pipelineCache : m_PipelineCaches)
@@ -203,7 +217,7 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchDra
 
 	for (u32 i = 0; i < m_GeometryCache->m_PerGeometryViews.Count(); i++)
 	{
-		const u32 meshParticleCount = meshAtlas ? meshDrawPass->m_PerMeshParticleCount[i] : particleCount;
+		const u32 meshParticleCount = meshAtlas ? m_BB_Mesh.PerMeshParticleCount()[i] : particleCount;
 		if (meshParticleCount <= 0)
 			continue;
 		const CGeometryCache::GPUBufferViews &views = m_GeometryCache->m_PerGeometryViews[i];
