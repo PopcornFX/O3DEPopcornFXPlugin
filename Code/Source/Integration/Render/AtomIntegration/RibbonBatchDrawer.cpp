@@ -57,9 +57,14 @@ bool	CRibbonBatchDrawer::AreRenderersCompatible(const CRendererDataBase *rendere
 
 //----------------------------------------------------------------------------
 
-bool	CRibbonBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass)
+bool	CRibbonBatchDrawer::AllocBuffers(SRenderContext &ctx)
 {
-	PK_SCOPEDPROFILE();
+	PK_NAMEDSCOPEDPROFILE("CRibbonBatchDrawer::AllocBuffers");
+
+	if (!PK_VERIFY(m_DrawPass != null))
+		return false;
+
+	const SRendererBatchDrawPass	&drawPass = *m_DrawPass;
 
 	if (m_RenderContext == null)
 	{
@@ -118,31 +123,35 @@ bool	CRibbonBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBatchD
 		}
 	}
 
-	const SRendererBatchDrawPass_Ribbon_CPUBB	*ribbonDrawPass = static_cast<const SRendererBatchDrawPass_Ribbon_CPUBB*>(&drawPass);
+	PK_ASSERT(m_DrawPass->m_TotalParticleCount == m_BB_Ribbon.TotalParticleCount());
 
 	if (!PK_VERIFY(_AllocViewIndependentBuffers(drawPass,
-												ribbonDrawPass->m_TotalParticleCount,
-												ribbonDrawPass->m_TotalIndexCount,
-												ribbonDrawPass->m_TotalVertexCount,
+												m_BB_Ribbon.TotalParticleCount(),
+												m_BB_Ribbon.TotalIndexCount(),
+												m_BB_Ribbon.TotalVertexCount(),
 												false)))
 		return false;
 	if (!PK_VERIFY(_AllocViewDependentBuffers(	drawPass,
-												ribbonDrawPass->m_TotalParticleCount,
-												ribbonDrawPass->m_TotalIndexCount,
-												ribbonDrawPass->m_TotalVertexCount)))
+												m_BB_Ribbon.TotalParticleCount(),
+												m_BB_Ribbon.TotalIndexCount(),
+												m_BB_Ribbon.TotalVertexCount())))
 		return false;
 	return true;
 }
 
 //----------------------------------------------------------------------------
 
-bool	CRibbonBatchDrawer::MapBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass)
+bool	CRibbonBatchDrawer::MapBuffers(SRenderContext &ctx)
 {
 	AZ_UNUSED(ctx);
-	const SRendererBatchDrawPass_Ribbon_CPUBB	*ribbonDrawPass = static_cast<const SRendererBatchDrawPass_Ribbon_CPUBB*>(&drawPass);
-	const u32									particleCount = drawPass.m_TotalParticleCount;
-	const u32									vertexCount = ribbonDrawPass->m_TotalVertexCount;
-	const u32									indexCount = ribbonDrawPass->m_TotalIndexCount;
+
+	if (!PK_VERIFY(m_DrawPass != null))
+		return false;
+
+	PK_ASSERT(m_DrawPass->m_TotalParticleCount == m_BB_Ribbon.TotalParticleCount());
+	const u32									particleCount = m_BB_Ribbon.TotalParticleCount();
+	const u32									vertexCount = m_BB_Ribbon.TotalVertexCount();
+	const u32									indexCount = m_BB_Ribbon.TotalIndexCount();
 	CRenderManager								*renderManager = m_RenderContext->m_RenderManager;
 	const CParticleBuffers::SViewIndependent	&viewIndependent = GetCurBuffers().m_ViewIndependent;
 
@@ -177,11 +186,6 @@ bool	CRibbonBatchDrawer::MapBuffers(SRenderContext &ctx, const SRendererBatchDra
 		CFloat2		*data = static_cast<CFloat2*>(renderManager->MapBuffer(viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_UV1], vertexCount * sizeof(CFloat2)));
 		m_BBJobs_Ribbon.m_Exec_Texcoords.m_Texcoords2 = TMemoryView<CFloat2>(data, vertexCount);
 	}
-	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_AtlasId] != null)
-	{
-		float		*data = static_cast<float*>(renderManager->MapBuffer(viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_AtlasId], vertexCount * sizeof(float)));
-		m_BBJobs_Ribbon.m_Exec_Texcoords.m_AtlasIds = TMemoryView<float>(data, vertexCount);
-	}
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_UVRemap] != null)
 	{
 		CFloat4		*data = static_cast<CFloat4*>(renderManager->MapBuffer(viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_UVRemap], vertexCount * sizeof(CFloat4)));
@@ -197,14 +201,14 @@ bool	CRibbonBatchDrawer::MapBuffers(SRenderContext &ctx, const SRendererBatchDra
 	m_BBJobs_Ribbon.m_Exec_CopyField.m_PerVertex = false;
 
 	// Additional fields:
-	const u32	additionalShaderInputsCount = drawPass.m_ToGenerate.m_AdditionalGeneratedInputs.Count();
+	const u32	additionalShaderInputsCount = m_DrawPass->m_ToGenerate.m_AdditionalGeneratedInputs.Count();
 
 	m_MappedAdditionalShaderInputs.Clear();
 	if (!PK_VERIFY(m_MappedAdditionalShaderInputs.Reserve(m_HandledAdditionalFields.Count())))
 		return false;
 	for (u32 i = 0; i < additionalShaderInputsCount; ++i)
 	{
-		const SRendererFeatureFieldDefinition	&curAdditionalShaderInput = drawPass.m_ToGenerate.m_AdditionalGeneratedInputs[i];
+		const SRendererFeatureFieldDefinition	&curAdditionalShaderInput = m_DrawPass->m_ToGenerate.m_AdditionalGeneratedInputs[i];
 		SHandledAdditionalFields	*addFieldDesc = m_HandledAdditionalFields.Find(SHandledAdditionalFields(curAdditionalShaderInput.m_Name, curAdditionalShaderInput.m_Type));
 		if (addFieldDesc != null)
 		{
@@ -228,7 +232,7 @@ bool	CRibbonBatchDrawer::MapBuffers(SRenderContext &ctx, const SRendererBatchDra
 	// View dependent inputs:
 	// -----------------------------------------
 	const CParticleBuffers::SViewDependent	&viewDependent = GetCurBuffers().m_ViewDependent;
-	const u32								viewCount = PKMin(drawPass.m_ToGenerate.m_PerViewGeneratedInputs.Count(), 1);
+	const u32								viewCount = PKMin(m_DrawPass->m_ToGenerate.m_PerViewGeneratedInputs.Count(), 1);
 
 	for (u32 i = 0; i < viewCount; ++i)
 	{
@@ -267,10 +271,10 @@ bool	CRibbonBatchDrawer::MapBuffers(SRenderContext &ctx, const SRendererBatchDra
 
 //----------------------------------------------------------------------------
 
-bool	CRibbonBatchDrawer::UnmapBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass)
+bool	CRibbonBatchDrawer::UnmapBuffers(SRenderContext &ctx)
 {
 	AZ_UNUSED(ctx);
-	AZ_UNUSED(drawPass);
+
 	CRenderManager	*renderManager = m_RenderContext->m_RenderManager;
 	GetCurBuffers().UnmapAll(renderManager);
 	return true;
@@ -278,15 +282,19 @@ bool	CRibbonBatchDrawer::UnmapBuffers(SRenderContext &ctx, const SRendererBatchD
 
 //----------------------------------------------------------------------------
 
-bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass, const SDrawCallDesc &toEmit)
+bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &toEmit)
 {
 	AZ_UNUSED(ctx);
-	SAtomRenderContext::SDrawCall		dc;
 
-	const SRendererBatchDrawPass_Ribbon_CPUBB	*ribbonDrawPass = static_cast<const SRendererBatchDrawPass_Ribbon_CPUBB*>(&drawPass);
-	const u32									particleCount = drawPass.m_TotalParticleCount;
-	const u32									vertexCount = ribbonDrawPass->m_TotalVertexCount;
-	const u32									indexCount = ribbonDrawPass->m_TotalIndexCount;
+	if (!PK_VERIFY(m_DrawPass != null))
+		return false;
+
+	SAtomRenderContext::SDrawCall				dc;
+
+	PK_ASSERT(m_DrawPass->m_TotalParticleCount == m_BB_Ribbon.TotalParticleCount());
+	const u32									particleCount = m_BB_Ribbon.TotalParticleCount();
+	const u32									vertexCount = m_BB_Ribbon.TotalVertexCount();
+	const u32									indexCount = m_BB_Ribbon.TotalIndexCount();
 	const CParticleBuffers::SViewIndependent	&viewIndependent = GetCurBuffers().m_ViewIndependent;
 	const CParticleBuffers::SViewDependent		&viewDependent = GetCurBuffers().m_ViewDependent;
 	const CAtomRendererCache					*rendererCache = static_cast<const CAtomRendererCache*>(toEmit.m_RendererCaches.First().Get());
@@ -296,7 +304,7 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchD
 
 	dc.m_RendererType = Renderer_Ribbon;
 	dc.m_CastShadows = rendererCache->m_BasicDescription.m_CastShadows;
-	dc.m_GlobalSortOverride = drawPass.m_DrawRequests.Empty() ? 0 : drawPass.DrawRequests<Drawers::SBase_DrawRequest>()[0]->BaseBillboardingRequest().m_DrawOrder;
+	dc.m_GlobalSortOverride = m_DrawPass->m_DrawRequests.Empty() ? 0 : m_DrawPass->DrawRequests<Drawers::SBase_DrawRequest>()[0]->BaseBillboardingRequest().m_DrawOrder;
 	if (!PK_VERIFY(m_PipelineCaches.Count() == 1 && m_PipelineCaches[0].IsInitialized()))
 		return false;
 
@@ -325,8 +333,6 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchD
 	// Linear atlas blending:
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_UV1] != null)
 		m_PipelineCaches[0].SetVertexInputBuffer(TexCoord1_Vertex, AZ::RHI::StreamBufferView(*viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_UV1], 0, vertexCount * sizeof(CFloat2), sizeof(CFloat2)));
-	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_AtlasId] != null)
-		m_PipelineCaches[0].SetVertexInputBuffer(TexFrameLerp_Vertex, AZ::RHI::StreamBufferView(*viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_AtlasId], 0, vertexCount * sizeof(float), sizeof(float)));
 
 	// Correct deformation:
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_UVRemap] != null)

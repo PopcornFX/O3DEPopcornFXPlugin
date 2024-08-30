@@ -128,7 +128,7 @@ bool	PopcornFXAttributeList::Prepare(const CParticleAttributeList *defaultList)
 	}
 
 	//Re-match attributes
-	if (defaultList->AttributeList().Count() == 0)
+	if (defaultList->UniqueAttributeList().Count() == 0)
 	{
 		m_Attributes.clear();
 		m_AttributesRawData.clear();

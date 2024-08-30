@@ -103,7 +103,7 @@ const char	*GetPopornFXUsedShaderPath(EPopcornFXShader shader)
 
 //----------------------------------------------------------------------------
 
-AZ::RPI::ShaderVariantId	SPipelineStateCacheKey::GetShaderVariantId(const AZ::RPI::Shader &shader, bool precompiledOptions, bool depthOnly) const
+AZ::RPI::ShaderOptionGroup	SPipelineStateCacheKey::GetShaderOptions(const AZ::RPI::Shader &shader, bool precompiledOptions, bool depthOnly) const
 {
 	static const AZ::Name valueTrue = AZ::Name("true");
 	static const AZ::Name valueFalse = AZ::Name("false");
@@ -117,7 +117,7 @@ AZ::RPI::ShaderVariantId	SPipelineStateCacheKey::GetShaderVariantId(const AZ::RP
 	if (IsBillboardShader(m_UsedShader) && depthOnly)
 	{
 		shaderOptions.SetValue(AZ::Name("o_hasBillboardCapsules"), hasCapsules ? valueTrue : valueFalse);
-		return shaderOptions.GetShaderVariantId();
+		return shaderOptions;
 	}
 
 	// Blendmode shader options. The actual pipeline blend mode is set in PopcornFXRendererLoader.cpp.
@@ -163,7 +163,7 @@ AZ::RPI::ShaderVariantId	SPipelineStateCacheKey::GetShaderVariantId(const AZ::RP
 		shaderOptions.SetValue(AZ::Name("o_hasEmissive"), hasEmissive ? valueTrue : valueFalse);
 	}
 
-	return shaderOptions.GetShaderVariantId();
+	return shaderOptions;
 }
 
 //----------------------------------------------------------------------------

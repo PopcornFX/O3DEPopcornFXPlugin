@@ -24,10 +24,13 @@ public:
 	virtual ~CLightBatchDrawer();
 
 	virtual bool	AreRenderersCompatible(const CRendererDataBase *rendererA, const CRendererDataBase *rendererB) const override;
-	virtual bool	AllocBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass) override;
-	virtual bool	MapBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass) override;
-	virtual bool	UnmapBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass) override;
-	virtual bool	EmitDrawCall(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass, const SDrawCallDesc &toEmit) override;
+	virtual bool	EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &toEmit) override;
+
+	virtual bool	Step_AllocBuffers(SRenderContext &ctx) { AZ_UNUSED(ctx); return true; }
+	virtual bool	Step_MapBuffers(SRenderContext &ctx) { AZ_UNUSED(ctx); return true;  }
+	virtual bool	Step_LaunchBillboardingTasks(SRenderContext &ctx, Drawers::PAsynchronousJob_PostRenderTasks &syncJob) { AZ_UNUSED(ctx);  AZ_UNUSED(syncJob); return true; }
+	virtual bool	Step_WaitForBillboardingTasks(SRenderContext &ctx) { AZ_UNUSED(ctx); return true; }
+	virtual bool	Step_UnmapBuffers(SRenderContext &ctx) { AZ_UNUSED(ctx); return true; }
 };
 
 //----------------------------------------------------------------------------

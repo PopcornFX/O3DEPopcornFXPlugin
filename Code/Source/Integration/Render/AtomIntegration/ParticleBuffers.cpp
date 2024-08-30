@@ -37,7 +37,6 @@ namespace PopcornFX {
 		sizeof(CFloat4), // GenBuffer_Tangent
 		sizeof(CFloat2), // GenBuffer_UV0
 		sizeof(CFloat2), // GenBuffer_UV1
-		sizeof(float), // GenBuffer_AtlasId
 		sizeof(CFloat4), // GenBuffer_UVRemap
 		sizeof(CFloat2), // GenBuffer_UVFactors
 

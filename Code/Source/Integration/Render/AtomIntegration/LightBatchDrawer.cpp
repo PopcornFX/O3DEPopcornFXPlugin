@@ -41,47 +41,14 @@ bool	CLightBatchDrawer::AreRenderersCompatible(const CRendererDataBase *renderer
 
 //----------------------------------------------------------------------------
 
-bool	CLightBatchDrawer::AllocBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass)
+bool	CLightBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &toEmit)
 {
-	AZ_UNUSED(drawPass);
-	PK_SCOPEDPROFILE();
-	PK_ASSERT(!drawPass.m_DrawRequests.Empty());
-	PK_ASSERT(drawPass.m_DrawRequests.Count() == drawPass.m_RendererCaches.Count());
-	PK_ASSERT(drawPass.m_TotalParticleCount > 0);
-	PK_ASSERT(drawPass.m_DrawRequests.First() != null && drawPass.m_RendererCaches.First() != null);
-
 	if (m_RenderContext == null)
 	{
 		m_RenderContext = static_cast<SAtomRenderContext*>(&ctx);
 		PK_ASSERT(m_RenderContext != null);
 	}
-	return true;
-}
 
-//----------------------------------------------------------------------------
-
-bool	CLightBatchDrawer::MapBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass)
-{
-	AZ_UNUSED(ctx);
-	AZ_UNUSED(drawPass);
-	return true;
-}
-
-//----------------------------------------------------------------------------
-
-bool	CLightBatchDrawer::UnmapBuffers(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass)
-{
-	AZ_UNUSED(ctx);
-	AZ_UNUSED(drawPass);
-	return true;
-}
-
-//----------------------------------------------------------------------------
-
-bool	CLightBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SRendererBatchDrawPass &drawPass, const SDrawCallDesc &toEmit)
-{
-	AZ_UNUSED(ctx);
-	AZ_UNUSED(drawPass);
 	if (!PK_VERIFY(m_RenderContext->m_Lights.Reserve(m_RenderContext->m_Lights.Count() + toEmit.m_TotalParticleCount)))
 		return false;
 	for (u32 iDr = 0; iDr < toEmit.m_DrawRequests.Count(); ++iDr)
