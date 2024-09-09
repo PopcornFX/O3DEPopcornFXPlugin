@@ -77,23 +77,9 @@ namespace PopcornFX
 		return false;
 	}
 
-	AZStd::string	FindMatchingPkproj(const AZStd::string &assetPath)
+	AZStd::string	GetMatchingPkprojInList(const AZStd::string &assetFolderPath, const AZStd::list<AZStd::string> &fileList)
 	{
-		AZ::IO::FixedMaxPath projectPath = AZ::Utils::GetProjectPath();
-
-		AZStd::string	folderPath = assetPath;
-		AZ::StringFunc::Path::StripFullName(folderPath);
-		AZ::StringFunc::Path::Normalize(folderPath);
-
-		AZ::Outcome<AZStd::list<AZStd::string>, AZStd::string> searchResult = AzFramework::FileFunc::FindFilesInPath(projectPath.c_str(), "*", true);
-
-		if (!searchResult.IsSuccess())
-			return "";
-
-		const AZStd::list<AZStd::string> &pkprojList = searchResult.GetValue();
-
-		AZStd::string pkProjPath;
-		for (const auto& path : pkprojList)
+		for (const auto& path : fileList)
 		{
 			if (path.ends_with(".pkproj"))
 			{
@@ -103,13 +89,50 @@ namespace PopcornFX
 					return "";
 
 				AZStd::to_lower(rootPath.begin(), rootPath.end());
-				AZStd::to_lower(folderPath.begin(), folderPath.end());
-				const AZ::IO::PathView pathView(folderPath);
+				const AZ::IO::PathView pathView(assetFolderPath);
 				if (pathView.IsRelativeTo(AZ::IO::PathView(rootPath)))
 					return path;
 			}
 		}
 		return "";
+	}
+
+	AZStd::string	FindMatchingPkproj(const AZStd::string &assetPath)
+	{
+		AZStd::string	projectPath = AZ::Utils::GetProjectPath().c_str();
+		AZ::StringFunc::Path::Normalize(projectPath);
+		AZStd::to_lower(projectPath.begin(), projectPath.end());
+
+		AZStd::string	folderPath = assetPath;
+		AZ::StringFunc::Path::StripFullName(folderPath);
+		AZ::StringFunc::Path::Normalize(folderPath);
+		AZStd::to_lower(folderPath.begin(), folderPath.end());
+
+		if (!AZ::IO::PathView(folderPath).IsRelativeTo(AZ::IO::PathView(projectPath)))
+			return "";
+
+		// Search in parents folders first
+		AZStd::string	currentPath = folderPath;
+		while (true)
+		{
+			AZ::Outcome<AZStd::list<AZStd::string>, AZStd::string>	searchResult = AzFramework::FileFunc::FindFilesInPath(currentPath, "*.pkproj", false);
+			if (searchResult.IsSuccess())
+			{
+				AZStd::string	pkprojPath = GetMatchingPkprojInList(folderPath, searchResult.GetValue());
+				if (!pkprojPath.empty())
+					return pkprojPath;
+			}
+			if (currentPath == projectPath)
+				break;
+			AZ::StringFunc::Path::StripFullName(currentPath);
+		}
+
+		// Not found in the parents folders, search in the whole project as backup
+		AZ::Outcome<AZStd::list<AZStd::string>, AZStd::string>	searchResult = AzFramework::FileFunc::FindFilesInPath(projectPath, "*", true);
+		if (!searchResult.IsSuccess())
+			return "";
+
+		return GetMatchingPkprojInList(folderPath, searchResult.GetValue());
 	}
 	
 	bool	GetProjectSettingsThumbnailsPath(const AZStd::string &projectFilePath, AZStd::string &outRootDir, AZStd::string &outThumbnailsPath)
