@@ -77,6 +77,18 @@ namespace PopcornFX
 		return false;
 	}
 
+	bool			IsRelativeTo(const AZStd::string &path, const AZStd::string &base)
+	{
+		AZStd::string	pathLower = path;
+		AZStd::string	baseLower = base;
+
+		// Fix for linux
+		AZStd::to_lower(pathLower.begin(), pathLower.end());
+		AZStd::to_lower(baseLower.begin(), baseLower.end());
+
+		return AZ::IO::PathView(pathLower).IsRelativeTo(AZ::IO::PathView(baseLower));
+	}
+
 	AZStd::string	GetMatchingPkprojInList(const AZStd::string &assetFolderPath, const AZStd::list<AZStd::string> &fileList)
 	{
 		for (const auto& path : fileList)
@@ -88,9 +100,7 @@ namespace PopcornFX
 				if (!GetProjectSettings(path, rootPath, dummy))
 					return "";
 
-				AZStd::to_lower(rootPath.begin(), rootPath.end());
-				const AZ::IO::PathView pathView(assetFolderPath);
-				if (pathView.IsRelativeTo(AZ::IO::PathView(rootPath)))
+				if (IsRelativeTo(assetFolderPath, rootPath))
 					return path;
 			}
 		}
@@ -101,14 +111,12 @@ namespace PopcornFX
 	{
 		AZStd::string	projectPath = AZ::Utils::GetProjectPath().c_str();
 		AZ::StringFunc::Path::Normalize(projectPath);
-		AZStd::to_lower(projectPath.begin(), projectPath.end());
 
 		AZStd::string	folderPath = assetPath;
 		AZ::StringFunc::Path::StripFullName(folderPath);
 		AZ::StringFunc::Path::Normalize(folderPath);
-		AZStd::to_lower(folderPath.begin(), folderPath.end());
 
-		if (!AZ::IO::PathView(folderPath).IsRelativeTo(AZ::IO::PathView(projectPath)))
+		if (!IsRelativeTo(folderPath, projectPath))
 			return "";
 
 		// Search in parents folders first
@@ -283,10 +291,7 @@ namespace PopcornFX
 			AZ::StringFunc::Path::Normalize(folderPath);
 			folderPath = CFilePath::Relativize(projectPath.c_str(), folderPath.c_str()).Data();
 
-			AZStd::to_lower(rootPath.begin(), rootPath.end());
-			AZStd::to_lower(folderPath.begin(), folderPath.end());
-			const AZ::IO::PathView pathView(folderPath);
-			if (pathView.IsRelativeTo(AZ::IO::PathView(rootPath)))
+			if (IsRelativeTo(folderPath, rootPath))
 				return false;
 		}
 
