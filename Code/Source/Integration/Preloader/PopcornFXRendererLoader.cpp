@@ -256,6 +256,7 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 	SAssetDependencies	*dependencies = m_Assets.Find(asset.GetId());
 	if (dependencies == null)
 		return;
+	dependencies->m_AssetRef = asset;
 
 	if (asset.GetType() == azrtti_typeid<AZ::RPI::ShaderAsset>())
 	{

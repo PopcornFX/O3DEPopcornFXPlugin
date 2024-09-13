@@ -80,10 +80,14 @@ void PopcornFXEffectPreviewer::Display(const AzToolsFramework::AssetBrowser::Ass
 void PopcornFXEffectPreviewer::DisplayProduct(const AzToolsFramework::AssetBrowser::ProductAssetBrowserEntry *product)
 {
 	AZStd::string	thumbnailPath;
-	AZStd::string	pkProjPathCache;
-	PopcornFX::PopcornFXIntegrationBus::BroadcastResult(pkProjPathCache, &PopcornFX::PopcornFXIntegrationBus::Handler::GetPkProjPathCache);
-	PopcornFX::PopcornFXIntegrationBus::Broadcast(&PopcornFX::PopcornFXIntegrationBus::Handler::GetThumbnailPathForAsset, product->GetFullPath(), thumbnailPath, pkProjPathCache);
-	PopcornFX::PopcornFXIntegrationBus::Broadcast(&PopcornFX::PopcornFXIntegrationBus::Handler::SetPkProjPathCache, pkProjPathCache);
+	AzToolsFramework::AssetBrowser::AssetBrowserEntry	*parent = product->GetParent();
+	if (parent != nullptr)
+	{
+		AZStd::string	pkProjPathCache;
+		PopcornFX::PopcornFXIntegrationBus::BroadcastResult(pkProjPathCache, &PopcornFX::PopcornFXIntegrationBus::Handler::GetPkProjPathCache);
+		PopcornFX::PopcornFXIntegrationBus::Broadcast(&PopcornFX::PopcornFXIntegrationBus::Handler::GetThumbnailPathForAsset, parent->GetFullPath(), thumbnailPath, pkProjPathCache);
+		PopcornFX::PopcornFXIntegrationBus::Broadcast(&PopcornFX::PopcornFXIntegrationBus::Handler::SetPkProjPathCache, pkProjPathCache);
+	}
 
 	CreateAndDisplayTextureItemAsync(
 	[thumbnailPath]
