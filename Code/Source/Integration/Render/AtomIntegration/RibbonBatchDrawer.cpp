@@ -411,11 +411,16 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &
 	dc.m_BoundingBox = toEmit.m_BBox;
 
 	// Draw call description:
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+	dc.m_InstanceCount = 1;
+	dc.m_GeometryView.SetDrawArguments(AZ::RHI::DrawIndexed(0, toEmit.m_TotalIndexCount, toEmit.m_IndexOffset));
+#else
 	dc.m_DrawIndexed.m_indexCount = toEmit.m_TotalIndexCount; // Sliced draw calls can draw < drawPass.m_TotalIndexCount
 	dc.m_DrawIndexed.m_indexOffset = toEmit.m_IndexOffset; // Sliced draw calls can have a non-zero offset
 	dc.m_DrawIndexed.m_instanceCount = 1;
 	dc.m_DrawIndexed.m_instanceOffset = 0;
 	dc.m_DrawIndexed.m_vertexOffset = 0;
+#endif
 
 	// Draw instance indices and tex-coords:
 	return PK_VERIFY(m_RenderContext->m_DrawCalls.PushBack(dc).Valid());

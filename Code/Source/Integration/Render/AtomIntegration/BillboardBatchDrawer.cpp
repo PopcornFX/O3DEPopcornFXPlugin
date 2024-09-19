@@ -522,11 +522,16 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 	dc.m_BoundingBox = toEmit.m_BBox;
 
 	// Draw call description:
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+	dc.m_GeometryView.SetDrawArguments(AZ::RHI::DrawIndexed(0, m_DrawInstanceIdxCount, 0));
+	dc.m_InstanceCount = toEmit.m_TotalParticleCount;
+#else
 	dc.m_DrawIndexed.m_indexCount = m_DrawInstanceIdxCount;
 	dc.m_DrawIndexed.m_indexOffset = 0;
 	dc.m_DrawIndexed.m_instanceCount = toEmit.m_TotalParticleCount; // Sliced draw calls can draw < drawPass.m_TotalParticleCount
 	dc.m_DrawIndexed.m_instanceOffset = 0;
 	dc.m_DrawIndexed.m_vertexOffset = 0;
+#endif
 
 	// See CPopcornFXFeatureProcessor::BuildDrawPacket()
 	dc.m_InstanceOffset = toEmit.m_IndexOffset; // Sliced draw calls can have a non-zero offset

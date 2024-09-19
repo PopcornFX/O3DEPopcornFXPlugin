@@ -66,7 +66,7 @@ void	CPopcornFXFeatureProcessor::Simulate(const SimulatePacket &packet)
 
 void	CPopcornFXFeatureProcessor::Render(const RenderPacket &packet)
 {
-	const SAtomRenderContext	&drawCalls = m_RenderManager.GetRenderContext();
+	SAtomRenderContext	&drawCalls = m_RenderManager.GetRenderContext();
 
 	// Delete the DrawPackets that were used last frame
 	m_drawPackets.clear();
@@ -74,7 +74,7 @@ void	CPopcornFXFeatureProcessor::Render(const RenderPacket &packet)
 	{
 		PK_NAMEDSCOPEDPROFILE("Append draw calls");
 
-		for (const SAtomRenderContext::SDrawCall &dc : drawCalls.m_DrawCalls)
+		for (SAtomRenderContext::SDrawCall &dc : drawCalls.m_DrawCalls)
 		{
 			const bool	castShadows = dc.m_CastShadows;
 
@@ -131,7 +131,7 @@ void	CPopcornFXFeatureProcessor::AppendLightParticles()
 	}
 }
 
-CPopcornFXFeatureProcessor::DrawPacketPtr	CPopcornFXFeatureProcessor::BuildDrawPacket(const SAtomRenderContext::SDrawCall &pkfxDrawCall,
+CPopcornFXFeatureProcessor::DrawPacketPtr	CPopcornFXFeatureProcessor::BuildDrawPacket(SAtomRenderContext::SDrawCall &pkfxDrawCall,
 																						const AZ::RHI::ShaderResourceGroup *viewSrg,
 																						AZ::RHI::DrawItemSortKey sortKey)
 {
@@ -143,8 +143,13 @@ CPopcornFXFeatureProcessor::DrawPacketPtr	CPopcornFXFeatureProcessor::BuildDrawP
 #endif
 
 	dpBuilder.Begin(null);
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+	dpBuilder.SetGeometryView(&pkfxDrawCall.m_GeometryView);
+	dpBuilder.SetDrawInstanceArguments(AZ::RHI::DrawInstanceArguments(pkfxDrawCall.m_InstanceCount, 0));
+#else
 	dpBuilder.SetDrawArguments(pkfxDrawCall.m_DrawIndexed);
 	dpBuilder.SetIndexBufferView(pkfxDrawCall.m_Indices);
+#endif
 	dpBuilder.AddShaderResourceGroup(pkfxDrawCall.m_RendererSrg->GetRHIShaderResourceGroup());
 	dpBuilder.AddShaderResourceGroup(pkfxDrawCall.m_MaterialSrg->GetRHIShaderResourceGroup());
 
@@ -153,8 +158,12 @@ CPopcornFXFeatureProcessor::DrawPacketPtr	CPopcornFXFeatureProcessor::BuildDrawP
 		AZ::RHI::DrawPacketBuilder::DrawRequest	materialDr;
 		materialDr.m_listTag = pkfxDrawCall.m_MaterialDrawList;
 		materialDr.m_pipelineState = pkfxDrawCall.m_MaterialPipelineState.get();
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		materialDr.m_streamIndices = pkfxDrawCall.m_GeometryView.GetFullStreamBufferIndices();
+#else
 		materialDr.m_streamBufferViews = AZStd::span<const AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
 																						pkfxDrawCall.m_VertexInputs.Count());
+#endif
 
 		// TODO: set this depending on lit state.
 		materialDr.m_stencilRef = (AZ::Render::StencilRefs::UseIBLSpecularPass | AZ::Render::StencilRefs::UseDiffuseGIPass);
@@ -163,6 +172,18 @@ CPopcornFXFeatureProcessor::DrawPacketPtr	CPopcornFXFeatureProcessor::BuildDrawP
 		dpBuilder.AddDrawItem(materialDr);
 	}
 
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+	AZ::RHI::StreamBufferIndices	depthVtxInput;
+	if (pkfxDrawCall.m_RendererType == Renderer_Billboard ||
+		pkfxDrawCall.m_RendererType == Renderer_Mesh)
+	{
+		depthVtxInput = pkfxDrawCall.m_GeometryView.GetFullStreamBufferIndices();
+	}
+	else
+	{
+		depthVtxInput.AddIndex(0);
+	}
+#else
 	AZStd::span<const AZ::RHI::StreamBufferView>	depthVtxInput;
 
 	if (pkfxDrawCall.m_RendererType == Renderer_Billboard ||
@@ -176,13 +197,18 @@ CPopcornFXFeatureProcessor::DrawPacketPtr	CPopcornFXFeatureProcessor::BuildDrawP
 		depthVtxInput = AZStd::span<const AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
 																		1);
 	}
+#endif
 
 	if (pkfxDrawCall.m_OpaqueDepthPipelineState != null)
 	{
 		AZ::RHI::DrawPacketBuilder::DrawRequest	opaqueDepthDr;
 		opaqueDepthDr.m_listTag = pkfxDrawCall.m_OpaqueDepthDrawList;
 		opaqueDepthDr.m_pipelineState = pkfxDrawCall.m_OpaqueDepthPipelineState.get();
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		opaqueDepthDr.m_streamIndices = depthVtxInput;
+#else
 		opaqueDepthDr.m_streamBufferViews = depthVtxInput;
+#endif
 		opaqueDepthDr.m_sortKey = sortKey;
 		dpBuilder.AddDrawItem(opaqueDepthDr);
 	}
@@ -192,14 +218,22 @@ CPopcornFXFeatureProcessor::DrawPacketPtr	CPopcornFXFeatureProcessor::BuildDrawP
 		AZ::RHI::DrawPacketBuilder::DrawRequest	transparentDepthMinDr;
 		transparentDepthMinDr.m_listTag = pkfxDrawCall.m_TransparentDepthMinDrawList;
 		transparentDepthMinDr.m_pipelineState = pkfxDrawCall.m_TransparentDepthMinPipelineState.get();
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		transparentDepthMinDr.m_streamIndices = depthVtxInput;
+#else
 		transparentDepthMinDr.m_streamBufferViews = depthVtxInput;
+#endif
 		transparentDepthMinDr.m_sortKey = sortKey;
 		dpBuilder.AddDrawItem(transparentDepthMinDr);
 
 		AZ::RHI::DrawPacketBuilder::DrawRequest	transparentDepthMaxDr;
 		transparentDepthMaxDr.m_listTag = pkfxDrawCall.m_TransparentDepthMaxDrawList;
 		transparentDepthMaxDr.m_pipelineState = pkfxDrawCall.m_TransparentDepthMaxPipelineState.get();
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		transparentDepthMaxDr.m_streamIndices = depthVtxInput;
+#else
 		transparentDepthMaxDr.m_streamBufferViews = depthVtxInput;
+#endif
 		transparentDepthMaxDr.m_sortKey = sortKey;
 		dpBuilder.AddDrawItem(transparentDepthMaxDr);
 	}

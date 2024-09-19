@@ -430,6 +430,35 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 				const AZ::RPI::ModelLod::Mesh &mesh = modelLod->GetMeshes()[meshIndex];
 				geometryCache->m_PerGeometryViews[meshIndex].m_Bounds = ToPk(modelAsset->GetLodAssets()[0]->GetMeshes()[meshIndex].GetAabb());
 
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+				geometryCache->m_PerGeometryViews[meshIndex].m_IndexBuffer = mesh.GetIndexBufferView();
+				geometryCache->m_PerGeometryViews[meshIndex].m_IndexCount = mesh.GetDrawArguments().m_indexed.m_indexCount;
+
+				AZ::RHI::StreamBufferIndices	streamIndices;
+				[[maybe_unused]] bool result = modelLod->GetStreamsForMesh(	inputStreamLayout,
+																			streamIndices,
+																			null,
+																			shaderInputContract,
+																			meshIndex);
+				AZ_Assert(result, "Failed to retrieve mesh stream buffer views");
+
+				geometryCache->m_PerGeometryViews[meshIndex].m_PositionBuffer = mesh.GetStreamBufferView(streamIndices.GetIndex(0));
+				geometryCache->m_PerGeometryViews[meshIndex].m_NormalBuffer = mesh.GetStreamBufferView(streamIndices.GetIndex(1));
+
+				const AZ::RHI::StreamBufferView	&tangentBufferView = mesh.GetStreamBufferView(streamIndices.GetIndex(2));
+				const AZ::RHI::StreamBufferView	&bitangentBufferView = mesh.GetStreamBufferView(streamIndices.GetIndex(3));
+				const AZ::RHI::StreamBufferView	&uvBufferView = mesh.GetStreamBufferView(streamIndices.GetIndex(4));
+
+				if (tangentBufferView.GetBuffer()->GetDescriptor().m_byteCount > 0)
+					geometryCache->m_PerGeometryViews[meshIndex].m_TangentBuffer = tangentBufferView;
+				if (bitangentBufferView.GetBuffer()->GetDescriptor().m_byteCount > 0)
+					geometryCache->m_PerGeometryViews[meshIndex].m_BitangentBuffer = bitangentBufferView;
+				if (uvBufferView.GetBuffer()->GetDescriptor().m_byteCount > 0)
+					geometryCache->m_PerGeometryViews[meshIndex].m_UVBuffer = uvBufferView;
+#else
+				geometryCache->m_PerGeometryViews[meshIndex].m_IndexCount = mesh.m_drawArguments.m_indexed.m_indexCount;
+				geometryCache->m_PerGeometryViews[meshIndex].m_IndexBuffer = mesh.m_indexBufferView;
+
 				AZ::RPI::ModelLod::StreamBufferViewList streamBufferViews;
 				[[maybe_unused]] bool result = modelLod->GetStreamsForMesh(	inputStreamLayout,
 																			streamBufferViews,
@@ -438,17 +467,11 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 																			meshIndex);
 				AZ_Assert(result, "Failed to retrieve mesh stream buffer views");
 
-				//uint32_t positionBufferByteCount = streamBufferViews[0].GetBuffer()->GetDescriptor().m_byteCount;
-
-				//uint32_t normalBufferByteCount = streamBufferViews[1].GetBuffer()->GetDescriptor().m_byteCount;
-
 				AZ::u64	tangentBufferByteCount = streamBufferViews[2].GetBuffer()->GetDescriptor().m_byteCount;
 
 				AZ::u64	bitangentBufferByteCount = streamBufferViews[3].GetBuffer()->GetDescriptor().m_byteCount;
 
 				AZ::u64	uvBufferByteCount = streamBufferViews[4].GetBuffer()->GetDescriptor().m_byteCount;
-
-				geometryCache->m_PerGeometryViews[meshIndex].m_IndexCount = mesh.m_drawArguments.m_indexed.m_indexCount;
 
 				geometryCache->m_PerGeometryViews[meshIndex].m_PositionBuffer = streamBufferViews[0];
 
@@ -462,8 +485,7 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 
 				if (uvBufferByteCount > 0)
 					geometryCache->m_PerGeometryViews[meshIndex].m_UVBuffer = streamBufferViews[4];
-
-				geometryCache->m_PerGeometryViews[meshIndex].m_IndexBuffer = mesh.m_indexBufferView;
+#endif
 			}
 			if (!PK_VERIFY(m_ModifiedCaches.PushBack(geometryCache).Valid()))
 				return;

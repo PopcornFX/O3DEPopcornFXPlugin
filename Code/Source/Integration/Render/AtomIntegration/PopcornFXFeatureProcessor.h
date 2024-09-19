@@ -62,7 +62,7 @@ private:
 	using DrawPackets = AZStd::vector<AZStd::unique_ptr<const AZ::RHI::DrawPacket>>;
 #endif
 
-	DrawPacketPtr			BuildDrawPacket(const SAtomRenderContext::SDrawCall &pkfxDrawCall,
+	DrawPacketPtr			BuildDrawPacket(SAtomRenderContext::SDrawCall &pkfxDrawCall,
 											const AZ::RHI::ShaderResourceGroup *viewSrg,
 											AZ::RHI::DrawItemSortKey sortKey);
 
