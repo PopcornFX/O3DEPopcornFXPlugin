@@ -462,6 +462,8 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::ParticleAtlasID_ShaderRead, buff);
 	}
 	AZ::RHI::Ptr<AZ::RHI::Buffer>	diffuseColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Diffuse_Color());
+	if (diffuseColor == null)
+		diffuseColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Diffuse_DiffuseColor());
 	if (diffuseColor != null)
 	{
 #if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
@@ -474,10 +476,13 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 	AZ::RHI::Ptr<AZ::RHI::Buffer>	emissiveColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Emissive_EmissiveColor());
 	if (emissiveColor != null)
 	{
+		const bool	isLegacyShader = IsLegacyShader(rendererCache->m_BasicDescription.m_PipelineStateKey.m_UsedShader);
+		const u32	elementCount = isLegacyShader ? particleCount * 3 : particleCount * 4;
+
 #if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
-		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount * 3, sizeof(float)));
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, elementCount, sizeof(float)));
 #else
-		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount * 3, sizeof(float)));
+		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, elementCount, sizeof(float)));
 #endif
 		m_PipelineCaches[0].SetBillboardingSrgBuffer(BillboardSrg::ParticleEmissiveColor_ShaderRead, buff);
 	}
@@ -522,11 +527,16 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 	dc.m_BoundingBox = toEmit.m_BBox;
 
 	// Draw call description:
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+	dc.m_GeometryView.SetDrawArguments(AZ::RHI::DrawIndexed(0, m_DrawInstanceIdxCount, 0));
+	dc.m_InstanceCount = toEmit.m_TotalParticleCount;
+#else
 	dc.m_DrawIndexed.m_indexCount = m_DrawInstanceIdxCount;
 	dc.m_DrawIndexed.m_indexOffset = 0;
 	dc.m_DrawIndexed.m_instanceCount = toEmit.m_TotalParticleCount; // Sliced draw calls can draw < drawPass.m_TotalParticleCount
 	dc.m_DrawIndexed.m_instanceOffset = 0;
 	dc.m_DrawIndexed.m_vertexOffset = 0;
+#endif
 
 	// See CPopcornFXFeatureProcessor::BuildDrawPacket()
 	dc.m_InstanceOffset = toEmit.m_IndexOffset; // Sliced draw calls can have a non-zero offset

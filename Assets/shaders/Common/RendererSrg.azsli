@@ -37,9 +37,17 @@ bool    HasOneRendererFlags(uint rendererFlags)
     return (RendererSrg::m_rendererFlags & rendererFlags) != 0;
 }
 
-float3 	GetEmissiveParticleColor(uint particleID)
+float3 	GetEmissiveParticleColorLegacy(uint particleID)
 {
 	return float3(	RendererSrg::m_emissiveColors[particleID * 3 + 0],
 					RendererSrg::m_emissiveColors[particleID * 3 + 1],
 					RendererSrg::m_emissiveColors[particleID * 3 + 2]);
+}
+
+float4 	GetEmissiveParticleColor(uint particleID)
+{
+	return float4(	RendererSrg::m_emissiveColors[particleID * 4 + 0],
+					RendererSrg::m_emissiveColors[particleID * 4 + 1],
+					RendererSrg::m_emissiveColors[particleID * 4 + 2],
+					RendererSrg::m_emissiveColors[particleID * 4 + 3]);
 }

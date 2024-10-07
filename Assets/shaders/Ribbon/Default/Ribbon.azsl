@@ -14,6 +14,9 @@
 
 #include "../../Common/RendererFeatures.azsli"
 
+option bool o_hasDiffuse = false;
+option bool o_hasEmissive = true;
+
 struct VertexInput
 {
     float4 m_position : POSITION;
@@ -47,7 +50,7 @@ struct VertexOutput
     float4 m_position : SV_Position;
     float2 m_texCoord0 : UV0;
     float4 m_diffuseColor : UV1;
-    float3 m_emissiveColor : UV2;
+    float4 m_emissiveColor : UV2;
     float m_alphaCursor : UV3;
     float4 m_clipPosition : UV4;
 };
@@ -59,7 +62,7 @@ struct VertexOutputAtlasBlend
     float2 m_texCoord1 : UV1;
     float m_texFrameLerp : UV2;
     float4 m_diffuseColor : UV3;
-    float3 m_emissiveColor : UV4;
+    float4 m_emissiveColor : UV4;
     float m_alphaCursor : UV5;
     float4 m_clipPosition : UV6;
 };
@@ -71,7 +74,7 @@ struct VertexOutputCorrectDeformation
     float4 m_UVRemap : UV1;
     float4 m_UVFactors : UV2;
     float4 m_diffuseColor : UV3;
-    float3 m_emissiveColor : UV4;
+    float4 m_emissiveColor : UV4;
     float m_alphaCursor : UV5;
     float4 m_clipPosition : UV6;
 };
@@ -87,18 +90,21 @@ VertexOutput RibbonVS(VertexInput input)
 
     uint    particleID = GetParticleIdx(input.m_vertexID);
 
-    // Diffuse particle color:
-    output.m_diffuseColor = float4(0, 0, 0, 0);
-    if (HasOneRendererFlags(Has_Diffuse))
-        output.m_diffuseColor = RendererSrg::m_diffuseColors[particleID];
-    // Emissive particle color:
-    output.m_emissiveColor = float3(0, 0, 0);
-    if (HasOneRendererFlags(Has_Emissive))
-        output.m_emissiveColor = GetEmissiveParticleColorLegacy(particleID);
     // Alpha remap:
     output.m_alphaCursor = 0;
     if (HasOneRendererFlags(Has_AlphaRemap))
         output.m_alphaCursor = RendererSrg::m_alphaCursors[particleID];
+
+    // Get additional fields:
+    if (o_hasDiffuse)
+    {
+        output.m_diffuseColor = RendererSrg::m_diffuseColors[particleID];
+    }
+    if (o_hasEmissive)
+    {
+        output.m_emissiveColor = GetEmissiveParticleColor(particleID);
+    }
+
     return output;
 }
 
@@ -115,18 +121,21 @@ VertexOutputAtlasBlend RibbonVS_AtlasBlend(VertexInputAtlasBlend input)
 
     uint    particleID = GetParticleIdx(input.m_vertexID);
 
-    // Diffuse particle color:
-    output.m_diffuseColor = float4(0, 0, 0, 0);
-    if (HasOneRendererFlags(Has_Diffuse))
-        output.m_diffuseColor = RendererSrg::m_diffuseColors[particleID];
-    // Emissive particle color:
-    output.m_emissiveColor = float3(0, 0, 0);
-    if (HasOneRendererFlags(Has_Emissive))
-        output.m_emissiveColor = GetEmissiveParticleColorLegacy(particleID);
     // Alpha remap:
     output.m_alphaCursor = 0;
     if (HasOneRendererFlags(Has_AlphaRemap))
         output.m_alphaCursor = RendererSrg::m_alphaCursors[particleID];
+
+    // Get additional fields:
+    if (o_hasDiffuse)
+    {
+        output.m_diffuseColor = RendererSrg::m_diffuseColors[particleID];
+    }
+    if (o_hasEmissive)
+    {
+        output.m_emissiveColor = GetEmissiveParticleColor(particleID);
+    }
+
     return output;
 }
 
@@ -143,18 +152,21 @@ VertexOutputCorrectDeformation RibbonVS_CorrectDeformation(VertexInputCorrectDef
 
     uint    particleID = GetParticleIdx(input.m_vertexID);
 
-    // Diffuse particle color:
-    output.m_diffuseColor = float4(0, 0, 0, 0);
-    if (HasOneRendererFlags(Has_Diffuse))
-        output.m_diffuseColor = RendererSrg::m_diffuseColors[particleID];
-    // Emissive particle color:
-    output.m_emissiveColor = float3(0, 0, 0);
-    if (HasOneRendererFlags(Has_Emissive))
-        output.m_emissiveColor = GetEmissiveParticleColorLegacy(particleID);
     // Alpha remap:
     output.m_alphaCursor = 0;
     if (HasOneRendererFlags(Has_AlphaRemap))
         output.m_alphaCursor = RendererSrg::m_alphaCursors[particleID];
+
+    // Get additional fields:
+    if (o_hasDiffuse)
+    {
+        output.m_diffuseColor = RendererSrg::m_diffuseColors[particleID];
+    }
+    if (o_hasEmissive)
+    {
+        output.m_emissiveColor = GetEmissiveParticleColor(particleID);
+    }
+
     return output;
 }
 
@@ -167,15 +179,25 @@ PixelOutput RibbonFS(VertexOutput input)
 {
     PixelOutput output;
 
-    float4 diffuseColor = GetDiffuseColor(input.m_texCoord0);
-    if (HasOneRendererFlags(Has_AlphaRemap))
-        diffuseColor = ApplyAlphaRemap(diffuseColor, input.m_alphaCursor);
-    diffuseColor *= input.m_diffuseColor;
-    diffuseColor.a = clamp(diffuseColor.a, 0, 1);
+    float4  diffuseColor = float4(0, 0, 0, 0);
+    float4  emissiveColor = float4(0, 0, 0, 0);
 
-    ApplyOpaqueMasked(diffuseColor.a);
+    if (o_hasDiffuse)
+    {
+        diffuseColor = GetDiffuseColor(input.m_texCoord0);
+        if (HasOneRendererFlags(Has_AlphaRemap))
+            diffuseColor = ApplyAlphaRemap(diffuseColor, input.m_alphaCursor);
+        diffuseColor *= input.m_diffuseColor;
+        diffuseColor.a = clamp(diffuseColor.a, 0, 1);
 
-    float4 emissiveColor = GetEmissiveColor(input.m_texCoord0);
+        ApplyOpaqueMasked(diffuseColor.a);
+    }
+
+    if (o_hasEmissive)
+    {
+        emissiveColor = GetEmissiveColor(input.m_texCoord0);
+        emissiveColor *= input.m_emissiveColor;
+    }
 
     // Soft particles:
     if (HasOneRendererFlags(Has_Soft))
@@ -183,11 +205,10 @@ PixelOutput RibbonFS(VertexOutput input)
         float3 clipPos = input.m_clipPosition.xyz / input.m_clipPosition.w;
         float fade = GetSoftParticleFade(clipPos);
         diffuseColor *= fade;
-        emissiveColor.a *= fade;
+        emissiveColor *= fade;
     }
 
-    emissiveColor.rgb *= input.m_emissiveColor * emissiveColor.a;
-    output.m_color = float4(diffuseColor.rgb + emissiveColor.rgb, diffuseColor.a);
+    output.m_color = float4(diffuseColor.rgb * diffuseColor.a + emissiveColor.rgb * emissiveColor.a, diffuseColor.a);
     return output;
 }
 
@@ -200,15 +221,25 @@ PixelOutput RibbonFS_AtlasBlend(VertexOutputAtlasBlend input)
 
     GetMotionVectorsUV(texCoord0, texCoord1, input.m_texFrameLerp);
 
-    float4 diffuseColor = GetDiffuseColor(texCoord0, texCoord1, input.m_texFrameLerp);
-    if (HasOneRendererFlags(Has_AlphaRemap))
-        diffuseColor = ApplyAlphaRemap(diffuseColor, input.m_alphaCursor);
-    diffuseColor *= input.m_diffuseColor;
-    diffuseColor.a = clamp(diffuseColor.a, 0, 1);
+    float4  diffuseColor = float4(0, 0, 0, 0);
+    float4  emissiveColor = float4(0, 0, 0, 0);
 
-    ApplyOpaqueMasked(diffuseColor.a);
+    if (o_hasDiffuse)
+    {
+        diffuseColor = GetDiffuseColor(texCoord0, texCoord1, input.m_texFrameLerp);
+        if (HasOneRendererFlags(Has_AlphaRemap))
+            diffuseColor = ApplyAlphaRemap(diffuseColor, input.m_alphaCursor);
+        diffuseColor *= input.m_diffuseColor;
+        diffuseColor.a = clamp(diffuseColor.a, 0, 1);
 
-    float4 emissiveColor = GetEmissiveColor(texCoord0, texCoord1, input.m_texFrameLerp);
+        ApplyOpaqueMasked(diffuseColor.a);
+    }
+
+    if (o_hasEmissive)
+    {
+        emissiveColor = GetEmissiveColor(texCoord0, texCoord1, input.m_texFrameLerp);
+        emissiveColor *= input.m_emissiveColor;
+    }
 
     // Soft particles:
     if (HasOneRendererFlags(Has_Soft))
@@ -216,11 +247,10 @@ PixelOutput RibbonFS_AtlasBlend(VertexOutputAtlasBlend input)
         float3 clipPos = input.m_clipPosition.xyz / input.m_clipPosition.w;
         float fade = GetSoftParticleFade(clipPos);
         diffuseColor *= fade;
-        emissiveColor.a *= fade;
+        emissiveColor *= fade;
     }
 
-    emissiveColor.rgb *= input.m_emissiveColor * emissiveColor.a;
-    output.m_color = float4(diffuseColor.rgb + emissiveColor.rgb, diffuseColor.a);
+    output.m_color = float4(diffuseColor.rgb * diffuseColor.a + emissiveColor.rgb * emissiveColor.a, diffuseColor.a);
     return output;
 }
 
@@ -230,15 +260,25 @@ PixelOutput RibbonFS_CorrectDeformation(VertexOutputCorrectDeformation input)
 
     float2 texCoord = GetCorrectDeformationUV(input.m_texCoord0, input.m_UVFactors, input.m_UVRemap);
 
-    float4 diffuseColor = GetDiffuseColor(texCoord);
-    if (HasOneRendererFlags(Has_AlphaRemap))
-        diffuseColor = ApplyAlphaRemap(diffuseColor, input.m_alphaCursor);
-    diffuseColor *= input.m_diffuseColor;
-    diffuseColor.a = clamp(diffuseColor.a, 0, 1);
+    float4  diffuseColor = float4(0, 0, 0, 0);
+    float4  emissiveColor = float4(0, 0, 0, 0);
 
-    ApplyOpaqueMasked(diffuseColor.a);
+    if (o_hasDiffuse)
+    {
+        diffuseColor = GetDiffuseColor(texCoord);
+        if (HasOneRendererFlags(Has_AlphaRemap))
+            diffuseColor = ApplyAlphaRemap(diffuseColor, input.m_alphaCursor);
+        diffuseColor *= input.m_diffuseColor;
+        diffuseColor.a = clamp(diffuseColor.a, 0, 1);
 
-    float4 emissiveColor = GetEmissiveColor(texCoord);
+        ApplyOpaqueMasked(diffuseColor.a);
+    }
+
+    if (o_hasEmissive)
+    {
+        emissiveColor = GetEmissiveColor(texCoord);
+        emissiveColor *= input.m_emissiveColor;
+    }
 
     // Soft particles:
     if (HasOneRendererFlags(Has_Soft))
@@ -246,10 +286,9 @@ PixelOutput RibbonFS_CorrectDeformation(VertexOutputCorrectDeformation input)
         float3 clipPos = input.m_clipPosition.xyz / input.m_clipPosition.w;
         float fade = GetSoftParticleFade(clipPos);
         diffuseColor *= fade;
-        emissiveColor.a *= fade;
+        emissiveColor *= fade;
     }
 
-    emissiveColor.rgb *= input.m_emissiveColor * emissiveColor.a;
-    output.m_color = float4(diffuseColor.rgb + emissiveColor.rgb, diffuseColor.a);
+    output.m_color = float4(diffuseColor.rgb * diffuseColor.a + emissiveColor.rgb * emissiveColor.a, diffuseColor.a);
     return output;
 }

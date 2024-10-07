@@ -38,7 +38,7 @@ struct VertexOutput
     float3 m_bitangent : BITANGENT; 
 
     float4 m_diffuseColor : COLOR0;
-    float3 m_emissiveColor : COLOR1;
+    float4 m_emissiveColor : COLOR1;
 
     float3 m_worldPosition : UV0;
 
@@ -69,34 +69,41 @@ VertexOutput MeshVS(VertexInput input)
     output.m_clipPosition = output.m_position;
     output.m_texCoord0 = input.m_texCoord0;
 
-    // Diffuse particle color:
-    output.m_diffuseColor = float4(0, 0, 0, 0);
-    if (HasOneRendererFlags(Has_Diffuse))
-        output.m_diffuseColor = RendererSrg::m_diffuseColors[particleIdx];
-    // Emissive particle color:
-    output.m_emissiveColor = float3(0, 0, 0);
-    if (HasOneRendererFlags(Has_Emissive))
-        output.m_emissiveColor = GetEmissiveParticleColorLegacy(particleIdx);
     if (HasOneRendererFlags(Has_AlphaRemap))
          output.m_alphaCursor = RendererSrg::m_alphaCursors[particleIdx];
+
+    // Get additional fields:
+    if (o_hasDiffuse)
+    {
+        output.m_diffuseColor = RendererSrg::m_diffuseColors[particleIdx];
+    }
+    if (o_hasEmissive)
+    {
+        output.m_emissiveColor = GetEmissiveParticleColor(particleIdx);
+    }
+
     return output;
 }
 
 ForwardPassOutput MeshFS(VertexOutput input, bool isFrontFace : SV_IsFrontFace)
 {
-    float2  texCoord0 = input.m_texCoord0;
+    float4  diffuseColor = float4(0, 0, 0, 0);
+    float4  emissiveColor = float4(0, 0, 0, 0);
 
-    // Diffuse:
-    float4 diffuseColor = GetDiffuseColor(texCoord0);
-    if (HasOneRendererFlags(Has_AlphaRemap))
-        diffuseColor = ApplyAlphaRemap(diffuseColor, input.m_alphaCursor);
-    diffuseColor *= input.m_diffuseColor;
-    diffuseColor.a = clamp(diffuseColor.a, 0, 1);
+    if (o_hasDiffuse)
+    {
+        diffuseColor = GetDiffuseColor(input.m_texCoord0);
+        if (HasOneRendererFlags(Has_AlphaRemap))
+            diffuseColor = ApplyAlphaRemap(diffuseColor, input.m_alphaCursor);
+        diffuseColor *= input.m_diffuseColor;
+        diffuseColor.a = clamp(diffuseColor.a, 0, 1);
+    }
 
-    ApplyOpaqueMasked(diffuseColor.a);
-
-    // Emissive:
-    float4 emissiveColor = GetEmissiveColor(input.m_texCoord0);
+    if (o_hasEmissive)
+    {
+        emissiveColor = GetEmissiveColor(input.m_texCoord0);
+        emissiveColor *= input.m_emissiveColor;
+    }
 
     float3 vertexNormal = normalize(isFrontFace ? input.m_normal : -input.m_normal);
     float3 normal = vertexNormal;
@@ -115,10 +122,8 @@ ForwardPassOutput MeshFS(VertexOutput input, bool isFrontFace : SV_IsFrontFace)
         float3 clipPos = input.m_clipPosition.xyz / input.m_clipPosition.w;
         float fade = GetSoftParticleFade(clipPos);
         diffuseColor *= fade;
-        emissiveColor.a *= fade;
+        emissiveColor *= fade;
     }
-
-    emissiveColor.rgb *= input.m_emissiveColor * emissiveColor.a;
 
     // Compute lighting:
     return ComputeParticleLighting( input.m_worldPosition,
@@ -128,5 +133,5 @@ ForwardPassOutput MeshFS(VertexOutput input, bool isFrontFace : SV_IsFrontFace)
                                     tangent,
                                     bitangent,
                                     diffuseColor,
-                                    emissiveColor.rgb);
+                                    emissiveColor.rgb * emissiveColor.a);
 }

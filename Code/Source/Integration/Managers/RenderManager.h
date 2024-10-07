@@ -36,7 +36,7 @@ public:
 
 	const CAtomFrameCollector		&GetFrameCollector() const { return m_FrameCollector; }
 
-	const SAtomRenderContext		&GetRenderContext() const { return m_RenderContext; }
+	SAtomRenderContext				&GetRenderContext() { return m_RenderContext; }
 	void							UnregisterEffectMaterials(const PParticleEffect &effect);
 
 private:

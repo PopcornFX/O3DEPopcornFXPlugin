@@ -16,6 +16,9 @@
 // Material:
 #include "../../Common/RendererFeatures.azsli"
 
+option bool o_hasDiffuse = false;
+option bool o_hasEmissive = true;
+
 struct VertexInput
 {
     float2 m_uv : POSITION;
@@ -34,7 +37,7 @@ struct VSOutput
     float2 m_texCoord1 : UV2;
     float  m_texFrameLerp : UV3;
     float4 m_diffuseColor : COLOR0;
-    float3 m_emissiveColor : COLOR1;
+    float4 m_emissiveColor : COLOR1;
     float m_alphaCursor : UV4;
     float4 m_clipPosition : UV5;
 };
@@ -76,18 +79,24 @@ VSOutput BillboardVS(VertexInput input)
         output.m_texCoord1 = float2(0, 0);
         output.m_texFrameLerp = 0;
     }
-    // Diffuse particle color:
-    output.m_diffuseColor = float4(0, 0, 0, 0);
-    if (HasOneRendererFlags(Has_Diffuse))
-        output.m_diffuseColor = RendererSrg::m_diffuseColors[particleIdx];
-    // Emissive particle color:
-    output.m_emissiveColor = float3(0, 0, 0);
+
     if (HasOneRendererFlags(Has_Emissive))
-        output.m_emissiveColor = GetEmissiveParticleColorLegacy(particleIdx);
+        output.m_emissiveColor = GetEmissiveParticleColor(particleIdx);
     // Alpha remap:
     output.m_alphaCursor = 0;
     if (HasOneRendererFlags(Has_AlphaRemap))
         output.m_alphaCursor = RendererSrg::m_alphaCursors[particleIdx];
+
+    // Get additional fields:
+    if (o_hasDiffuse)
+    {
+        output.m_diffuseColor = RendererSrg::m_diffuseColors[particleIdx];
+    }
+    if (o_hasEmissive)
+    {
+        output.m_emissiveColor = GetEmissiveParticleColor(particleIdx);
+    }
+
     return output;
 }
 
@@ -99,25 +108,25 @@ ForwardPassOutput BillboardFS(VSOutput input, bool isFrontFace : SV_IsFrontFace)
     // Motion vectors:
     GetMotionVectorsUV(texCoord0, texCoord1, input.m_texFrameLerp);
 
-    // Diffuse:
-    float4 diffuseColor = float4(1, 1, 1, 1);
-    if (HasOneRendererFlags(Has_AnimBlend))
-        diffuseColor = GetDiffuseColor(texCoord0, texCoord1, input.m_texFrameLerp);
-    else
-        diffuseColor = GetDiffuseColor(texCoord0);
-    if (HasOneRendererFlags(Has_AlphaRemap))
-        diffuseColor = ApplyAlphaRemap(diffuseColor, input.m_alphaCursor);
-    diffuseColor *= input.m_diffuseColor;
-    diffuseColor.a = clamp(diffuseColor.a, 0, 1);
+    float4  diffuseColor = float4(0, 0, 0, 0);
+    float4  emissiveColor = float4(0, 0, 0, 0);
 
-    ApplyOpaqueMasked(diffuseColor.a);
+    if (o_hasDiffuse)
+    {
+        diffuseColor = GetDiffuseColor(input.m_texCoord0);
+        if (HasOneRendererFlags(Has_AlphaRemap))
+            diffuseColor = ApplyAlphaRemap(diffuseColor, input.m_alphaCursor);
+        diffuseColor *= input.m_diffuseColor;
+        diffuseColor.a = clamp(diffuseColor.a, 0, 1);
 
-    // Emissive:
-    float4 emissiveColor = float4(0, 0, 0, 0);
-    if (HasOneRendererFlags(Has_AnimBlend))
-        emissiveColor = GetEmissiveColor(texCoord0, texCoord1, input.m_texFrameLerp);
-    else
-        emissiveColor = GetEmissiveColor(texCoord0);
+        ApplyOpaqueMasked(diffuseColor.a);
+    }
+
+    if (o_hasEmissive)
+    {
+        emissiveColor = GetEmissiveColor(input.m_texCoord0);
+        emissiveColor *= input.m_emissiveColor;
+    }
 
     float3 vertexNormal = normalize(isFrontFace ? input.m_normal : -input.m_normal);
     float3 normal = vertexNormal;
@@ -143,10 +152,8 @@ ForwardPassOutput BillboardFS(VSOutput input, bool isFrontFace : SV_IsFrontFace)
         float3 clipPos = input.m_clipPosition.xyz / input.m_clipPosition.w;
         float fade = GetSoftParticleFade(clipPos);
         diffuseColor *= fade;
-        emissiveColor.a *= fade;
+        emissiveColor *= fade;
     }
-
-    emissiveColor.rgb *= input.m_emissiveColor * emissiveColor.a;
 
     // Compute lighting:
     return ComputeParticleLighting( input.m_worldPosition,
@@ -156,5 +163,5 @@ ForwardPassOutput BillboardFS(VSOutput input, bool isFrontFace : SV_IsFrontFace)
                                     tangent,
                                     bitangent,
                                     diffuseColor,
-                                    emissiveColor.rgb);
+                                    emissiveColor.rgb * emissiveColor.a);
 }

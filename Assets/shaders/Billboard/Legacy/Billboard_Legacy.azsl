@@ -66,7 +66,7 @@ VertexOutput BillboardVS(VertexInput input)
     // Emissive particle color:
     output.m_emissiveColor = float3(0, 0, 0);
     if (HasOneRendererFlags(Has_Emissive))
-        output.m_emissiveColor = GetEmissiveParticleColor(particleIdx);
+        output.m_emissiveColor = GetEmissiveParticleColorLegacy(particleIdx);
     // Alpha remap:
     output.m_alphaCursor = 0;
     if (HasOneRendererFlags(Has_AlphaRemap))

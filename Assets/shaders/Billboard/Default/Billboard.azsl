@@ -5,12 +5,16 @@
 
 #include <scenesrg.srgi>
 #include <viewsrg.srgi>
-#include <Atom/Features/SrgSemantics.azsli>
+
+#include "../../Common/PopcornOptions.azsli"
+#include <Atom/Features/Pipeline/Forward/ForwardPassSrg.azsli>
+
+#include "../../Common/MaterialSrg.azsli"
 
 // Billboarding shader:
 #include "../../Common/ComputeBillboardVertex.azsli"
 // Material:
-#include "../../Common/MaterialSrg.azsli"
+#include "../../Common/RendererFeatures.azsli"
 
 option bool o_hasDiffuse;
 option bool o_hasEmissive;
@@ -24,11 +28,13 @@ struct VertexInput
 struct VertexOutput
 {
     float4 m_position : SV_Position;
-    float2 m_texCoords0 : UV0;
-    float2 m_texCoords1 : UV1;
+    float2 m_texCoord0 : UV0;
+    float2 m_texCoord1 : UV1;
     float  m_texFrameLerp : UV2;
     float4 m_diffuseColor : COLOR0;
-    float3 m_emissiveColor : COLOR1;
+    float4 m_emissiveColor : COLOR1;
+    float m_alphaCursor : UV3;
+    float4 m_clipPosition : UV4;
 };
 
 VertexOutput BillboardVS(VertexInput input)
@@ -45,13 +51,21 @@ VertexOutput BillboardVS(VertexInput input)
     ComputeBillboardVertex(particleIdx, input.m_uv, vtxWorldPos, vtxUV0, vtxUV1, vtxTexFrameLerp);
 
     output.m_position = mul(ViewSrg::m_viewProjectionMatrix, float4(vtxWorldPos, 1.0f));
-    output.m_texCoords0 = vtxUV0;
+    output.m_clipPosition = output.m_position;
+    output.m_texCoord0 = vtxUV0;
 
+    // Atlas animation blending:
+    output.m_texCoord1 = float2(0, 0);
+    output.m_texFrameLerp = 0;
     if (HasOneRendererFlags(Has_AnimBlend))
     {
+        output.m_texCoord1 = vtxUV1;
         output.m_texFrameLerp = vtxTexFrameLerp;
-        output.m_texCoords1 = vtxUV1;
     }
+    // Alpha remap:
+    output.m_alphaCursor = 0;
+    if (HasOneRendererFlags(Has_AlphaRemap))
+        output.m_alphaCursor = RendererSrg::m_alphaCursors[particleIdx];
 
     // Get additional fields:
     if (o_hasDiffuse)
@@ -60,8 +74,9 @@ VertexOutput BillboardVS(VertexInput input)
     }
     if (o_hasEmissive)
     {
-        output.m_emissiveColor = RendererSrg::m_emissiveColors[particleIdx];
+        output.m_emissiveColor = GetEmissiveParticleColor(particleIdx);
     }
+
     return output;
 }
 
@@ -73,33 +88,36 @@ struct PixelOutput
 PixelOutput BillboardFS(VertexOutput input)
 {
     PixelOutput output;
-    
+
     float4  diffuseColor = float4(0, 0, 0, 0);
     float4  emissiveColor = float4(0, 0, 0, 0);
 
     if (o_hasDiffuse)
     {
-        float4 texColor = MaterialSrg::m_diffuseMap.Sample(MaterialSrg::m_sampler, input.m_texCoords0);
-        if (HasOneRendererFlags(Has_AnimBlend_Linear))
-        {
-            float4 texColor1 = MaterialSrg::m_diffuseMap.Sample(MaterialSrg::m_sampler, input.m_texCoords1);
-            texColor = lerp(texColor, texColor1, input.m_texFrameLerp);
-        }
-        diffuseColor = texColor;
+        diffuseColor = GetDiffuseColor(input.m_texCoord0);
+        if (HasOneRendererFlags(Has_AlphaRemap))
+            diffuseColor = ApplyAlphaRemap(diffuseColor, input.m_alphaCursor);
         diffuseColor *= input.m_diffuseColor;
+        diffuseColor.a = clamp(diffuseColor.a, 0, 1);
+
+        ApplyOpaqueMasked(diffuseColor.a);
     }
+
     if (o_hasEmissive)
     {
-        float4 texColor = MaterialSrg::m_emissiveMap.Sample(MaterialSrg::m_sampler, input.m_texCoords0);
-        if (HasOneRendererFlags(Has_AnimBlend_Linear))
-        {
-            float4 texColor1 = MaterialSrg::m_emissiveMap.Sample(MaterialSrg::m_sampler, input.m_texCoords1);
-            texColor = lerp(texColor, texColor1, input.m_texFrameLerp);
-        }
-        emissiveColor = texColor;
-        emissiveColor.rgb *= input.m_emissiveColor;
+        emissiveColor = GetEmissiveColor(input.m_texCoord0);
+        emissiveColor *= input.m_emissiveColor;
+    }
+
+    if (HasOneRendererFlags(Has_Soft))
+    {
+        float3 clipPos = input.m_clipPosition.xyz / input.m_clipPosition.w;
+        float fade = GetSoftParticleFade(clipPos);
+        diffuseColor *= fade;
+        emissiveColor *= fade;
     }
 
     output.m_color = float4(diffuseColor.rgb * diffuseColor.a + emissiveColor.rgb * emissiveColor.a, diffuseColor.a);
     return output;
 }
+
