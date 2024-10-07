@@ -20,9 +20,16 @@ namespace PopcornFX {
 const char	*kPopcornFXShaderPaths[] =
 {
 	"shaders/Billboard/Default/Billboard.azshader",							// Billboard_Shader
+	"shaders/Billboard/Default/BillboardLit.azshader",						// BillboardLit_Shader
 	"shaders/Billboard/Legacy/Billboard_Legacy.azshader",					// BillboardLegacy_Shader
 	"shaders/Billboard/Legacy/BillboardLit_Legacy.azshader",				// BillboardLitLegacy_Shader
 	"shaders/Billboard/Default/BillboardDistortion.azshader",				// BillboardDistortion_Shader
+	"shaders/Ribbon/Default/Ribbon.azshader",								// Ribbon_Shader
+	"shaders/Ribbon/Default/RibbonAtlasBlend.azshader",						// RibbonAtlasBlend_Shader
+	"shaders/Ribbon/Default/RibbonCorrectDeformation.azshader",				// RibbonCorrectDeformation_Shader
+	"shaders/Ribbon/Default/RibbonLit.azshader",							// RibbonLit_Shader
+	"shaders/Ribbon/Default/RibbonLitAtlasBlend.azshader",					// RibbonLitAtlasBlend_Shader
+	"shaders/Ribbon/Default/RibbonLitCorrectDeformation.azshader",			// RibbonLitCorrectDeformation_Shader
 	"shaders/Ribbon/Legacy/Ribbon_Legacy.azshader",							// RibbonLegacy_Shader
 	"shaders/Ribbon/Legacy/RibbonAtlasBlend_Legacy.azshader",				// RibbonAtlasBlendLegacy_Shader
 	"shaders/Ribbon/Legacy/RibbonCorrectDeformation_Legacy.azshader",		// RibbonCorrectDeformationLegacy_Shader
@@ -30,18 +37,25 @@ const char	*kPopcornFXShaderPaths[] =
 	"shaders/Ribbon/Legacy/RibbonLitAtlasBlend_Legacy.azshader",			// RibbonLitAtlasBlendLegacy_Shader
 	"shaders/Ribbon/Legacy/RibbonLitCorrectDeformation_Legacy.azshader",	// RibbonLitCorrectDeformationLegacy_Shader
 	"shaders/Ribbon/Default/RibbonDistortion.azshader",						// RibbonDistortion_Shader
-	"shaders/Mesh/Legacy/Mesh_Legacy.azshader",								// Mesh_Shader
-	"shaders/Mesh/Legacy/MeshLit_Legacy.azshader",							// MeshLit_Shader
+	"shaders/Mesh/Default/Mesh.azshader",									// Mesh_Shader
+	"shaders/Mesh/Default/MeshLit.azshader",								// MeshLit_Shader
+	"shaders/Mesh/Legacy/Mesh_Legacy.azshader",								// MeshLegacy_Shader
+	"shaders/Mesh/Legacy/MeshLit_Legacy.azshader",							// MeshLitLegacy_Shader
 };
 
 //----------------------------------------------------------------------------
 
 bool IsLitShader(EPopcornFXShader shader)
 {
-	return	shader == BillboardLitLegacy_Shader ||
+	return	shader == BillboardLit_Shader ||
+			shader == BillboardLitLegacy_Shader ||
+			shader == RibbonLit_Shader ||
+			shader == RibbonLitAtlasBlend_Shader ||
+			shader == RibbonLitCorrectDeformation_Shader ||
 			shader == RibbonLitLegacy_Shader ||
 			shader == RibbonLitAtlasBlendLegacy_Shader ||
 			shader == RibbonLitCorrectDeformationLegacy_Shader ||
+			shader == MeshLit_Shader ||
 			shader == MeshLitLegacy_Shader;
 }
 
@@ -52,6 +66,7 @@ bool IsBillboardShader(EPopcornFXShader shader)
 	return	shader == BillboardLitLegacy_Shader ||
 			shader == BillboardLegacy_Shader ||
 			shader == Billboard_Shader ||
+			shader == BillboardLit_Shader ||
 			shader == BillboardDistortion_Shader;
 }
 
@@ -59,13 +74,50 @@ bool IsBillboardShader(EPopcornFXShader shader)
 
 bool IsRibbonShader(EPopcornFXShader shader)
 {
-	return	shader == RibbonLegacy_Shader ||
+	return	shader == Ribbon_Shader ||
+			shader == RibbonAtlasBlend_Shader ||
+			shader == RibbonCorrectDeformation_Shader ||
+			shader == RibbonLit_Shader ||
+			shader == RibbonLitAtlasBlend_Shader ||
+			shader == RibbonLitCorrectDeformation_Shader ||
+			shader == RibbonLegacy_Shader ||
 			shader == RibbonAtlasBlendLegacy_Shader ||
 			shader == RibbonCorrectDeformationLegacy_Shader ||
 			shader == RibbonLitLegacy_Shader ||
 			shader == RibbonLitAtlasBlendLegacy_Shader ||
 			shader == RibbonLitCorrectDeformationLegacy_Shader ||
 			shader == RibbonDistortion_Shader;
+}
+
+//----------------------------------------------------------------------------
+
+bool IsRibbonShaderDefault(EPopcornFXShader shader)
+{
+	return	shader == Ribbon_Shader ||
+			shader == RibbonLit_Shader ||
+			shader == RibbonLegacy_Shader ||
+			shader == RibbonLitLegacy_Shader ||
+			shader == RibbonDistortion_Shader;
+}
+
+//----------------------------------------------------------------------------
+
+bool IsRibbonShaderAtlasBlend(EPopcornFXShader shader)
+{
+	return	shader == RibbonAtlasBlend_Shader ||
+			shader == RibbonLitAtlasBlend_Shader ||
+			shader == RibbonAtlasBlendLegacy_Shader ||
+			shader == RibbonLitAtlasBlendLegacy_Shader;
+}
+
+//----------------------------------------------------------------------------
+
+bool IsRibbonShaderCorrectDeformation(EPopcornFXShader shader)
+{
+	return	shader == RibbonCorrectDeformation_Shader ||
+			shader == RibbonLitCorrectDeformation_Shader ||
+			shader == RibbonCorrectDeformationLegacy_Shader ||
+			shader == RibbonLitCorrectDeformationLegacy_Shader;
 }
 
 //----------------------------------------------------------------------------
@@ -82,14 +134,17 @@ bool IsLegacyShader(EPopcornFXShader shader)
 			shader == RibbonLitCorrectDeformationLegacy_Shader ||
 			shader == BillboardDistortion_Shader ||
 			shader == RibbonDistortion_Shader ||
-			shader == MeshLegacy_Shader;
+			shader == MeshLegacy_Shader ||
+			shader == MeshLitLegacy_Shader;
 }
 
 //----------------------------------------------------------------------------
 
 bool IsMeshShader(EPopcornFXShader shader)
 {
-	return	shader == MeshLegacy_Shader ||
+	return	shader == Mesh_Shader ||
+			shader == MeshLit_Shader ||
+			shader == MeshLegacy_Shader ||
 			shader == MeshLitLegacy_Shader;
 }
 //----------------------------------------------------------------------------
@@ -319,7 +374,8 @@ void	SParticleMaterialBasicDesc::InitFromRenderer(const CRendererDataBase &rende
 		const CString	diffuseMap = decl.GetPropertyValue_Path(SID_Diffuse_DiffuseMap(), CString::EmptyString);
 		if (!diffuseMap.Empty())
 		{
-			PK_ASSERT(renderer.m_Declaration.FindAdditionalFieldIndex(SID_Diffuse_Color()).Valid());
+			PK_ASSERT(	renderer.m_Declaration.FindAdditionalFieldIndex(SID_Diffuse_Color()).Valid() ||
+						renderer.m_Declaration.FindAdditionalFieldIndex(SID_Diffuse_DiffuseColor()).Valid());
 			// With the new "Experimental" shaders, emissive, diffuse, distortion and tint are features you can disable
 			// to handle that we set changesPipelineState to true:
 			_AddRendererFlags(RendererFlags::Has_Diffuse, true, true);
@@ -474,27 +530,31 @@ void	SParticleMaterialBasicDesc::InitFromRenderer(const CRendererDataBase &rende
 
 	if (decl.IsFeatureEnabled(SID_Transparent()))
 	{
-		const ETransparentType	transparentType = decl.GetPropertyValue_Enum<ETransparentType>(SID_Transparent_Type(), Additive);
-
-		m_PipelineStateKey.m_BlendMode = BlendMode::Additive;
-		switch (transparentType)
+		const SRendererFeaturePropertyValue	*prop = decl.FindProperty(SID_Transparent_Type());
+		if (prop != null)
 		{
-		case	Additive:
+			const ETransparentType	transparentType = decl.GetPropertyValue_Enum<ETransparentType>(SID_Transparent_Type(), Additive);
+
 			m_PipelineStateKey.m_BlendMode = BlendMode::Additive;
-			break;
-		case	AdditiveNoAlpha:
-			m_PipelineStateKey.m_BlendMode = BlendMode::AdditiveNoAlpha;
-			break;
-		case	AlphaBlend:
-			m_PipelineStateKey.m_BlendMode = BlendMode::AlphaBlend;
-			break;
-		case	PremultipliedAlpha:
-			m_PipelineStateKey.m_BlendMode = BlendMode::PremultipliedAlpha;
-			break;
-		default:
-			PK_ASSERT_NOT_REACHED();
-			break;
-		};
+			switch (transparentType)
+			{
+			case	Additive:
+				m_PipelineStateKey.m_BlendMode = BlendMode::Additive;
+				break;
+			case	AdditiveNoAlpha:
+				m_PipelineStateKey.m_BlendMode = BlendMode::AdditiveNoAlpha;
+				break;
+			case	AlphaBlend:
+				m_PipelineStateKey.m_BlendMode = BlendMode::AlphaBlend;
+				break;
+			case	PremultipliedAlpha:
+				m_PipelineStateKey.m_BlendMode = BlendMode::PremultipliedAlpha;
+				break;
+			default:
+				PK_ASSERT_NOT_REACHED();
+				break;
+			};
+		}
 	}
 	else if (decl.IsFeatureEnabled(SID_Opaque()))
 	{
@@ -527,8 +587,42 @@ void	SParticleMaterialBasicDesc::InitFromRenderer(const CRendererDataBase &rende
 	}
 	else if (m_PipelineStateKey.m_BlendMode == BlendMode::BlendMode_Count) // No explicit blend mode, can use new materials...
 	{
+		m_PipelineStateKey.m_BlendMode = BlendMode::PremultipliedAlpha;
 		if (renderer.m_RendererType == ERendererClass::Renderer_Billboard)
-			m_PipelineStateKey.m_UsedShader = EPopcornFXShader::Billboard_Shader;
+		{
+			if (HasOneRendererFlags(RendererFlags::Has_Lighting))
+				m_PipelineStateKey.m_UsedShader = EPopcornFXShader::BillboardLit_Shader;
+			else
+				m_PipelineStateKey.m_UsedShader = EPopcornFXShader::Billboard_Shader;
+		}
+		else if (renderer.m_RendererType == ERendererClass::Renderer_Ribbon)
+		{
+			if (HasOneRendererFlags(RendererFlags::Has_Lighting))
+			{
+				if (HasOneRendererFlags(RendererFlags::Has_CorrectDeformation))
+					m_PipelineStateKey.m_UsedShader = EPopcornFXShader::RibbonLitCorrectDeformation_Shader;
+				else if (HasOneRendererFlags(RendererFlags::Has_AnimBlend))
+					m_PipelineStateKey.m_UsedShader = EPopcornFXShader::RibbonLitAtlasBlend_Shader;
+				else
+					m_PipelineStateKey.m_UsedShader = EPopcornFXShader::RibbonLit_Shader;
+			}
+			else
+			{
+				if (HasOneRendererFlags(RendererFlags::Has_CorrectDeformation))
+					m_PipelineStateKey.m_UsedShader = EPopcornFXShader::RibbonCorrectDeformation_Shader;
+				else if (HasOneRendererFlags(RendererFlags::Has_AnimBlend))
+					m_PipelineStateKey.m_UsedShader = EPopcornFXShader::RibbonAtlasBlend_Shader;
+				else
+					m_PipelineStateKey.m_UsedShader = EPopcornFXShader::Ribbon_Shader;
+			}
+		}
+		else if (renderer.m_RendererType == ERendererClass::Renderer_Mesh)
+		{
+			if (HasOneRendererFlags(RendererFlags::Has_Lighting))
+				m_PipelineStateKey.m_UsedShader = EPopcornFXShader::MeshLit_Shader;
+			else
+				m_PipelineStateKey.m_UsedShader = EPopcornFXShader::Mesh_Shader;
+		}
 	}
 	else
 	{

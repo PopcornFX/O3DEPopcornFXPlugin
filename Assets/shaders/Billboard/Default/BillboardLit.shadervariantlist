@@ -1,0 +1,149 @@
+{
+    "Shader": "shaders/Billboard/Default/BillboardLit.shader",
+    "Variants": [
+        {
+            "StableId": 1,
+            "Options": {
+                "o_hasAtlas": "false",
+                "o_hasBillboardCapsules": "false",
+                "o_hasDiffuse": "false",
+                "o_hasEmissive": "false"
+            }
+        },
+        {
+            "StableId": 2,
+            "Options": {
+                "o_hasAtlas": "false",
+                "o_hasBillboardCapsules": "true",
+                "o_hasDiffuse": "false",
+                "o_hasEmissive": "false"
+            }
+        },
+        {
+            "StableId": 3,
+            "Options": {
+                "o_hasAtlas": "true",
+                "o_hasBillboardCapsules": "false",
+                "o_hasDiffuse": "false",
+                "o_hasEmissive": "false"
+            }
+        },
+        {
+            "StableId": 4,
+            "Options": {
+                "o_hasAtlas": "true",
+                "o_hasBillboardCapsules": "true",
+                "o_hasDiffuse": "false",
+                "o_hasEmissive": "false"
+            }
+        },
+        {
+            "StableId": 5,
+            "Options": {
+                "o_hasAtlas": "false",
+                "o_hasBillboardCapsules": "false",
+                "o_hasDiffuse": "true",
+                "o_hasEmissive": "false"
+            }
+        },
+        {
+            "StableId": 6,
+            "Options": {
+                "o_hasAtlas": "false",
+                "o_hasBillboardCapsules": "true",
+                "o_hasDiffuse": "true",
+                "o_hasEmissive": "false"
+            }
+        },
+        {
+            "StableId": 7,
+            "Options": {
+                "o_hasAtlas": "true",
+                "o_hasBillboardCapsules": "false",
+                "o_hasDiffuse": "true",
+                "o_hasEmissive": "false"
+            }
+        },
+        {
+            "StableId": 8,
+            "Options": {
+                "o_hasAtlas": "true",
+                "o_hasBillboardCapsules": "true",
+                "o_hasDiffuse": "true",
+                "o_hasEmissive": "false"
+            }
+        },
+        {
+            "StableId": 9,
+            "Options": {
+                "o_hasAtlas": "false",
+                "o_hasBillboardCapsules": "false",
+                "o_hasDiffuse": "false",
+                "o_hasEmissive": "true"
+            }
+        },
+        {
+            "StableId": 10,
+            "Options": {
+                "o_hasAtlas": "false",
+                "o_hasBillboardCapsules": "true",
+                "o_hasDiffuse": "false",
+                "o_hasEmissive": "true"
+            }
+        },
+        {
+            "StableId": 11,
+            "Options": {
+                "o_hasAtlas": "true",
+                "o_hasBillboardCapsules": "false",
+                "o_hasDiffuse": "false",
+                "o_hasEmissive": "true"
+            }
+        },
+        {
+            "StableId": 12,
+            "Options": {
+                "o_hasAtlas": "true",
+                "o_hasBillboardCapsules": "true",
+                "o_hasDiffuse": "false",
+                "o_hasEmissive": "true"
+            }
+        },
+        {
+            "StableId": 13,
+            "Options": {
+                "o_hasAtlas": "false",
+                "o_hasBillboardCapsules": "false",
+                "o_hasDiffuse": "true",
+                "o_hasEmissive": "true"
+            }
+        },
+        {
+            "StableId": 14,
+            "Options": {
+                "o_hasAtlas": "false",
+                "o_hasBillboardCapsules": "true",
+                "o_hasDiffuse": "true",
+                "o_hasEmissive": "true"
+            }
+        },
+        {
+            "StableId": 15,
+            "Options": {
+                "o_hasAtlas": "true",
+                "o_hasBillboardCapsules": "false",
+                "o_hasDiffuse": "true",
+                "o_hasEmissive": "true"
+            }
+        },
+        {
+            "StableId": 16,
+            "Options": {
+                "o_hasAtlas": "true",
+                "o_hasBillboardCapsules": "true",
+                "o_hasDiffuse": "true",
+                "o_hasEmissive": "true"
+            }
+        }
+    ]
+}

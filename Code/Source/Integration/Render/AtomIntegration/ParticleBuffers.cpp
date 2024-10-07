@@ -117,8 +117,10 @@ namespace PopcornFX {
 	:	m_UseLargeIndices(true)
 	,	m_RenderContext(null)
 	{
+		m_HandledAdditionalFields.PushBack(SHandledAdditionalFields(BasicRendererProperties::SID_Diffuse_DiffuseColor(), BaseType_Float4));
 		m_HandledAdditionalFields.PushBack(SHandledAdditionalFields(BasicRendererProperties::SID_Diffuse_Color(), BaseType_Float4));
 		m_HandledAdditionalFields.PushBack(SHandledAdditionalFields(BasicRendererProperties::SID_Emissive_EmissiveColor(), BaseType_Float3));
+		m_HandledAdditionalFields.PushBack(SHandledAdditionalFields(BasicRendererProperties::SID_Emissive_EmissiveColor(), BaseType_Float4));
 		m_HandledAdditionalFields.PushBack(SHandledAdditionalFields(BasicRendererProperties::SID_Distortion_Color(), BaseType_Float4));
 		m_HandledAdditionalFields.PushBack(SHandledAdditionalFields(BasicRendererProperties::SID_AlphaRemap_Cursor(), BaseType_Float));
 		m_HandledAdditionalFields.PushBack(SHandledAdditionalFields(BasicRendererProperties::SID_Atlas_TextureID(), BaseType_Float));

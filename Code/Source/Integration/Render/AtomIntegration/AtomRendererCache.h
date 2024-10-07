@@ -83,9 +83,16 @@ namespace	BlendMode
 enum	EPopcornFXShader
 {
 	Billboard_Shader,
+	BillboardLit_Shader,
 	BillboardLegacy_Shader,
 	BillboardLitLegacy_Shader,
 	BillboardDistortion_Shader,
+	Ribbon_Shader,
+	RibbonAtlasBlend_Shader,
+	RibbonCorrectDeformation_Shader,
+	RibbonLit_Shader,
+	RibbonLitAtlasBlend_Shader,
+	RibbonLitCorrectDeformation_Shader,
 	RibbonLegacy_Shader,
 	RibbonAtlasBlendLegacy_Shader,
 	RibbonCorrectDeformationLegacy_Shader,
@@ -93,6 +100,8 @@ enum	EPopcornFXShader
 	RibbonLitAtlasBlendLegacy_Shader,
 	RibbonLitCorrectDeformationLegacy_Shader,
 	RibbonDistortion_Shader,
+	Mesh_Shader,
+	MeshLit_Shader,
 	MeshLegacy_Shader,
 	MeshLitLegacy_Shader,
 	__Shader_Count
@@ -105,6 +114,9 @@ extern const char	*kPopcornFXShaderPaths[__Shader_Count];
 bool		IsLitShader(EPopcornFXShader shader);
 bool		IsBillboardShader(EPopcornFXShader shader);
 bool		IsRibbonShader(EPopcornFXShader shader);
+bool		IsRibbonShaderDefault(EPopcornFXShader shader);
+bool		IsRibbonShaderAtlasBlend(EPopcornFXShader shader);
+bool		IsRibbonShaderCorrectDeformation(EPopcornFXShader shader);
 bool		IsLegacyShader(EPopcornFXShader shader);
 bool		IsMeshShader(EPopcornFXShader shader);
 const char	*GetPopornFXUsedShaderPath(EPopcornFXShader shader);

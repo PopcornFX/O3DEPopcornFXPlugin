@@ -32,7 +32,7 @@ struct VertexOutput
     float4 m_position : SV_Position;
     float2 m_texCoord0 : UV0;
     float4 m_diffuseColor : COLOR0;
-    float3 m_emissiveColor : COLOR1;
+    float4 m_emissiveColor : COLOR1;
     float m_alphaCursor : UV1;
 };
 
@@ -49,16 +49,19 @@ VertexOutput MeshVS(VertexInput input)
 
     output.m_texCoord0 = input.m_texCoord0;
     
-    // Diffuse particle color:
-    output.m_diffuseColor = float4(0, 0, 0, 0);
-    if (HasOneRendererFlags(Has_Diffuse))
-        output.m_diffuseColor = RendererSrg::m_diffuseColors[particleIdx];
-    // Emissive particle color:
-    output.m_emissiveColor = float3(0, 0, 0);
-    if (HasOneRendererFlags(Has_Emissive))
-        output.m_emissiveColor = GetEmissiveParticleColorLegacy(particleIdx);
     if (HasOneRendererFlags(Has_AlphaRemap))
          output.m_alphaCursor = RendererSrg::m_alphaCursors[particleIdx];
+
+    // Get additional fields:
+    if (o_hasDiffuse)
+    {
+        output.m_diffuseColor = RendererSrg::m_diffuseColors[particleIdx];
+    }
+    if (o_hasEmissive)
+    {
+        output.m_emissiveColor = GetEmissiveParticleColor(particleIdx);
+    }
+
     return output;
 }
 
@@ -71,17 +74,24 @@ PixelOutput MeshFS(VertexOutput input)
 {
     PixelOutput output;
 
-    float4 diffuseColor = GetDiffuseColor(input.m_texCoord0);
-    if (HasOneRendererFlags(Has_AlphaRemap))
-        diffuseColor = ApplyAlphaRemap(diffuseColor, input.m_alphaCursor);
-    diffuseColor *= input.m_diffuseColor;
-    diffuseColor.a = clamp(diffuseColor.a, 0, 1);
+    float4  diffuseColor = float4(0, 0, 0, 0);
+    float4  emissiveColor = float4(0, 0, 0, 0);
 
-    ApplyOpaqueMasked(diffuseColor.a);
+    if (o_hasDiffuse)
+    {
+        diffuseColor = GetDiffuseColor(input.m_texCoord0);
+        if (HasOneRendererFlags(Has_AlphaRemap))
+            diffuseColor = ApplyAlphaRemap(diffuseColor, input.m_alphaCursor);
+        diffuseColor *= input.m_diffuseColor;
+        diffuseColor.a = clamp(diffuseColor.a, 0, 1);
+    }
 
-    float4 emissiveColor = GetEmissiveColor(input.m_texCoord0);
+    if (o_hasEmissive)
+    {
+        emissiveColor = GetEmissiveColor(input.m_texCoord0);
+        emissiveColor *= input.m_emissiveColor;
+    }
 
-    emissiveColor.rgb *= input.m_emissiveColor * emissiveColor.a;
-    output.m_color = float4(diffuseColor.rgb + emissiveColor.rgb, diffuseColor.a);
+    output.m_color = float4(diffuseColor.rgb * diffuseColor.a + emissiveColor.rgb * emissiveColor.a, diffuseColor.a);
     return output;
 }
