@@ -257,6 +257,8 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &to
 
 		// Non constant data: additionnal inputs
 		AZ::RHI::Ptr<AZ::RHI::Buffer>	diffuseColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Diffuse_Color());
+		if (diffuseColor == null)
+			diffuseColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Diffuse_DiffuseColor());
 		if (diffuseColor != null)
 		{
 #if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
@@ -269,10 +271,14 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &to
 		AZ::RHI::Ptr<AZ::RHI::Buffer>	emissiveColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Emissive_EmissiveColor());
 		if (emissiveColor != null)
 		{
+			const bool	isLegacyShader = IsLegacyShader(rendererCache->m_BasicDescription.m_PipelineStateKey.m_UsedShader);
+			const u32	elementOffset = isLegacyShader ? particleOffset * 3 : particleOffset * 4;
+			const u32	elementCount = isLegacyShader ? particleCount * 3 : particleCount * 4;
+
 #if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
-			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(particleOffset * 3, meshParticleCount * 3, sizeof(float)));
+			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(elementOffset, elementCount, sizeof(float)));
 #else
-			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(particleOffset * 3, meshParticleCount * 3, sizeof(float)));
+			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(elementOffset, elementCount, sizeof(float)));
 #endif
 			m_PipelineCaches[i].SetMeshSrgBuffer(MeshSrg::ParticleEmissiveColor_ShaderRead, buff);
 		}
@@ -293,11 +299,16 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &to
 		dc.m_BoundingBox = toEmit.m_BBox;
 
 		// Draw call description:
+#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+		dc.m_InstanceCount = meshParticleCount;
+		dc.m_GeometryView.SetDrawArguments(AZ::RHI::DrawIndexed(0, views.m_IndexCount, 0));
+#else
 		dc.m_DrawIndexed.m_indexCount = views.m_IndexCount;
 		dc.m_DrawIndexed.m_indexOffset = 0;
 		dc.m_DrawIndexed.m_instanceCount = meshParticleCount;
 		dc.m_DrawIndexed.m_instanceOffset = 0;
 		dc.m_DrawIndexed.m_vertexOffset = 0;
+#endif
 
 		// Draw instance indices and tex-coords:
 		if (!PK_VERIFY(m_RenderContext->m_DrawCalls.PushBack(dc).Valid()))
