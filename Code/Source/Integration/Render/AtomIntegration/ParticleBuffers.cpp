@@ -48,9 +48,6 @@ namespace PopcornFX {
 		sizeof(float), // GenBuffer_ParticleRotation
 		sizeof(CFloat3), // GenBuffer_ParticleAxis0
 		sizeof(CFloat3), // GenBuffer_ParticleAxis1
-		sizeof(CFloat3), // GenBuffer_ParticlePosition0
-		sizeof(CFloat3), // GenBuffer_ParticlePosition1
-		sizeof(CFloat3), // GenBuffer_ParticlePosition2
 	};
 
 	PK_STATIC_ASSERT(PK_ARRAY_COUNT(CParticleBuffers::kBufferStrides) == CParticleBuffers::__GenBuffer_Count);
