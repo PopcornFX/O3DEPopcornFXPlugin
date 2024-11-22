@@ -61,9 +61,6 @@ public:
 		GenBuffer_ParticleRotation,
 		GenBuffer_ParticleAxis0,
 		GenBuffer_ParticleAxis1,
-		GenBuffer_ParticlePosition0,
-		GenBuffer_ParticlePosition1,
-		GenBuffer_ParticlePosition2,
 
 		__GenBuffer_Count
 	};
@@ -71,7 +68,7 @@ public:
 	// Element sizes:
 	static const u32	kBufferStrides[];
 
-	PK_STATIC_ASSERT(TIntegerTemplateTools::Log2<Drawers::GenInput_ParticlePosition2>::Value + 1 == __GenBuffer_Count);
+	PK_STATIC_ASSERT(TIntegerTemplateTools::Log2<Drawers::GenInput_ParticleAxis1>::Value + 1 == __GenBuffer_Count);
 
 	struct	SViewIndependent
 	{
