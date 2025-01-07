@@ -7,7 +7,7 @@
 #include <Atom/Features/PostProcessing/FullscreenPixelInfo.azsli>
 #include <Atom/Features/ScreenSpace/ScreenSpaceUtil.azsli>
 
-#include <scenesrg.srgi>
+#include <scenesrg_all.srgi>
 
 ShaderResourceGroup PassSrg : SRG_PerPass
 {

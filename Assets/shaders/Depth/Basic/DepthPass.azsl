@@ -3,7 +3,7 @@
 // https://www.popcornfx.com/terms-and-conditions/
 //----------------------------------------------------------------------------
 
-#include <viewsrg.srgi>
+#include <viewsrg_all.srgi>
 
 struct VertexInput
 {
