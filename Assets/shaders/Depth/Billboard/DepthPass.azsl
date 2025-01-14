@@ -3,7 +3,7 @@
 // https://www.popcornfx.com/terms-and-conditions/
 //----------------------------------------------------------------------------
 
-#include <viewsrg.srgi>
+#include <viewsrg_all.srgi>
 
 // Billboarding shader:
 #define 	PK_DEPTH_ONLY_SHADER

@@ -11,8 +11,8 @@
 #include <Atom/Features/PBR/AlphaUtils.azsli>
 #include <Atom/Features/PBR/LightingOptions.azsli>
 
-#include <viewsrg.srgi>
-#include <scenesrg.srgi>
+#include <viewsrg_all.srgi>
+#include <scenesrg_all.srgi>
 
 #include <Atom/RPI/Math.azsli>
 #include <Atom/RPI/TangentSpace.azsli>
