@@ -12,8 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set MINOR_VERSION
-        run: export SHORT=${GITHUB_REF_NAME%.*} && echo "MINOR_VERSION=${SHORT#v}" >> $GITHUB_ENV
+      - name: Set ENV
+        run: echo SHORT=${GITHUB_REF_NAME%.*} >> $GITHUB_ENV && echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
 
       - uses: ncipollo/release-action@v1
         with:
@@ -21,4 +21,4 @@ jobs:
           name: "O3DE Plugin: ${{ github.ref_name }}"
           body: "PopcornFX Plugin ${{ github.ref_name }} for O3DE\n\n
                 You can download the PopcornFX Editor and find the full changelog here:\n
-                https://wiki.popcornfx.com/index.php?title=PK-Editor_${{ env.SHORT }}#Changelog_${{ env.MINOR_VERSION }}"
+                https://wiki.popcornfx.com/index.php?title=PK-Editor_${{ env.SHORT }}#Changelog_${{ env.VERSION }}"
