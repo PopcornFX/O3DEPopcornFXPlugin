@@ -51,6 +51,7 @@ public:
 		GenBuffer_UV0,
 		GenBuffer_UV1,
 		GenBuffer_UVRemap,
+		GenBuffer_UV1Remap,
 		GenBuffer_UVFactors,
 
 		// Per particle:

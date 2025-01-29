@@ -38,6 +38,7 @@ namespace PopcornFX {
 		sizeof(CFloat2), // GenBuffer_UV0
 		sizeof(CFloat2), // GenBuffer_UV1
 		sizeof(CFloat4), // GenBuffer_UVRemap
+		sizeof(CFloat4), // GenBuffer_UV1Remap
 		sizeof(CFloat2), // GenBuffer_UVFactors
 
 		// Per particle:
