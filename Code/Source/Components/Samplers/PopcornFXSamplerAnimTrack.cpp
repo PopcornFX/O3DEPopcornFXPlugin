@@ -216,7 +216,7 @@ namespace PopcornFX {
 			return false;
 
 		desc->m_Tracks.Clear();
-		desc->m_Tracks.PushBack(CParticleSamplerDescriptor_AnimTrack_Default::SPathDefinition(m_Positions, null, null));
+		desc->m_Tracks.PushBack(CParticleSamplerDescriptor_AnimTrack_Default::SPathDefinition(m_Positions, null, null, splineLength));
 		PopcornFXSamplerComponentEventsBus::Event(m_AttachedToEntityId, &PopcornFXSamplerComponentEventsBus::Events::OnSamplerReady, m_AttachedToEntityId);
 
 		return true;
