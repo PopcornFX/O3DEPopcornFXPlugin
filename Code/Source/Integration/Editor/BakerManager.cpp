@@ -347,22 +347,19 @@ void	CBakerManager::_SetBuildVersion(const AZStd::string &platform)
 
 			if (platform != AzFramework::PlatformServer)
 			{
-				CString	platformTags;
+				CString	platformTags = ", o3de";
 				if (platform == AzFramework::PlatformPC)
-					platformTags = "windows, desktop";
+					platformTags += ", windows, desktop";
 				else if (platform == AzFramework::PlatformLinux)
-					platformTags = "linux, desktop";
+					platformTags += ", linux, desktop";
 				else if (platform == AzFramework::PlatformMac)
-					platformTags = "macos, desktop";
+					platformTags += ", macos, desktop";
 				else if (platform == AzFramework::PlatformAndroid)
-					platformTags = "android, mobile";
+					platformTags += ", android, mobile";
 				else if (platform == AzFramework::PlatformIOS)
-					platformTags = "ios, mobile";
+					platformTags += ", ios, mobile";
 				else if (platform == AzFramework::PlatformProvo)
-					platformTags = "provo, console";
-
-				if (!platformTags.Empty())
-					platformTags = CString(", ") + platformTags;
+					platformTags += ", provo, console";
 
 				buildVersions.PushBack(CString("Low: low") + platformTags);
 				buildVersions.PushBack(CString("Medium: medium") + platformTags);
