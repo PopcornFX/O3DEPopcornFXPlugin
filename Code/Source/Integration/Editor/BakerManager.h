@@ -23,12 +23,33 @@ namespace PopcornFX
 	namespace HBO {
 		class CContext;
 	}
+	class IResourceHandler;
 	PK_FORWARD_DECLARE(OvenBakeConfig_HBO);
 }
 
 namespace PopcornFX {
 
 class CWindManager;
+
+class CEffectBrowser
+{
+public:
+	bool	ActivateIFN();
+	void	Deactivate();
+
+	bool	GatherRuntimeDependencies(const AZStd::string &packPath, const AZStd::string &effectPath, AZStd::vector<AZStd::string> &outDependencies);
+
+private:
+	IResourceHandler			*m_BrowseResourceMeshHandler = null;
+	IResourceHandler			*m_BrowseResourceImageHandler = null;
+	IResourceHandler			*m_BrowseResourceRectangleListHandler = null;
+	IResourceHandler			*m_BrowseResourceFontMetricsHandler = null;
+	IResourceHandler			*m_BrowseResourceVectorFieldHandler = null;
+	IFileSystem					*m_BrowseFSController = null;
+	CResourceManager			*m_BrowseResourceManager = null;
+	HBO::CContext				*m_BrowseContext = null;
+	bool						m_Activated = false;
+};
 
 //----------------------------------------------------------------------------
 
@@ -39,7 +60,8 @@ public:
 	void	Deactivate();
 
 	AZStd::string	BakeSingleAsset(const AZStd::string &assetPath, const AZStd::string &outDir, const AZStd::string &platform, CWindManager &windManager);
-	bool			GatherDependencies(const AZStd::string &assetPath, AZStd::vector<AZStd::string> &dependencies, CWindManager &windManager);
+	bool			GatherStaticDependencies(const AZStd::string &assetPath, AZStd::vector<AZStd::string> &dependencies, CWindManager &windManager);
+	bool			GatherRuntimeDependencies(const AZStd::string &packPath, const AZStd::string &effectPath, AZStd::vector<AZStd::string> &dependencies);
 
 private:
 	class		SBakeContext
@@ -67,6 +89,8 @@ private:
 
 	CCookery		*m_Cookery = null;
 	SBakeContext	*m_BakeContext = null;
+	AZStd::string	m_RootPath;
+	CEffectBrowser	m_EffectBrowser;
 };
 
 //----------------------------------------------------------------------------

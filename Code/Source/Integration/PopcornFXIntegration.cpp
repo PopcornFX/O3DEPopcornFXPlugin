@@ -523,9 +523,14 @@ AZStd::string	PopcornFXIntegration::BakeSingleAsset(const AZStd::string &assetPa
 	return m_BakerManager.BakeSingleAsset(assetPath, outDir, platform, m_WindManager);
 }
 
-bool	PopcornFXIntegration::GatherDependencies(const AZStd::string &assetPath, AZStd::vector<AZStd::string> &dependencies)
+bool	PopcornFXIntegration::GatherStaticDependencies(const AZStd::string &assetPath, AZStd::vector<AZStd::string> &dependencies)
 {
-	return m_BakerManager.GatherDependencies(assetPath, dependencies, m_WindManager);
+	return m_BakerManager.GatherStaticDependencies(assetPath, dependencies, m_WindManager);
+}
+
+bool	PopcornFXIntegration::GatherRuntimeDependencies(const AZStd::string &packPath, const AZStd::string &effectPath, AZStd::vector<AZStd::string> &dependencies)
+{
+	return m_BakerManager.GatherRuntimeDependencies(packPath, effectPath, dependencies);
 }
 #endif
 

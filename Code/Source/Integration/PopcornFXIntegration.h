@@ -92,7 +92,8 @@ namespace PopcornFX {
 #if defined(POPCORNFX_BUILDER)
 		virtual void						SetBakingThreadpool() override;
 		virtual AZStd::string				BakeSingleAsset(const AZStd::string &assetPath, const AZStd::string &outDir, const AZStd::string &platform) override;
-		virtual bool						GatherDependencies(const AZStd::string &assetPath, AZStd::vector<AZStd::string> &dependencies) override;
+		virtual bool						GatherStaticDependencies(const AZStd::string &assetPath, AZStd::vector<AZStd::string> &dependencies) override;
+		virtual bool						GatherRuntimeDependencies(const AZStd::string &packPath, const AZStd::string &effectPath, AZStd::vector<AZStd::string> &dependencies) override;
 #endif
 #if defined(POPCORNFX_EDITOR)
 		virtual void						PackChanged(const AZStd::string &packPath, const AZStd::string &libraryPath) override;
