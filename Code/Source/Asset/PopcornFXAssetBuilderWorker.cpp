@@ -60,11 +60,11 @@ void	PopcornFXBuilderWorker::CreateJobs(const AssetBuilderSDK::CreateJobsRequest
 
 		bool							ok = false;
 		AZStd::vector<AZStd::string>	dependencies;
-		PopcornFX::PopcornFXIntegrationBus::BroadcastResult(ok, &PopcornFX::PopcornFXIntegrationBus::Handler::GatherDependencies, fullPath, dependencies);
+		PopcornFX::PopcornFXIntegrationBus::BroadcastResult(ok, &PopcornFX::PopcornFXIntegrationBus::Handler::GatherStaticDependencies, fullPath, dependencies);
 
 		if (!ok)
 		{
-			AZ_Error("PopcornFX", false, "_GatherDependencies failed on '%s'.", fullPath.c_str());
+			AZ_Error("PopcornFX", false, "_GatherStaticDependencies failed on '%s'.", fullPath.c_str());
 			return;
 		}
 		for (int i = 0; i < dependencies.size(); ++i)
@@ -73,7 +73,7 @@ void	PopcornFXBuilderWorker::CreateJobs(const AssetBuilderSDK::CreateJobsRequest
 			dependencyInfo.m_sourceFileDependencyPath = dependencies[i];
 			response.m_sourceFileDependencyList.push_back(dependencyInfo);
 
-			AZ_Info("PopcornFX", "'%s': New dependency added '%s'", relPath.data(), dependencies[i].c_str());
+			AZ_Info("PopcornFX", "'%s': New static dependency added '%s'", relPath.data(), dependencies[i].c_str());
 		}
 		for (const AssetBuilderSDK::PlatformInfo &platformInfo : request.m_enabledPlatforms)
 		{
@@ -144,6 +144,32 @@ void	PopcornFXBuilderWorker::ProcessJob(const AssetBuilderSDK::ProcessJobRequest
 	AssetBuilderSDK::JobProduct		jobProduct{ virtualPath };
 	if (AZ::StringFunc::Equal(ext.c_str(), "pkfx"))
 	{
+		bool							ok = false;
+		AZStd::vector<AZStd::string>	dependencies;
+		PopcornFX::PopcornFXIntegrationBus::BroadcastResult(ok, &PopcornFX::PopcornFXIntegrationBus::Handler::GatherRuntimeDependencies, request.m_tempDirPath, virtualPath, dependencies);
+
+		if (!ok)
+		{
+			AZ_Error("PopcornFX", false, "_GatherRuntimeDependencies failed on '%s' in '%s'.", request.m_tempDirPath.c_str(), virtualPath.c_str());
+			return;
+		}
+
+		for (int i = 0; i < dependencies.size(); ++i)
+		{
+
+			AZ::Data::AssetId	assetId;
+			AZ::Data::AssetCatalogRequestBus::BroadcastResult(	assetId, &AZ::Data::AssetCatalogRequestBus::Events::GetAssetIdByPath,
+																dependencies[i].c_str(), AZ::Data::AssetType(), false);
+
+			if (!assetId.IsValid())
+			{
+				AZ_Info("PopcornFX", "'%s': Could not find AssetId for dependency '%s'", virtualPath.data(), dependencies[i].c_str());
+				continue;
+			}
+			jobProduct.m_dependencies.push_back(AssetBuilderSDK::ProductDependency{assetId, 0});
+			AZ_Info("PopcornFX", "'%s': New runtime dependency added '%s'", virtualPath.data(), dependencies[i].c_str());
+		}
+
 		jobProduct.m_productAssetType = AZ::AzTypeInfo<PopcornFXAsset>::Uuid();
 		jobProduct.m_dependenciesHandled = true;
 	}

@@ -47,7 +47,8 @@ namespace PopcornFX {
 		virtual const SPayloadValue				*GetCurrentPayloadValue(const AZStd::string &payloadName) const = 0;
 #if defined(POPCORNFX_BUILDER)
 		virtual AZStd::string					BakeSingleAsset(const AZStd::string &assetPath, const AZStd::string &outDir, const AZStd::string &platform) = 0;
-		virtual bool							GatherDependencies(const AZStd::string &assetPath, AZStd::vector<AZStd::string> &dependencies) = 0;
+		virtual bool							GatherStaticDependencies(const AZStd::string &assetPath, AZStd::vector<AZStd::string> &dependencies) = 0;
+		virtual bool							GatherRuntimeDependencies(const AZStd::string &packPath, const AZStd::string &effectPath, AZStd::vector<AZStd::string> &dependencies) = 0;
 		virtual void							SetBakingThreadpool() = 0;
 #endif
 #if defined(POPCORNFX_EDITOR)
