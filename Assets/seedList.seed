@@ -1,13 +1,273 @@
-<ObjectStream version="3">
-	<Class name="AZStd::vector&lt;SeedInfo, allocator&gt;" type="{82FC5264-88D0-57CD-9307-FC52E4DAD550}">
-		<Class name="SeedInfo" field="element" version="2" type="{FACC3682-2ACA-4AA4-B85A-07AD276D18A0}">
-			<Class name="AssetId" field="assetId" version="1" type="{652ED536-3402-439B-AEBE-4A5DBC554085}">
-				<Class name="AZ::Uuid" field="guid" value="{55F8AA5A-A0E8-5A8A-9B38-2199227080A6}" type="{E152C105-A133-4D03-BBF8-3D4B2FBA3E2A}"/>
-				<Class name="unsigned int" field="subId" value="0" type="{43DA906B-7DEF-4CA8-9790-854106D3F983}"/>
-			</Class>
-			<Class name="unsigned int" field="platformFlags" value="255" type="{43DA906B-7DEF-4CA8-9790-854106D3F983}"/>
-			<Class name="AZStd::string" field="pathHint" value="popcornfx_dependencies.xml" type="{03AAAB3F-5C47-5A66-9EBC-D5FA4DB353C9}"/>
-		</Class>
-	</Class>
-</ObjectStream>
-
+{
+    "Type": "JsonSerialization",
+    "Version": 1,
+    "ClassName": "AZStd::vector<SeedInfo, allocator>",
+    "ClassData": [
+        {
+            "assetId": {
+                "guid": "{55F8AA5A-A0E8-5A8A-9B38-2199227080A6}"
+            },
+            "platformFlags": 255,
+            "pathHint": "popcornfx_dependencies.xml"
+        },
+        {
+            "assetId": {
+                "guid": "{8797CEF0-AF07-5CE1-B0B7-BA0AF62F2FAC}"
+            },
+            "platformFlags": 255,
+            "pathHint": "passes/distortionaccumulation.pass"
+        },
+        {
+            "assetId": {
+                "guid": "{96C8F415-30AD-5BC4-BF0F-8CA62470983E}"
+            },
+            "platformFlags": 255,
+            "pathHint": "passes/distortionparent.pass"
+        },
+        {
+            "assetId": {
+                "guid": "{83F58ABC-88B1-5800-ABBA-3DEBB1BDA33F}"
+            },
+            "platformFlags": 255,
+            "pathHint": "passes/distortionpassrequest.azasset"
+        },
+        {
+            "assetId": {
+                "guid": "{BBA75282-A2E0-50B1-A4C7-A00BE5571A7C}"
+            },
+            "platformFlags": 255,
+            "pathHint": "passes/distortionpostprocess.pass"
+        },
+        {
+            "assetId": {
+                "guid": "{284E7EFE-092C-5E10-9215-5F8AA57E54A9}"
+            },
+            "platformFlags": 255,
+            "pathHint": "passes/pkpasstemplates.azasset"
+        },
+        {
+            "assetId": {
+                "guid": "{390DFD44-BBA4-554E-8794-5F814A30ADEB}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/billboard/default/billboard.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{E14DE57F-325C-5E66-9283-CF8B3BF2BBAD}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/billboard/default/billboarddistortion.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{FA282865-5BD3-52E6-B1C2-EA0854309946}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/billboard/default/billboardlit.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{6CB5E9D0-C1C3-546D-8973-EAA49F017B17}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/billboard/legacy/billboard_legacy.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{BA6505E1-F491-51D3-804A-BBB75BC03944}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/billboard/legacy/billboardlit_legacy.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{A6FD2122-D13E-51E4-8F2E-C327543AD095}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/depth/basic/depthpass.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{0DACFB46-92BA-57A2-AE62-77B57E933617}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/depth/basic/depthpasstransparentmax.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{A2ACBC5C-85A3-5EF2-9D02-DB0832AF8E46}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/depth/basic/depthpasstransparentmin.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{6A500A6B-883C-53FA-97C2-144DF6E82A1E}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/depth/billboard/depthpassbillboard.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{D896DDE9-787C-5EC8-9FBB-DFF821CA0A71}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/depth/billboard/depthpasstransparentmaxbillboard.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{9F841720-9A73-5537-A90E-6AC1A8BBBA2B}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/depth/billboard/depthpasstransparentminbillboard.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{01E4C010-FD6F-5048-A8FA-17CBA987B523}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/depth/mesh/depthpassmesh.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{6C68A79B-9BF9-5714-AC44-555479BB818A}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/depth/mesh/depthpasstransparentmaxmesh.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{1CFB5E44-EEA3-50F9-BEE3-6F758F777C2F}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/depth/mesh/depthpasstransparentminmesh.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{B2FBC30E-0BA8-5E2F-A294-D194360E7DF0}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/mesh/default/mesh.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{80D142D5-D3CA-5980-B629-9F5DAE46FABC}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/mesh/default/meshlit.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{14799C9E-02CD-52B6-8758-EF54294FCAD3}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/mesh/legacy/mesh_legacy.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{48653A00-06E1-56F6-8555-41B4783E3D20}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/mesh/legacy/meshlit_legacy.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{4849873F-DAFB-5784-AAC9-26914647C37F}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/postprocess/distortionpostprocess.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{9D046584-DA6A-55CA-8974-A40FF729C254}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/ribbon/default/ribbon.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{977BFE44-73BE-56D1-A3DF-D6137301C7B2}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/ribbon/default/ribbonatlasblend.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{2399B681-C75E-54EA-BA02-224AC249EFD0}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/ribbon/default/ribboncorrectdeformation.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{C66BDA06-A9AD-53D6-8077-31E0BAC17307}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/ribbon/default/ribbondistortion.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{07352A7F-3B45-5046-83AA-A0DC484EBB4B}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/ribbon/default/ribbonlit.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{FBEEF1A0-7ED0-533B-A304-C9749D612DD5}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/ribbon/default/ribbonlitatlasblend.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{E50741D8-7AF4-56D0-986B-20B8AB077AFB}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/ribbon/default/ribbonlitcorrectdeformation.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{2F3569A3-33AD-5BF3-8EE4-1E7A4ED7B1BF}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/ribbon/legacy/ribbon_legacy.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{5A8E43BA-3E54-5941-A8EE-0D68DBAF5944}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/ribbon/legacy/ribbonatlasblend_legacy.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{23EBA9B1-D368-5A58-8BFF-07CC00190141}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/ribbon/legacy/ribboncorrectdeformation_legacy.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{2086B777-5B94-5405-827B-E103CC9B5D6E}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/ribbon/legacy/ribbonlit_legacy.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{B7C0A507-1F8A-5A24-9E1F-9B31E58B9E85}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/ribbon/legacy/ribbonlitatlasblend_legacy.azshader"
+        },
+        {
+            "assetId": {
+                "guid": "{4A0B561D-468F-5478-BDF5-B2B32EDC4A4C}"
+            },
+            "platformFlags": 255,
+            "pathHint": "shaders/ribbon/legacy/ribbonlitcorrectdeformation_legacy.azshader"
+        }
+    ]
+}

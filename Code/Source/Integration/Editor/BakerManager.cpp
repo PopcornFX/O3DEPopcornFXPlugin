@@ -9,6 +9,7 @@
 #if defined(O3DE_USE_PK)
 
 #include <AzFramework/Platform/PlatformDefaults.h>
+#include <AzCore/StringFunc/StringFunc.h>
 
 #include "../Tools/PK-AssetBakerLib/AssetBaker_Cookery.h"
 #include "../Tools/PK-AssetBakerLib/AssetBaker_Startup.h"
@@ -18,6 +19,8 @@
 
 #include <pk_particles/include/ps_effect.h>
 #include <pk_particles/include/ps_resources.h>
+#include <pk_particles/include/ps_descriptor_source.h>
+#include <pk_particles/include/ps_nodegraph_frontend.h>
 #include <pk_imaging/include/im_resource.h>
 #include <pk_geometrics/include/ge_mesh_resource_handler.h>
 #include <pk_geometrics/include/ge_rectangle_list.h>
@@ -28,6 +31,166 @@
 #include "Integration/Managers/WindManager.h"
 
 namespace PopcornFX {
+
+//----------------------------------------------------------------------------------------------------------//
+//																											//
+//											CEffectBrowser													//
+//																											//
+//----------------------------------------------------------------------------------------------------------//
+
+class	CResourceHandlerDummy : public IResourceHandler
+{
+public:
+	CResourceHandlerDummy() { }
+	virtual ~CResourceHandlerDummy() { }
+	virtual void	*Load(const CResourceManager *resourceManager, u32 resourceTypeID, const CString &resourcePath, bool pathNotVirtual, const SResourceLoadCtl &loadCtl, CMessageStream &loadReport, SAsyncLoadStatus *asyncLoadStatus) override
+	{
+		(void)resourceManager; (void)resourceTypeID; (void)resourcePath; (void)pathNotVirtual; (void)loadCtl; (void)loadReport; (void)asyncLoadStatus;
+		return null;
+	}
+	virtual void	*Load(const CResourceManager *resourceManager, u32 resourceTypeID, const CFilePackPath &resourcePath, const SResourceLoadCtl &loadCtl, CMessageStream &loadReport, SAsyncLoadStatus *asyncLoadStatus) override
+	{
+		(void)resourceManager; (void)resourceTypeID; (void)resourcePath; (void)loadCtl; (void)loadReport; (void)asyncLoadStatus;
+		return null;
+	}
+
+	virtual void	Unload(const CResourceManager *, u32, void *) override { }
+	virtual void	AppendDependencies(const CResourceManager *, u32, void *, TArray<CString> &) const override { }
+	virtual void	AppendDependencies(const CResourceManager *, u32, const CString &, bool, TArray<CString> &) const override { }
+	virtual void	AppendDependencies(const CResourceManager *, u32, const CFilePackPath &, TArray<CString> &) const override { }
+	virtual void	BroadcastResourceChanged(const CResourceManager *, const CFilePackPath &) override { }
+};
+
+bool	CEffectBrowser::ActivateIFN()
+{
+	if (m_Activated)
+		return true;
+
+	PK_SCOPE_EXIT(if (!m_Activated) { Deactivate(); });
+
+	m_BrowseResourceImageHandler = PK_NEW(CResourceHandlerDummy);
+	m_BrowseResourceMeshHandler = PK_NEW(CResourceHandlerDummy);
+	m_BrowseResourceVectorFieldHandler = PK_NEW(CResourceHandlerDummy);
+	m_BrowseResourceRectangleListHandler = PK_NEW(CResourceHandlerDummy);
+	m_BrowseResourceFontMetricsHandler = PK_NEW(CResourceHandlerDummy);
+
+	if (!PK_VERIFY(m_BrowseResourceMeshHandler != null) ||
+		!PK_VERIFY(m_BrowseResourceImageHandler != null) ||
+		!PK_VERIFY(m_BrowseResourceRectangleListHandler != null) ||
+		!PK_VERIFY(m_BrowseResourceFontMetricsHandler != null) ||
+		!PK_VERIFY(m_BrowseResourceVectorFieldHandler != null))
+		return false;
+
+	m_BrowseFSController = File::NewInternalFileSystem();
+	if (!PK_VERIFY(m_BrowseFSController != null))
+		return false;
+
+	m_BrowseResourceManager = PK_NEW(PopcornFX::CResourceManager(m_BrowseFSController));
+	if (!PK_VERIFY(m_BrowseResourceManager != null))
+		return false;
+	m_BrowseResourceManager->RegisterHandler<PopcornFX::CResourceMesh>(m_BrowseResourceMeshHandler);
+	m_BrowseResourceManager->RegisterHandler<PopcornFX::CImage>(m_BrowseResourceImageHandler);
+	m_BrowseResourceManager->RegisterHandler<PopcornFX::CRectangleList>(m_BrowseResourceRectangleListHandler);
+	m_BrowseResourceManager->RegisterHandler<PopcornFX::CFontMetrics>(m_BrowseResourceFontMetricsHandler);
+	m_BrowseResourceManager->RegisterHandler<PopcornFX::CVectorField>(m_BrowseResourceVectorFieldHandler);
+
+	m_BrowseContext = PK_NEW(PopcornFX::HBO::CContext(m_BrowseResourceManager));
+	if (!PK_VERIFY(m_BrowseContext != null))
+		return false;
+	m_Activated = true;
+	return true;
+}
+
+void	CEffectBrowser::Deactivate()
+{
+	if (m_BrowseResourceManager != null)
+	{
+		if (m_BrowseResourceMeshHandler != null)
+			m_BrowseResourceManager->UnregisterHandler<PopcornFX::CResourceHandlerDummy>(m_BrowseResourceMeshHandler);
+		if (m_BrowseResourceImageHandler != null)
+			m_BrowseResourceManager->UnregisterHandler<PopcornFX::CResourceHandlerDummy>(m_BrowseResourceImageHandler);
+		if (m_BrowseResourceRectangleListHandler != null)
+			m_BrowseResourceManager->UnregisterHandler<PopcornFX::CResourceHandlerDummy>(m_BrowseResourceRectangleListHandler);
+		if (m_BrowseResourceFontMetricsHandler != null)
+			m_BrowseResourceManager->UnregisterHandler<PopcornFX::CResourceHandlerDummy>(m_BrowseResourceFontMetricsHandler);
+		if (m_BrowseResourceVectorFieldHandler != null)
+			m_BrowseResourceManager->UnregisterHandler<PopcornFX::CResourceHandlerDummy>(m_BrowseResourceVectorFieldHandler);
+	}
+	PK_SAFE_DELETE(m_BrowseResourceMeshHandler);
+	PK_SAFE_DELETE(m_BrowseResourceImageHandler);
+	PK_SAFE_DELETE(m_BrowseResourceVectorFieldHandler);
+	PK_SAFE_DELETE(m_BrowseResourceFontMetricsHandler);
+	PK_SAFE_DELETE(m_BrowseResourceRectangleListHandler);
+	PK_SAFE_DELETE(m_BrowseContext);
+	PK_SAFE_DELETE(m_BrowseFSController);
+	PK_SAFE_DELETE(m_BrowseResourceManager);
+	m_Activated = false;
+}
+
+bool	CEffectBrowser::GatherRuntimeDependencies(const AZStd::string &packPath, const AZStd::string &effectPath, AZStd::vector<AZStd::string> &outDependencies)
+{
+	PFilePack		tempPack = m_BrowseFSController->MountPack(packPath.c_str());
+	if (!PK_VERIFY(tempPack != null))
+		return false;
+
+	const CString		virtualPath = effectPath.c_str();
+	PBaseObjectFile		srcFile = m_BrowseContext->FindFile(virtualPath);
+
+	bool	ownsFile = (srcFile == null);
+	if (ownsFile)
+		srcFile = m_BrowseContext->LoadFile(virtualPath, true);
+
+	if (srcFile == null)
+	{
+		CLog::Log(PK_INFO, "Couldn't find asset '%s'", virtualPath.Data());
+		return false;
+	}
+
+	// Must match _SetBuildVersion
+	static const CString	kBuildVersions[] = {
+		"Low", "Medium", "High", "VeryHigh"
+	};
+
+	bool	success = true;
+	for (u32 i = 0; i < PK_ARRAY_COUNT(kBuildVersions); ++i)
+	{
+		PParticleEffect	effect = CParticleEffect::Load(srcFile, SEffectLoadCtl::kDefault, CStringView(kBuildVersions[i]));
+		success = effect != null;
+		if (!success)
+		{
+			CLog::Log(PK_INFO, "Couldn't load effect for '%s'", virtualPath.Data());
+			break;
+		}
+
+		PopcornFX::TArray<PopcornFX::SResourceDependency>	effectDepends;
+		success = effect->GatherRuntimeDependencies(effectDepends);
+		if (!success)
+		{
+			CLog::Log(PK_INFO, "Couldn't gather effect runtime dependencies for '%s'", effect->File()->Path().Data());
+			break;
+		}
+
+		const u32	dependsCount = effectDepends.Count();
+		for (u32 iDepend = 0; iDepend < dependsCount; ++iDepend)
+		{
+			const SResourceDependency	&depend = effectDepends[iDepend];
+			if (depend.Empty())
+				continue;
+
+			if (depend.m_Path.EndsWith(".pkma"))
+				continue;
+
+			if (AZStd::find(outDependencies.begin(), outDependencies.end(), depend.m_Path.Data()) == outDependencies.end())
+				outDependencies.push_back(depend.m_Path.Data());
+		}
+	}
+
+	if (ownsFile)
+		srcFile->Unload();
+
+	m_BrowseFSController->UnmountPack(tempPack->Path());
+	return success;
+}
 
 //----------------------------------------------------------------------------------------------------------//
 //																											//
@@ -192,6 +355,7 @@ bool	CBakerManager::Activate()
 
 void	CBakerManager::Deactivate()
 {
+	m_EffectBrowser.Deactivate();
 	PK_SAFE_DELETE(m_BakeContext);
 	PK_SAFE_DELETE(m_Cookery);
 	AssetBaker::Shutdown();
@@ -231,7 +395,7 @@ AZStd::string	CBakerManager::BakeSingleAsset(const AZStd::string &assetPath, con
 	return virtualPath.Data();
 }
 
-bool	CBakerManager::GatherDependencies(const AZStd::string &assetPath, AZStd::vector<AZStd::string> &dependencies, CWindManager &windManager)
+bool	CBakerManager::GatherStaticDependencies(const AZStd::string &assetPath, AZStd::vector<AZStd::string> &dependencies, CWindManager &windManager)
 {
 	AZStd::string	rootPath;
 	AZStd::string	libraryPath;
@@ -256,14 +420,14 @@ bool	CBakerManager::GatherDependencies(const AZStd::string &assetPath, AZStd::ve
 		return false;
 	}
 
-	PCParticleEffect	effect = srcFile->FindFirstOf<CParticleEffect>();
+	PParticleEffect	effect = srcFile->FindFirstOf<CParticleEffect>();
 	if (effect == null)
-		return false; // _GatherDependencies is not supported on anything else than a CParticleEffect
+		return false; // _GatherStaticDependencies is not supported on anything else than a CParticleEffect
 
 	PopcornFX::TArray<PopcornFX::SResourceDependency>	effectDepends;
-	if (!effect->GatherRuntimeDependencies(effectDepends) || !effect->GatherStaticDependencies(effectDepends))
+	if (!PK_VERIFY(effect->GatherStaticDependencies(effectDepends)))
 	{
-		CLog::Log(PK_INFO, "Couldn't gather effect dependencies for '%s'", effect->File()->Path().Data());
+		CLog::Log(PK_INFO, "Couldn't gather effect static dependencies for '%s'", effect->File()->Path().Data());
 		return false;
 	}
 	const u32	dependsCount = effectDepends.Count();
@@ -275,24 +439,21 @@ bool	CBakerManager::GatherDependencies(const AZStd::string &assetPath, AZStd::ve
 
 		const AZStd::string	dependFullPath = rootPath + "/" + depend.m_Path.Data();
 
-		if (depend.m_Usage & PopcornFX::SResourceDependency::UsageFlags_UsedInSimulation)
-		{
-			// We will only append runtime related dependencies
-			// Except .pkat files which are handled using a copy command in .ini files, there are no PopcornFX specific resources that are used by render code.
-			// This gather dependencies code is only here to output runtime, PopcornFX specific files
-			dependencies.push_back(dependFullPath);
-		}
-		else
-		{
-			const CStringView	ext = CFilePath::ExtractExtension(CStringView(depend.m_Path));
-
-			if (ext == "pkfx")
-			{
-				dependencies.push_back(dependFullPath);
-			}
-		}
-
+		dependencies.push_back(dependFullPath);
 	}
+	return true;
+}
+
+bool	CBakerManager::GatherRuntimeDependencies(const AZStd::string &packPath, const AZStd::string &effectPath, AZStd::vector<AZStd::string> &dependencies)
+{
+	if (!PK_VERIFY(m_EffectBrowser.ActivateIFN()))
+		return false;
+
+	if (!PK_VERIFY(m_EffectBrowser.GatherRuntimeDependencies(packPath, effectPath, dependencies)))
+		return false;
+
+	for (int i = 0; i < dependencies.size(); ++i)
+		AZ::StringFunc::Path::ConstructFull(m_RootPath.c_str(), dependencies[i].c_str(), dependencies[i], true);
 	return true;
 }
 
@@ -326,12 +487,11 @@ void	CBakerManager::LogBakerMessages(const CMessageStream &messages)
 
 bool	CBakerManager::_SetPackIFN(const AZStd::string &assetPath, CWindManager &windManager)
 {
-	AZStd::string	rootPath;
 	AZStd::string	libraryPath;
 
-	if (ChangePackIFN(assetPath, m_Cookery->FileController(), rootPath, libraryPath))
+	if (ChangePackIFN(assetPath, m_Cookery->FileController(), m_RootPath, libraryPath))
 		windManager.Reset(libraryPath);
-	else if (rootPath.empty())
+	else if (m_RootPath.empty())
 		return false;
 	return true;
 }
