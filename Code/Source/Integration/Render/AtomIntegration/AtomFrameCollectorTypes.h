@@ -42,7 +42,7 @@ struct	SAtomRenderContext : public SRenderContext
 		bool													m_CastShadows = false;
 		s32														m_GlobalSortOverride = 0;
 		u32														m_InstanceOffset = 0; // Slices
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 		u32														m_InstanceCount = 0;
 		AZ::RHI::GeometryView									m_GeometryView;
 #endif

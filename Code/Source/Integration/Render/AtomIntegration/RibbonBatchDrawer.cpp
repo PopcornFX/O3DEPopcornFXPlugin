@@ -366,7 +366,7 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &
 		diffuseColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Diffuse_DiffuseColor());
 	if (diffuseColor != null)
 	{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = diffuseColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = diffuseColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
@@ -379,7 +379,7 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &
 		const bool	isLegacyShader = IsLegacyShader(rendererCache->m_BasicDescription.m_PipelineStateKey.m_UsedShader);
 		const u32	elementCount = isLegacyShader ? particleCount * 3 : particleCount * 4;
 
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, elementCount, sizeof(float)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, elementCount, sizeof(float)));
@@ -389,7 +389,7 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &
 	AZ::RHI::Ptr<AZ::RHI::Buffer>	distortionColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Distortion_Color());
 	if (distortionColor != null)
 	{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = distortionColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = distortionColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
@@ -399,7 +399,7 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &
 	AZ::RHI::Ptr<AZ::RHI::Buffer>	alphaRemapCursor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_AlphaRemap_Cursor());
 	if (alphaRemapCursor != null)
 	{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = alphaRemapCursor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = alphaRemapCursor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
@@ -416,7 +416,7 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &
 	dc.m_BoundingBox = toEmit.m_BBox;
 
 	// Draw call description:
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 	dc.m_InstanceCount = 1;
 	dc.m_GeometryView.SetDrawArguments(AZ::RHI::DrawIndexed(0, toEmit.m_TotalIndexCount, toEmit.m_IndexOffset));
 #else

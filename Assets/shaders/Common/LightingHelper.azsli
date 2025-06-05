@@ -5,14 +5,19 @@
 
 #pragma once
 
-#include "PopcornOptions.azsli"
-
 #include <Atom/Features/Pipeline/Forward/ForwardPassOutput.azsli>
 #include <Atom/Features/PBR/AlphaUtils.azsli>
 #include <Atom/Features/PBR/LightingOptions.azsli>
 
+#include "PopcornOptions.azsli"
+
+#if PK_O3DE_SRG_ALL
+#include <viewsrg_all.srgi>
+#include <scenesrg_all.srgi>
+#else
 #include <viewsrg.srgi>
 #include <scenesrg.srgi>
+#endif
 
 #include <Atom/RPI/Math.azsli>
 #include <Atom/RPI/TangentSpace.azsli>

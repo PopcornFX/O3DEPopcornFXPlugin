@@ -3,7 +3,7 @@
 # https://www.popcornfx.com/terms-and-conditions/
 #----------------------------------------------------------------------------
 
-set(POPCORNFX_VERSION 2.20.8)
+set(POPCORNFX_VERSION 2.20.9)
 set(POPCORNFX_LICENSE O3DE)
 
 o3de_pal_dir(pal_dir ${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME} "${gem_restricted_path}" "${gem_path}" "${gem_name}")
@@ -40,8 +40,8 @@ set(PK_OPTIONAL_REGISTER_NODEABLE_DEFINES PK_REGISTER_NODEABLE)
 
 if(DEFINED O3DE_VERSION_MAJOR)
     # O3DE 3.x.x and higher no longer need the autogen nodeable registry source files
-    if(O3DE_VERSION_MAJOR GREATER_EQUAL 3 OR
-       (O3DE_VERSION_MAJOR EQUAL 2 AND O3DE_VERSION_MINOR EQUAL 3)) # TempFix: Version was downgraded for 24.09 (https://github.com/PopcornFX/O3DEPopcornFXPlugin/issues/76)
+    if(O3DE_VERSION_MAJOR GREATER 2 OR
+       (O3DE_VERSION_MAJOR EQUAL 2 AND O3DE_VERSION_MINOR GREATER_EQUAL 3)) # TempFix: Version was downgraded for 24.09 (https://github.com/PopcornFX/O3DEPopcornFXPlugin/issues/76)
         unset(PK_OPTIONAL_REGISTER_NODEABLE_FILES)
         unset(PK_OPTIONAL_REGISTER_NODEABLE_DEFINES)
     endif()
