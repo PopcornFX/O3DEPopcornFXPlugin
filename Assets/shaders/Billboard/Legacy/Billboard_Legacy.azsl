@@ -6,7 +6,6 @@
 #include <scenesrg_all.srgi>
 #include <viewsrg_all.srgi>
 
-#include "../../Common/PopcornOptions.azsli"
 #include <Atom/Features/Pipeline/Forward/ForwardPassSrg.azsli>
 
 #include "../../Common/MaterialSrg.azsli"

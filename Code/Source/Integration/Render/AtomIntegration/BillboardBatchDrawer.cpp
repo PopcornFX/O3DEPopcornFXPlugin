@@ -368,7 +368,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 
 	if (m_AtlasDefinition != null)
 	{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = m_AtlasDefinition->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, m_AtlasSubRectsCount, sizeof(CFloat4)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = m_AtlasDefinition->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, m_AtlasSubRectsCount, sizeof(CFloat4)));
@@ -379,7 +379,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_Indices] != null)
 	{
 		// Unsorted indices:
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_Indices]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(u32)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_Indices]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(u32)));
@@ -389,7 +389,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 	else if (viewDependent.m_GenBuffers[CParticleBuffers::GenBuffer_Indices] != null)
 	{
 		// Sorted indices:
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewDependent.m_GenBuffers[CParticleBuffers::GenBuffer_Indices]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(u32)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewDependent.m_GenBuffers[CParticleBuffers::GenBuffer_Indices]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(u32)));
@@ -398,7 +398,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 	}
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticlePosition] != null)
 	{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticlePosition]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticlePosition]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
@@ -407,7 +407,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 	}
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleRotation] != null)
 	{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleRotation]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleRotation]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
@@ -416,7 +416,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 	}
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleAxis0] != null)
 	{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleAxis0]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount * 3, sizeof(float))); // Cannot use a float3 stride
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleAxis0]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount * 3, sizeof(float))); // Cannot use a float3 stride
@@ -425,7 +425,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 	}
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleAxis1] != null)
 	{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleAxis1]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount * 3, sizeof(float))); // Cannot use a float3 stride
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleAxis1]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount * 3, sizeof(float))); // Cannot use a float3 stride
@@ -434,7 +434,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 	}
 	if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleSize] != null)
 	{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleSize]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleSize]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
@@ -443,7 +443,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 	}
 	else if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleSize2] != null)
 	{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleSize2]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat2)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_ParticleSize2]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat2)));
@@ -454,7 +454,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 	AZ::RHI::Ptr<AZ::RHI::Buffer>	textureID = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Atlas_TextureID());
 	if (textureID != null)
 	{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = textureID->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = textureID->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
@@ -466,7 +466,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 		diffuseColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Diffuse_DiffuseColor());
 	if (diffuseColor != null)
 	{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = diffuseColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = diffuseColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
@@ -479,7 +479,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 		const bool	isLegacyShader = IsLegacyShader(rendererCache->m_BasicDescription.m_PipelineStateKey.m_UsedShader);
 		const u32	elementCount = isLegacyShader ? particleCount * 3 : particleCount * 4;
 
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, elementCount, sizeof(float)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, elementCount, sizeof(float)));
@@ -489,7 +489,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 	AZ::RHI::Ptr<AZ::RHI::Buffer>	distortionColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Distortion_Color());
 	if (distortionColor != null)
 	{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = distortionColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = distortionColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
@@ -499,7 +499,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 	AZ::RHI::Ptr<AZ::RHI::Buffer>	alphaRemapCursor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_AlphaRemap_Cursor());
 	if (alphaRemapCursor != null)
 	{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = alphaRemapCursor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = alphaRemapCursor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
@@ -510,7 +510,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 	// Draw requests:
 	if (viewIndependent.m_DrawRequests != null)
 	{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_DrawRequests->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, drawRequestsCount, sizeof(Drawers::SBillboardDrawRequest)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_DrawRequests->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, drawRequestsCount, sizeof(Drawers::SBillboardDrawRequest)));
@@ -527,7 +527,7 @@ bool	CBillboardBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDes
 	dc.m_BoundingBox = toEmit.m_BBox;
 
 	// Draw call description:
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 	dc.m_GeometryView.SetDrawArguments(AZ::RHI::DrawIndexed(0, m_DrawInstanceIdxCount, 0));
 	dc.m_InstanceCount = toEmit.m_TotalParticleCount;
 #else

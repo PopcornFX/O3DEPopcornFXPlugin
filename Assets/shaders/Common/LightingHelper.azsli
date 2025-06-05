@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include "PopcornOptions.azsli"
-
 #include <Atom/Features/Pipeline/Forward/ForwardPassOutput.azsli>
 #include <Atom/Features/PBR/AlphaUtils.azsli>
 #include <Atom/Features/PBR/LightingOptions.azsli>

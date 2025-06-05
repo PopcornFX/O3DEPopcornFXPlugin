@@ -301,7 +301,7 @@ void	CAtomPipelineCache::ConfigureDrawCall(SAtomRenderContext::SDrawCall &drawCa
 	drawCall.m_TransparentDepthMaxPipelineState = m_TransparentDepthMaxPipelineState;
 	drawCall.m_TransparentDepthMaxDrawList = m_TransparentDepthMaxDrawList;
 
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 	drawCall.m_GeometryView.SetIndexBufferView(m_IndexBuffer);
 	for (u32 i = 0; i < drawCall.m_VertexInputs.Count(); ++i)
 		drawCall.m_GeometryView.AddStreamBufferView(drawCall.m_VertexInputs[i]);

@@ -6,4 +6,4 @@
 #pragma once
 
 #define PK_O3DE_LIT_MULTI_VIEW 1
-
+#define PK_O3DE_SRG_ALL 1

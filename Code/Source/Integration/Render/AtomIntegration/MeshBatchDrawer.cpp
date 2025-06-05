@@ -247,7 +247,7 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &to
 		// Non constant data: matrices
 		if (viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_Matrices] != null)
 		{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_Matrices]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(particleOffset, particleCount, sizeof(CFloat4x4)));
 #else
 			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_Matrices]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(particleOffset, particleCount, sizeof(CFloat4x4)));
@@ -261,7 +261,7 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &to
 			diffuseColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Diffuse_DiffuseColor());
 		if (diffuseColor != null)
 		{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = diffuseColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(particleOffset, meshParticleCount, sizeof(CFloat4)));
 #else
 			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = diffuseColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(particleOffset, meshParticleCount, sizeof(CFloat4)));
@@ -275,7 +275,7 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &to
 			const u32	elementOffset = isLegacyShader ? particleOffset * 3 : particleOffset * 4;
 			const u32	elementCount = isLegacyShader ? particleCount * 3 : particleCount * 4;
 
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(elementOffset, elementCount, sizeof(float)));
 #else
 			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(elementOffset, elementCount, sizeof(float)));
@@ -285,7 +285,7 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &to
 		AZ::RHI::Ptr<AZ::RHI::Buffer>	alphaRemapCursor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_AlphaRemap_Cursor());
 		if (alphaRemapCursor != null)
 		{
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = alphaRemapCursor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(particleOffset, meshParticleCount, sizeof(float)));
 #else
 			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = alphaRemapCursor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(particleOffset, meshParticleCount, sizeof(float)));
@@ -299,7 +299,7 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &to
 		dc.m_BoundingBox = toEmit.m_BBox;
 
 		// Draw call description:
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 		dc.m_InstanceCount = meshParticleCount;
 		dc.m_GeometryView.SetDrawArguments(AZ::RHI::DrawIndexed(0, views.m_IndexCount, 0));
 #else
