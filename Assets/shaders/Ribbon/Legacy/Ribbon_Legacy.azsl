@@ -3,8 +3,15 @@
 // https://www.popcornfx.com/terms-and-conditions/
 //----------------------------------------------------------------------------
 
+#include "../../Common/PopcornOptions.azsli"
+
+#if PK_O3DE_SRG_ALL
 #include <scenesrg_all.srgi>
 #include <viewsrg_all.srgi>
+#else
+#include <scenesrg.srgi>
+#include <viewsrg.srgi>
+#endif
 
 #include "../../Common/PopcornOptions.azsli"
 #include <Atom/Features/Pipeline/Forward/ForwardPassSrg.azsli>

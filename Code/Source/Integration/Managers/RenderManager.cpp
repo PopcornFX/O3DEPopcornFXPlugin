@@ -53,7 +53,7 @@ void	CRenderManager::Activate(CParticleMediumCollection *mediumCollection, const
 	dynamicPoolDescriptor.m_bindFlags = AZ::RHI::BufferBindFlags::InputAssembly | AZ::RHI::BufferBindFlags::ShaderRead;
 	dynamicPoolDescriptor.m_largestPooledAllocationSizeInBytes = 0x100000;
 
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 	dynamicPoolDescriptor.m_deviceMask = AZ::RHI::MultiDevice::DefaultDevice;
 	m_BufferPool = aznew AZ::RHI::BufferPool;
 	AZ::RHI::ResultCode resultCode = m_BufferPool->Init(dynamicPoolDescriptor);
@@ -125,7 +125,7 @@ void	*CRenderManager::MapBuffer(AZ::RHI::Ptr<AZ::RHI::Buffer> buffer, AZ::u64 si
 	AZ::RHI::BufferMapResponse	mapResponse;
 	m_BufferPool->MapBuffer(mapRequest, mapResponse);
 
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 	return mapResponse.m_data.begin()->second;
 #else
 	return mapResponse.m_data;
@@ -183,7 +183,7 @@ void	CRenderManager::CollectFrame(CParticleMediumCollection *mediumCollection)
 AZ::RHI::Ptr<AZ::RHI::Buffer>	CRenderManager::AllocBuffer(AZ::u64 bufferSize, AZ::RHI::BufferBindFlags binding, AZ::u32 alignSizeOn)
 {
 	AZ::u64		alignedBufferSize = Mem::Align(bufferSize, alignSizeOn);
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 	AZ::RHI::Ptr<AZ::RHI::Buffer> outBuffer = aznew AZ::RHI::Buffer;
 #else
 	AZ::RHI::Ptr<AZ::RHI::Buffer> outBuffer = AZ::RHI::Factory::Get().CreateBuffer();

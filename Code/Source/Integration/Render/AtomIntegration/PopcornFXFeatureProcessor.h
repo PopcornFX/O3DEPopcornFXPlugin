@@ -54,7 +54,7 @@ public:
 
 private:
 
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 	using DrawPacketPtr = AZ::RHI::ConstPtr<AZ::RHI::DrawPacket>;
 	using DrawPackets = AZStd::vector<AZ::RHI::ConstPtr<AZ::RHI::DrawPacket>>;
 #else

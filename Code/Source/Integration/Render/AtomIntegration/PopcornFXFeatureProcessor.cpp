@@ -93,7 +93,7 @@ void	CPopcornFXFeatureProcessor::Render(const RenderPacket &packet)
 				// Note: sliced draw calls have their bbox center the center of a slice, but the bbox can't be trusted.
 				const float			drawCallDepth = (cameraPosition - bboxCenter).Length();
 
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 				view->AddDrawPacket(drawPacket.get(), drawCallDepth);
 #else
 				view->AddDrawPacket(drawPacket, drawCallDepth);
@@ -136,14 +136,14 @@ CPopcornFXFeatureProcessor::DrawPacketPtr	CPopcornFXFeatureProcessor::BuildDrawP
 																						AZ::RHI::DrawItemSortKey sortKey)
 {
 	AZ_UNUSED(viewSrg);
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 	AZ::RHI::DrawPacketBuilder	dpBuilder(AZ::RHI::MultiDevice::DefaultDevice);
 #else
 	AZ::RHI::DrawPacketBuilder	dpBuilder;
 #endif
 
 	dpBuilder.Begin(null);
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 	dpBuilder.SetGeometryView(&pkfxDrawCall.m_GeometryView);
 	dpBuilder.SetDrawInstanceArguments(AZ::RHI::DrawInstanceArguments(pkfxDrawCall.m_InstanceCount, 0));
 #else
@@ -158,7 +158,7 @@ CPopcornFXFeatureProcessor::DrawPacketPtr	CPopcornFXFeatureProcessor::BuildDrawP
 		AZ::RHI::DrawPacketBuilder::DrawRequest	materialDr;
 		materialDr.m_listTag = pkfxDrawCall.m_MaterialDrawList;
 		materialDr.m_pipelineState = pkfxDrawCall.m_MaterialPipelineState.get();
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 		materialDr.m_streamIndices = pkfxDrawCall.m_GeometryView.GetFullStreamBufferIndices();
 #else
 		materialDr.m_streamBufferViews = AZStd::span<const AZ::RHI::StreamBufferView>(	pkfxDrawCall.m_VertexInputs.RawDataPointer(),
@@ -172,7 +172,7 @@ CPopcornFXFeatureProcessor::DrawPacketPtr	CPopcornFXFeatureProcessor::BuildDrawP
 		dpBuilder.AddDrawItem(materialDr);
 	}
 
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 	AZ::RHI::StreamBufferIndices	depthVtxInput;
 	if (pkfxDrawCall.m_RendererType == Renderer_Billboard ||
 		pkfxDrawCall.m_RendererType == Renderer_Mesh)
@@ -204,7 +204,7 @@ CPopcornFXFeatureProcessor::DrawPacketPtr	CPopcornFXFeatureProcessor::BuildDrawP
 		AZ::RHI::DrawPacketBuilder::DrawRequest	opaqueDepthDr;
 		opaqueDepthDr.m_listTag = pkfxDrawCall.m_OpaqueDepthDrawList;
 		opaqueDepthDr.m_pipelineState = pkfxDrawCall.m_OpaqueDepthPipelineState.get();
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 		opaqueDepthDr.m_streamIndices = depthVtxInput;
 #else
 		opaqueDepthDr.m_streamBufferViews = depthVtxInput;
@@ -218,7 +218,7 @@ CPopcornFXFeatureProcessor::DrawPacketPtr	CPopcornFXFeatureProcessor::BuildDrawP
 		AZ::RHI::DrawPacketBuilder::DrawRequest	transparentDepthMinDr;
 		transparentDepthMinDr.m_listTag = pkfxDrawCall.m_TransparentDepthMinDrawList;
 		transparentDepthMinDr.m_pipelineState = pkfxDrawCall.m_TransparentDepthMinPipelineState.get();
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 		transparentDepthMinDr.m_streamIndices = depthVtxInput;
 #else
 		transparentDepthMinDr.m_streamBufferViews = depthVtxInput;
@@ -229,7 +229,7 @@ CPopcornFXFeatureProcessor::DrawPacketPtr	CPopcornFXFeatureProcessor::BuildDrawP
 		AZ::RHI::DrawPacketBuilder::DrawRequest	transparentDepthMaxDr;
 		transparentDepthMaxDr.m_listTag = pkfxDrawCall.m_TransparentDepthMaxDrawList;
 		transparentDepthMaxDr.m_pipelineState = pkfxDrawCall.m_TransparentDepthMaxPipelineState.get();
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 		transparentDepthMaxDr.m_streamIndices = depthVtxInput;
 #else
 		transparentDepthMaxDr.m_streamBufferViews = depthVtxInput;

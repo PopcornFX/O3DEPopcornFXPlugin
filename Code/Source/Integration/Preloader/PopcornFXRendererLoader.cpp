@@ -430,7 +430,7 @@ void	PopcornFXRendererLoader::_OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData>
 				const AZ::RPI::ModelLod::Mesh &mesh = modelLod->GetMeshes()[meshIndex];
 				geometryCache->m_PerGeometryViews[meshIndex].m_Bounds = ToPk(modelAsset->GetLodAssets()[0]->GetMeshes()[meshIndex].GetAabb());
 
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 				geometryCache->m_PerGeometryViews[meshIndex].m_IndexBuffer = mesh.GetIndexBufferView();
 				geometryCache->m_PerGeometryViews[meshIndex].m_IndexCount = mesh.GetDrawArguments().m_indexed.m_indexCount;
 
@@ -588,7 +588,7 @@ AZ::RHI::ConstPtr<AZ::RHI::PipelineState>	PopcornFXRendererLoader::_CreatePipeli
 																								const SPipelineStateCacheKey &key)
 {
 	AZ::RHI::PipelineStateDescriptorForDraw	pipelineStateDesc = AZ::RHI::PipelineStateDescriptorForDraw();
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 	shaderVariant.ConfigurePipelineState(pipelineStateDesc, shaderOptions);
 #else
 	AZ_UNUSED(shaderOptions);
