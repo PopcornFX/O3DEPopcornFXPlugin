@@ -3,7 +3,13 @@
 // https://www.popcornfx.com/terms-and-conditions/
 //----------------------------------------------------------------------------
 
+#include "../../Common/PopcornOptions.azsli"
+
+#if PK_O3DE_SRG_ALL
 #include <viewsrg_all.srgi>
+#else
+#include <viewsrg.srgi>
+#endif
 
 struct VertexInput
 {
