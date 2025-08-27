@@ -431,7 +431,8 @@ bool	PopcornFXIntegration::LoadEffect(PopcornFXAsset *asset, const char *assetPa
 	CConstMemoryStream	rawStream = CConstMemoryStream(assetData, static_cast<u32>(assetDataSize));
 	asset->m_File = asset->m_Context->LoadFileFromStream(rawStream, pkPath, true);
 
-	const CStringView	buildVersionStringView = CStringView::FromNullTerminatedString(static_cast<AZ::CVarFixedString>(p_PopcornFXBuildVersion).c_str());
+	const AZ::CVarFixedString	buildVersion = static_cast<AZ::CVarFixedString>(p_PopcornFXBuildVersion);
+	const CStringView			buildVersionStringView = CStringView::FromNullTerminatedString(buildVersion.c_str());
 	asset->m_Effect = PopcornFX::CParticleEffect::Load(asset->m_File, SEffectLoadCtl::kDefault, buildVersionStringView);
 
 	if (asset->m_Effect == null)
