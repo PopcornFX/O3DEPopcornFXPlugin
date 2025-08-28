@@ -98,6 +98,7 @@ namespace PopcornFX {
 
 	void	PopcornFXSamplerImage::OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData> asset)
 	{
+		AZ_UNUSED(asset);
 		_LoadTexture();
 	}
 

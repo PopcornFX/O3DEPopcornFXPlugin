@@ -34,6 +34,10 @@ void	CSceneViewsManager::Update(CParticleMediumCollection *mediumCollection)
 
 	auto	atomViewportRequests = AZ::Interface<AZ::RPI::ViewportContextRequestsInterface>::Get();
 	auto	context = atomViewportRequests->GetDefaultViewportContext();
+
+	if (context == null)
+		return;
+
 	auto	currentView = context->GetDefaultView();
 	auto	currentViewSize = context->GetViewportSize();
 
