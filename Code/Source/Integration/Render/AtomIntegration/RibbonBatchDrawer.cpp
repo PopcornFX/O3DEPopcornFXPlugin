@@ -370,6 +370,7 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = diffuseColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = diffuseColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
+#endif
 		m_PipelineCaches[0].SetRibbonSrgBuffer(RibbonSrg::ParticleDiffuseColor_ShaderRead, buff);
 	}
 	AZ::RHI::Ptr<AZ::RHI::Buffer>	emissiveColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Emissive_EmissiveColor());
@@ -382,6 +383,7 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, elementCount, sizeof(float)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, elementCount, sizeof(float)));
+#endif
 		m_PipelineCaches[0].SetRibbonSrgBuffer(RibbonSrg::ParticleEmissiveColor_ShaderRead, buff);
 	}
 	AZ::RHI::Ptr<AZ::RHI::Buffer>	distortionColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Distortion_Color());
@@ -391,6 +393,7 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = distortionColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = distortionColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(CFloat4)));
+#endif
 		m_PipelineCaches[0].SetRibbonSrgBuffer(RibbonSrg::ParticleDistortionColor_ShaderRead, buff);
 	}
 	AZ::RHI::Ptr<AZ::RHI::Buffer>	alphaRemapCursor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_AlphaRemap_Cursor());
@@ -400,6 +403,7 @@ bool	CRibbonBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = alphaRemapCursor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
 #else
 		AZ::RHI::Ptr<AZ::RHI::BufferView> buff = alphaRemapCursor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(0, particleCount, sizeof(float)));
+#endif
 		m_PipelineCaches[0].SetRibbonSrgBuffer(RibbonSrg::ParticleAlphaCursor_ShaderRead, buff);
 	}
 	}

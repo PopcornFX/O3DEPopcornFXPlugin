@@ -251,6 +251,7 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &to
 			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_Matrices]->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(particleOffset, particleCount, sizeof(CFloat4x4)));
 #else
 			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = viewIndependent.m_GenBuffers[CParticleBuffers::GenBuffer_Matrices]->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(particleOffset, particleCount, sizeof(CFloat4x4)));
+#endif
 			m_PipelineCaches[i].SetMeshSrgBuffer(MeshSrg::Matrices_ShaderRead, buff);
 		}
 
@@ -264,6 +265,7 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &to
 			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = diffuseColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(particleOffset, meshParticleCount, sizeof(CFloat4)));
 #else
 			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = diffuseColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(particleOffset, meshParticleCount, sizeof(CFloat4)));
+#endif
 			m_PipelineCaches[i].SetMeshSrgBuffer(MeshSrg::ParticleDiffuseColor_ShaderRead, buff);
 		}
 		AZ::RHI::Ptr<AZ::RHI::Buffer>	emissiveColor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_Emissive_EmissiveColor());
@@ -277,6 +279,7 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &to
 			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(elementOffset, elementCount, sizeof(float)));
 #else
 			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = emissiveColor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(elementOffset, elementCount, sizeof(float)));
+#endif
 			m_PipelineCaches[i].SetMeshSrgBuffer(MeshSrg::ParticleEmissiveColor_ShaderRead, buff);
 		}
 		AZ::RHI::Ptr<AZ::RHI::Buffer>	alphaRemapCursor = GetCurBuffers().FindAdditionalFieldBuffer(BasicRendererProperties::SID_AlphaRemap_Cursor());
@@ -286,6 +289,7 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &to
 			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = alphaRemapCursor->BuildBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(particleOffset, meshParticleCount, sizeof(float)));
 #else
 			AZ::RHI::Ptr<AZ::RHI::BufferView> buff = alphaRemapCursor->GetBufferView(AZ::RHI::BufferViewDescriptor::CreateStructured(particleOffset, meshParticleCount, sizeof(float)));
+#endif
 			m_PipelineCaches[i].SetMeshSrgBuffer(MeshSrg::ParticleAlphaCursor_ShaderRead, buff);
 		}
 
