@@ -275,7 +275,8 @@ namespace PopcornFX {
 
 	void	*PopcornFX_Realloc(void *ptr, size_t size, PopcornFX::Mem::EAllocType type)
 	{
-		AZ_UNUSED(type);
+		if (ptr == null)
+			return PopcornFX_Alloc(size, type);
 		return AZ::AllocatorInstance<AZ::SystemAllocator>::Get().ReAllocate(ptr, size, AZCORE_GLOBAL_NEW_ALIGNMENT);
 	}
 
