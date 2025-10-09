@@ -33,17 +33,17 @@ public:
 
 	static void	GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType &provided)
 	{
-		provided.push_back(AZ_CRC("PopcornFXHelperLoopEmitterService"));
+		provided.push_back(AZ_CRC_CE("PopcornFXHelperLoopEmitterService"));
 	}
 
 	static void	GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType &incompatible)
 	{
-		incompatible.push_back(AZ_CRC("PopcornFXHelperLoopEmitterService"));
+		incompatible.push_back(AZ_CRC_CE("PopcornFXHelperLoopEmitterService"));
 	}
 
 	static void	GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType &required)
 	{
-		required.push_back(AZ_CRC("PopcornFXEmitterService"));
+		required.push_back(AZ_CRC_CE("PopcornFXEmitterService"));
 	}
 
 	static void	GetDependentServices(AZ::ComponentDescriptor::DependencyArrayType &/*dependent*/)

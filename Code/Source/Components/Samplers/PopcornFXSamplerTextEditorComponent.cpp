@@ -41,7 +41,7 @@ namespace PopcornFX {
 						->Attribute(AZ::Edit::Attributes::Category, "PopcornFX")
 						->Attribute(AZ::Edit::Attributes::Icon, "Icons/Components/PopcornFX_Sampler_Text_Icon.svg")
 						->Attribute(AZ::Edit::Attributes::ViewportIcon, "Icons/Components/Viewport/CParticleSamplerText.big.png")
-						->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC("Game"))
+						->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC_CE("Game"))
 					->DataElement(0, &PopcornFXSamplerTextEditorComponent::m_Sampler, "", "")
 						->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::ShowChildrenOnly)
 					;

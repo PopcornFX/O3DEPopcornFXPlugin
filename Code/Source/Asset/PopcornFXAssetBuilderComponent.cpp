@@ -24,17 +24,17 @@ void	PopcornFXBuilderComponent::Reflect(AZ::ReflectContext *context)
 
 void	PopcornFXBuilderComponent::GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType &provided)
 {
-	provided.push_back(AZ_CRC("PopcornFXBuilderPluginService", 0x1380f480));
+	provided.push_back(AZ_CRC_CE("PopcornFXBuilderPluginService"));
 }
 
 void PopcornFXBuilderComponent::GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType &incompatible)
 {
-	incompatible.push_back(AZ_CRC("PopcornFXBuilderPluginService", 0x1380f480));
+	incompatible.push_back(AZ_CRC_CE("PopcornFXBuilderPluginService"));
 }
 
 void PopcornFXBuilderComponent::GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType &required)
 {
-	required.push_back(AZ_CRC("PopcornFXService"));
+	required.push_back(AZ_CRC_CE("PopcornFXService"));
 }
 
 void PopcornFXBuilderComponent::GetDependentServices(AZ::ComponentDescriptor::DependencyArrayType &dependent)

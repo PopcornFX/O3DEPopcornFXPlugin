@@ -39,16 +39,16 @@ namespace PopcornFX {
 
 	void	PopcornFXSamplerImageGameComponent::GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType &provided)
 	{
-		provided.push_back(AZ_CRC("PopcornFXSamplerImageService"));
+		provided.push_back(AZ_CRC_CE("PopcornFXSamplerImageService"));
 	}
 
 	void	PopcornFXSamplerImageGameComponent::GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType &incompatible)
 	{
-		incompatible.push_back(AZ_CRC("PopcornFXEmitterService"));
-		incompatible.push_back(AZ_CRC("PopcornFXSamplerImageService"));
-		incompatible.push_back(AZ_CRC("PopcornFXSamplerShapeService"));
-		incompatible.push_back(AZ_CRC("PopcornFXSamplerAnimTrackService"));
-		incompatible.push_back(AZ_CRC("PopcornFXSamplerTextService"));
+		incompatible.push_back(AZ_CRC_CE("PopcornFXEmitterService"));
+		incompatible.push_back(AZ_CRC_CE("PopcornFXSamplerImageService"));
+		incompatible.push_back(AZ_CRC_CE("PopcornFXSamplerShapeService"));
+		incompatible.push_back(AZ_CRC_CE("PopcornFXSamplerAnimTrackService"));
+		incompatible.push_back(AZ_CRC_CE("PopcornFXSamplerTextService"));
 	}
 
 	void	PopcornFXSamplerImageGameComponent::GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType &required)
