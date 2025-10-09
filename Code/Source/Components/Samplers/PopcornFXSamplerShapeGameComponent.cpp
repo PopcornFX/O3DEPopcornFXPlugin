@@ -39,16 +39,16 @@ namespace PopcornFX {
 
 	void	PopcornFXSamplerShapeGameComponent::GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType &provided)
 	{
-		provided.push_back(AZ_CRC("PopcornFXSamplerShapeService"));
+		provided.push_back(AZ_CRC_CE("PopcornFXSamplerShapeService"));
 	}
 
 	void	PopcornFXSamplerShapeGameComponent::GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType &incompatible)
 	{
-		incompatible.push_back(AZ_CRC("PopcornFXEmitterService"));
-		incompatible.push_back(AZ_CRC("PopcornFXSamplerImageService"));
-		incompatible.push_back(AZ_CRC("PopcornFXSamplerShapeService"));
-		incompatible.push_back(AZ_CRC("PopcornFXSamplerAnimTrackService"));
-		incompatible.push_back(AZ_CRC("PopcornFXSamplerTextService"));
+		incompatible.push_back(AZ_CRC_CE("PopcornFXEmitterService"));
+		incompatible.push_back(AZ_CRC_CE("PopcornFXSamplerImageService"));
+		incompatible.push_back(AZ_CRC_CE("PopcornFXSamplerShapeService"));
+		incompatible.push_back(AZ_CRC_CE("PopcornFXSamplerAnimTrackService"));
+		incompatible.push_back(AZ_CRC_CE("PopcornFXSamplerTextService"));
 	}
 
 	void	PopcornFXSamplerShapeGameComponent::GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType &required)
@@ -58,8 +58,8 @@ namespace PopcornFX {
 
 	void	PopcornFXSamplerShapeGameComponent::GetDependentServices(AZ::ComponentDescriptor::DependencyArrayType &dependent)
 	{
-		dependent.push_back(AZ_CRC("MeshService"));
-		dependent.push_back(AZ_CRC("EMotionFXActorService"));
+		dependent.push_back(AZ_CRC_CE("MeshService"));
+		dependent.push_back(AZ_CRC_CE("EMotionFXActorService"));
 	}
 
 }

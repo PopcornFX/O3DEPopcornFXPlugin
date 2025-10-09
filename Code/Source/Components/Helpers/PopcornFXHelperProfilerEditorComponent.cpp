@@ -86,7 +86,7 @@ void	PopcornFXHelperProfilerEditorComponent::Reflect(AZ::ReflectContext *context
 		{
 			editContext->Class<PopcornFXHelperProfilerEditorComponent>("PopcornFX Helper Profiler", "Helper to profile")
 				->ClassElement(AZ::Edit::ClassElements::EditorData, "")
-				->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC("Game"))
+				->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC_CE("Game"))
 				->Attribute(AZ::Edit::Attributes::Category, "PopcornFX")
 				->Attribute(AZ::Edit::Attributes::AutoExpand, true)
 				->DataElement(AZ::Edit::UIHandlers::Button, &PopcornFXHelperProfilerEditorComponent::m_RecordButton, "", "")

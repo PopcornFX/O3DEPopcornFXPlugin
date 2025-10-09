@@ -35,17 +35,17 @@ namespace PopcornFX {
 
 		static void	GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType &provided)
 		{
-			provided.push_back(AZ_CRC("PopcornFXEmitterService"));
+			provided.push_back(AZ_CRC_CE("PopcornFXEmitterService"));
 		}
 
 		static void	GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType &incompatible)
 		{
-			incompatible.push_back(AZ_CRC("PopcornFXEmitterService"));
+			incompatible.push_back(AZ_CRC_CE("PopcornFXEmitterService"));
 		}
 
 		static void	GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType &required)
 		{
-			required.push_back(AZ_CRC("TransformService"));
+			required.push_back(AZ_CRC_CE("TransformService"));
 		}
 
 		static void	GetDependentServices(AZ::ComponentDescriptor::DependencyArrayType &/*dependent*/)

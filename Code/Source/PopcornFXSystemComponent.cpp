@@ -45,7 +45,7 @@ namespace PopcornFX {
 		{
 			serialize->Class<PopcornFXSystemComponent, AZ::Component>()
 				->Version(3)
-				->Attribute(AZ::Edit::Attributes::SystemComponentTags, AZStd::vector<AZ::Crc32>({ AZ_CRC("AssetBuilder", 0xc739c7d7) }))
+				->Attribute(AZ::Edit::Attributes::SystemComponentTags, AZStd::vector<AZ::Crc32>({ AZ_CRC_CE("AssetBuilder") }))
 				;
 
 			if (AZ::EditContext *ec = serialize->GetEditContext())
@@ -53,7 +53,7 @@ namespace PopcornFX {
 				ec->Class<PopcornFXSystemComponent>("PopcornFX", "PopcornFX particle system")
 					->ClassElement(AZ::Edit::ClassElements::EditorData, "")
 						->Attribute(AZ::Edit::Attributes::Category, "PopcornFX")
-						->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC("System", 0xc94d118b))
+						->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC_CE("System"))
 						->Attribute(AZ::Edit::Attributes::AutoExpand, true)
 					;
 			}
@@ -89,12 +89,12 @@ namespace PopcornFX {
 
 	void	PopcornFXSystemComponent::GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType &provided)
 	{
-		provided.push_back(AZ_CRC("PopcornFXService"));
+		provided.push_back(AZ_CRC_CE("PopcornFXService"));
 	}
 
 	void	PopcornFXSystemComponent::GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType &incompatible)
 	{
-		incompatible.push_back(AZ_CRC("PopcornFXService"));
+		incompatible.push_back(AZ_CRC_CE("PopcornFXService"));
 	}
 
 	void	PopcornFXSystemComponent::GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType &required)
@@ -105,7 +105,7 @@ namespace PopcornFX {
 	void	PopcornFXSystemComponent::GetDependentServices(AZ::ComponentDescriptor::DependencyArrayType &dependent)
 	{
 		dependent.push_back(AZ::RHI::Factory::GetComponentService());
-		dependent.push_back(AZ_CRC("RPISystem", 0xf2add773));
+		dependent.push_back(AZ_CRC_CE("RPISystem"));
 	}
 
 	void	PopcornFXSystemComponent::Init()

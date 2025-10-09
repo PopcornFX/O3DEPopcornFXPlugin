@@ -36,7 +36,7 @@ namespace PopcornFX {
 			{
 				editContext->Class<PopcornFXTrackViewAttributeEditorComponent>("PopcornFX TrackView Attribute", "Drive attribute from TrackView")
 					->ClassElement(AZ::Edit::ClassElements::EditorData, "")
-					->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC("Game"))
+					->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC_CE("Game"))
 					->Attribute(AZ::Edit::Attributes::Category, "PopcornFX")
 					->Attribute(AZ::Edit::Attributes::AutoExpand, true)
 					->DataElement(AZ::Edit::UIHandlers::ComboBox, &PopcornFXTrackViewAttributeEditorComponent::m_AttributeName, "Attribute name", "")

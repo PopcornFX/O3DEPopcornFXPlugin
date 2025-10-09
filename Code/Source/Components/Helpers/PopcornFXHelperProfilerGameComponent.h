@@ -46,12 +46,12 @@ public:
 
 	static void	GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType &provided)
 	{
-		provided.push_back(AZ_CRC("PopcornFXHelperProfilerService"));
+		provided.push_back(AZ_CRC_CE("PopcornFXHelperProfilerService"));
 	}
 
 	static void	GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType &incompatible)
 	{
-		incompatible.push_back(AZ_CRC("PopcornFXHelperProfilerService"));
+		incompatible.push_back(AZ_CRC_CE("PopcornFXHelperProfilerService"));
 	}
 
 	static void	GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType &/*required*/)
@@ -61,7 +61,7 @@ public:
 	static void	GetDependentServices([[maybe_unused]] AZ::ComponentDescriptor::DependencyArrayType &dependent)
 	{
 #if defined(PK_USE_STARTINGPOINTINPUT)
-		dependent.push_back(AZ_CRC("InputConfigurationService"));
+		dependent.push_back(AZ_CRC_CE("InputConfigurationService"));
 #endif
 	}
 
