@@ -44,6 +44,10 @@ struct	SAtomRenderContext : public SRenderContext
 		u32														m_InstanceOffset = 0; // Slices
 #if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 		u32														m_InstanceCount = 0;
+#endif
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 5)
+		AZ::RHI::GeometryView									m_GeometryView{ AZ::RHI::MultiDevice::AllDevices };
+#elif O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR == 4
 		AZ::RHI::GeometryView									m_GeometryView;
 #endif
 
