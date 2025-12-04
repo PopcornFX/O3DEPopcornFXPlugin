@@ -1,8 +1,8 @@
 # O3DE PopcornFX Plugin
 
 Integrates the **PopcornFX Runtime SDK** into **O3DE** as a Gem.
-* **Version:** `v2.21.3`
-* **O3DE:** `23.05`, `23.10`, `24.09`
+* **Version:** `v2.23.0`
+* **O3DE:** `24.09`, `25.05`, `25.10`
 * **Supported platforms:** `Windows`, `MacOS`, `Linux`, `iOS`, `Android`
 
 **Note:** Mobile platforms are in an experimental stage. [Contact-us](http://www.popcornfx.com/contact-us/) to request access.

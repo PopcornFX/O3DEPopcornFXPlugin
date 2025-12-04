@@ -54,7 +54,7 @@ namespace PopcornFX {
 			{
 				editContext->Class<PopcornFXEmitterEditorComponent>("PopcornFX Emitter", "Particle Emitter")
 					->ClassElement(AZ::Edit::ClassElements::EditorData, "")
-					->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC("Game"))
+					->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC_CE("Game"))
 					->Attribute(AZ::Edit::Attributes::Category, "PopcornFX")
 					->Attribute(AZ::Edit::Attributes::PrimaryAssetType, AZ::AzTypeInfo<PopcornFXAsset>::Uuid())
 					->Attribute(AZ::Edit::Attributes::Icon, "Icons/Components/PopcornFX_Icon.svg")

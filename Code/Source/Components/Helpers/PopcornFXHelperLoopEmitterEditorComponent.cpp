@@ -73,7 +73,7 @@ void	PopcornFXHelperLoopEmitterEditorComponent::Reflect(AZ::ReflectContext *cont
 		{
 			editContext->Class<PopcornFXHelperLoopEmitterEditorComponent>("PopcornFX Helper Loop Emitter", "Helper to make the emitter loop")
 				->ClassElement(AZ::Edit::ClassElements::EditorData, "")
-				->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC("Game"))
+				->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC_CE("Game"))
 				->Attribute(AZ::Edit::Attributes::Category, "PopcornFX")
 				->Attribute(AZ::Edit::Attributes::AutoExpand, true)
 				->DataElement(0, &PopcornFXHelperLoopEmitterEditorComponent::m_LoopInEditor, "LoopInEditor", "Determine if the emitter will loop in editor mode.")

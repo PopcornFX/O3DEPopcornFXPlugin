@@ -22,12 +22,12 @@ namespace PopcornFX {
 
 	void	PopcornFXPreviewersSystemComponent::GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType &provided)
 	{
-		provided.push_back(AZ_CRC("PopcornFXPreviewersService"));
+		provided.push_back(AZ_CRC_CE("PopcornFXPreviewersService"));
 	}
 
 	void	PopcornFXPreviewersSystemComponent::GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType &incompatible)
 	{
-		incompatible.push_back(AZ_CRC("PopcornFXPreviewersService"));
+		incompatible.push_back(AZ_CRC_CE("PopcornFXPreviewersService"));
 	}
 
 	void	PopcornFXPreviewersSystemComponent::Init()

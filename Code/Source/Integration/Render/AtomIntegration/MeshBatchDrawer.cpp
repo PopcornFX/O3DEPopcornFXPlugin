@@ -283,7 +283,7 @@ bool	CMeshBatchDrawer::EmitDrawCall(SRenderContext &ctx, const SDrawCallDesc &to
 		dc.m_BoundingBox = toEmit.m_BBox;
 
 		// Draw call description:
-#if O3DE_VERSION_MAJOR >= 4 && O3DE_VERSION_MINOR >= 2
+#if O3DE_VERSION_MAJOR > 2 || (O3DE_VERSION_MAJOR == 2 && O3DE_VERSION_MINOR >= 4)
 		dc.m_InstanceCount = meshParticleCount;
 		dc.m_GeometryView.SetDrawArguments(AZ::RHI::DrawIndexed(0, views.m_IndexCount, 0));
 #else

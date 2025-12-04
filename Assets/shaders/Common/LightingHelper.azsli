@@ -5,14 +5,19 @@
 
 #pragma once
 
-#include "PopcornOptions.azsli"
-
 #include <Atom/Features/Pipeline/Forward/ForwardPassOutput.azsli>
 #include <Atom/Features/PBR/AlphaUtils.azsli>
 #include <Atom/Features/PBR/LightingOptions.azsli>
 
+#include "PopcornOptions.azsli"
+
+#if PK_O3DE_SRG_ALL
 #include <viewsrg_all.srgi>
 #include <scenesrg_all.srgi>
+#else
+#include <viewsrg.srgi>
+#include <scenesrg.srgi>
+#endif
 
 #include <Atom/RPI/Math.azsli>
 #include <Atom/RPI/TangentSpace.azsli>
@@ -81,14 +86,29 @@ ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
 
    // ------- Lighting Data -------
 
+#if PK_O3DE_MULTI_VIEW_SPECULAR
+    float3 views[MAX_SHADING_VIEWS];
+    views[0] = ViewSrg::m_worldPosition.xyz;    // Assume one view for forward pass for now
+#endif
+
     LightingData lightingData;
 
-    // Light iterator
-    lightingData.tileIterator.Init(position, PassSrg::m_lightListRemapped, PassSrg::m_tileLightData);
 #if PK_O3DE_LIT_MULTI_VIEW
+#    if PK_O3DE_MULTI_VIEW_SPECULAR
+    lightingData.Init(surface.position, surface.normal, surface.roughnessLinear, views);
+#    else
     lightingData.Init(surface.position, surface.normal, surface.roughnessLinear, ViewSrg::m_worldPosition.xyz);
+#    endif
 #else
     lightingData.Init(surface.position, surface.normal, surface.roughnessLinear);
+#endif
+
+    // Light iterator
+#if PK_O3DE_SEPARATE_LIGHTING
+    LightCullingTileIterator tileIterator;
+    tileIterator.Init(position, PassSrg::m_lightListRemapped, PassSrg::m_tileLightData);
+#else
+    lightingData.tileIterator.Init(position, PassSrg::m_lightListRemapped, PassSrg::m_tileLightData);
 #endif
 
     // ------- Emissive -------
@@ -108,7 +128,11 @@ ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
     surface.clearCoat.normal = float3(0, 0, 0);
     
     // Diffuse and Specular response (used in IBL calculations)
+#if PK_O3DE_MULTI_VIEW_SPECULAR
+    lightingData.specularResponse = FresnelSchlickWithRoughness(lightingData.GetSpecularNdotV(), surface.specularF0, surface.roughnessLinear);
+#else
     lightingData.specularResponse = FresnelSchlickWithRoughness(lightingData.NdotV, surface.specularF0, surface.roughnessLinear);
+#endif
     lightingData.diffuseResponse = 1.0 - lightingData.specularResponse;
 
     // Multiscatter compensation factor
@@ -117,10 +141,18 @@ ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
     // ------- Lighting Calculation -------
 
     // Apply Decals
+#if PK_O3DE_SEPARATE_LIGHTING
+    ApplyDecals(tileIterator, surface);
+#else
     ApplyDecals(lightingData.tileIterator, surface);
+#endif
 
     // Apply Direct Lighting
+#if PK_O3DE_SEPARATE_LIGHTING
+    ApplyDirectLighting(surface, lightingData, position, tileIterator);
+#else
     ApplyDirectLighting(surface, lightingData, position);
+#endif
 
     // Apply Image Based Lighting (IBL)
     ApplyIblForward(surface, lightingData);
@@ -130,7 +162,11 @@ ForwardPassOutput 	ComputeParticleLighting(float3 worldPosition,
 
     if (o_opacity_mode == OpacityMode::Blended || o_opacity_mode == OpacityMode::TintedTransparent)
     {
+#if PK_O3DE_MULTI_VIEW_SPECULAR
+        alpha = FresnelSchlickWithRoughness(lightingData.GetSpecularNdotV(), alpha, surface.roughnessLinear).x; // Increase opacity at grazing angles.
+#else
         alpha = FresnelSchlickWithRoughness(lightingData.NdotV, alpha, surface.roughnessLinear).x; // Increase opacity at grazing angles.
+#endif
     }
 
     PbrLightingOutput lightingOutput = GetPbrLightingOutput(surface, lightingData, alpha);

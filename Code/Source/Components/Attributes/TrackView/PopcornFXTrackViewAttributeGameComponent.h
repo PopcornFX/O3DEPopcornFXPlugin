@@ -29,7 +29,7 @@ namespace PopcornFX {
 
 		static void	GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType &provided)
 		{
-			provided.push_back(AZ_CRC("PopcornFXTrackViewAttributeService"));
+			provided.push_back(AZ_CRC_CE("PopcornFXTrackViewAttributeService"));
 		}
 		static void	GetDependentServices(AZ::ComponentDescriptor::DependencyArrayType &dependent)
 		{
@@ -41,7 +41,7 @@ namespace PopcornFX {
 		}
 		static void	GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType &incompatible)
 		{
-			incompatible.push_back(AZ_CRC("PopcornFXTrackViewAttributeService"));
+			incompatible.push_back(AZ_CRC_CE("PopcornFXTrackViewAttributeService"));
 		}
 		static void	Reflect(AZ::ReflectContext *context);
 
