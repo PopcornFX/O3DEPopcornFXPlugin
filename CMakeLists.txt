@@ -44,26 +44,15 @@ if(DEFINED O3DE_VERSION_MAJOR)
     endif()
 
     # Apply patches here IFN
-    if(O3DE_VERSION_MAJOR GREATER_EQUAL 4 OR (O3DE_VERSION_MAJOR EQUAL 2 AND O3DE_VERSION_MINOR GREATER_EQUAL 5)) # Development or 25.10+
+    if(O3DE_VERSION_MAJOR GREATER_EQUAL 4 OR (O3DE_VERSION_MAJOR EQUAL 2 AND O3DE_VERSION_MINOR EQUAL 4)) # Development or 25.05
         pk_patch_file("PK_O3DE_LIT_MULTI_VIEW 0" "PK_O3DE_LIT_MULTI_VIEW 1" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
         pk_patch_file("PK_O3DE_SRG_ALL 0" "PK_O3DE_SRG_ALL 1" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
-        pk_patch_file("PK_O3DE_MULTI_VIEW_SPECULAR 0" "PK_O3DE_MULTI_VIEW_SPECULAR 1" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
-        pk_patch_file("PK_O3DE_SEPARATE_LIGHTING 0" "PK_O3DE_SEPARATE_LIGHTING 1" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
-    elseif(O3DE_VERSION_MAJOR EQUAL 2 AND O3DE_VERSION_MINOR EQUAL 4) # 25.05
-        pk_patch_file("PK_O3DE_LIT_MULTI_VIEW 0" "PK_O3DE_LIT_MULTI_VIEW 1" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
-        pk_patch_file("PK_O3DE_SRG_ALL 0" "PK_O3DE_SRG_ALL 1" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
-        pk_patch_file("PK_O3DE_MULTI_VIEW_SPECULAR 1" "PK_O3DE_MULTI_VIEW_SPECULAR 0" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
-        pk_patch_file("PK_O3DE_SEPARATE_LIGHTING 1" "PK_O3DE_SEPARATE_LIGHTING 0" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
     elseif (O3DE_VERSION_MAJOR EQUAL 2 AND O3DE_VERSION_MINOR EQUAL 3) # 24.09
         pk_patch_file("PK_O3DE_LIT_MULTI_VIEW 0" "PK_O3DE_LIT_MULTI_VIEW 1" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
         pk_patch_file("PK_O3DE_SRG_ALL 1" "PK_O3DE_SRG_ALL 0" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
-        pk_patch_file("PK_O3DE_MULTI_VIEW_SPECULAR 1" "PK_O3DE_MULTI_VIEW_SPECULAR 0" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
-        pk_patch_file("PK_O3DE_SEPARATE_LIGHTING 1" "PK_O3DE_SEPARATE_LIGHTING 0" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
     else()
         pk_patch_file("PK_O3DE_LIT_MULTI_VIEW 1" "PK_O3DE_LIT_MULTI_VIEW 0" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
         pk_patch_file("PK_O3DE_SRG_ALL 1" "PK_O3DE_SRG_ALL 0" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
-        pk_patch_file("PK_O3DE_MULTI_VIEW_SPECULAR 1" "PK_O3DE_MULTI_VIEW_SPECULAR 0" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
-        pk_patch_file("PK_O3DE_SEPARATE_LIGHTING 1" "PK_O3DE_SEPARATE_LIGHTING 0" ${gem_path}/Assets/shaders/Common/PopcornOptions.azsli)
     endif()
 endif()
 

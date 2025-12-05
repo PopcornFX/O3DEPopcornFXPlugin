@@ -7,10 +7,3 @@
 
 #define PK_O3DE_LIT_MULTI_VIEW 1
 #define PK_O3DE_SRG_ALL 1
-
-// https://github.com/o3de/o3de/commit/38cc0be10ea8c249170559a5eea7c2f0fda00658
-// https://github.com/o3de/o3de/commit/b19d107028e1e96d801a96e6ffd1c47022a0343b
-#define PK_O3DE_MULTI_VIEW_SPECULAR 1
-
-// https://github.com/o3de/o3de/pull/18739
-#define PK_O3DE_SEPARATE_LIGHTING 1

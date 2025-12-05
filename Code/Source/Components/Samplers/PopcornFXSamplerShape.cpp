@@ -267,6 +267,8 @@ namespace PopcornFX {
 			_SetValuesNames();
 			_LoadShape();
 		}
+		else
+			_LoadMesh();
 	}
 
 	void	PopcornFXSamplerShape::OnTransformChanged(const AZ::Transform &/*local*/, const AZ::Transform &/*world*/)
@@ -494,7 +496,7 @@ namespace PopcornFX {
 			if (bufferPositions != null)
 			{
 				const TStridedMemoryView<CFloat3>	dstPositions = vstream.Positions();
-				const CFloat3						*src = reinterpret_cast<const CFloat3*>(bufferNormals->GetBufferAsset()->GetBuffer().data()) + bufferPositions->GetBufferViewDescriptor().m_elementOffset;
+				const CFloat3						*src = reinterpret_cast<const CFloat3*>(&bufferPositions->GetBufferAsset()->GetBuffer()[0]) + bufferPositions->GetBufferViewDescriptor().m_elementOffset;
 				PK_ASSERT(dstPositions.ElementSizeInBytes() == bufferPositions->GetBufferViewDescriptor().m_elementSize);
 				PK_ASSERT(!dstPositions.Empty());
 				for (u32 i = 0; i < vertexCount; ++i)
@@ -503,7 +505,7 @@ namespace PopcornFX {
 			if (bufferNormals != null && m_SampleNormals)
 			{
 				const TStridedMemoryView<CFloat3>	dstNormals = vstream.Normals();
-				const CFloat3						*src = reinterpret_cast<const CFloat3*>(bufferNormals->GetBufferAsset()->GetBuffer().data()) + bufferNormals->GetBufferViewDescriptor().m_elementOffset;
+				const CFloat3						*src = reinterpret_cast<const CFloat3*>(&bufferNormals->GetBufferAsset()->GetBuffer()[0]) + bufferNormals->GetBufferViewDescriptor().m_elementOffset;
 				PK_ASSERT(dstNormals.ElementSizeInBytes() == bufferNormals->GetBufferViewDescriptor().m_elementSize);
 				PK_ASSERT(!dstNormals.Empty());
 				for (u32 i = 0; i < vertexCount; ++i)
@@ -512,7 +514,7 @@ namespace PopcornFX {
 			if (bufferTangents != null && m_SampleTangents)
 			{
 				const TStridedMemoryView<CFloat4>	dstTangents = vstream.Tangents();
-				const CFloat4						*src = reinterpret_cast<const CFloat4*>(bufferTangents->GetBufferAsset()->GetBuffer().data()) + bufferTangents->GetBufferViewDescriptor().m_elementOffset;
+				const CFloat4						*src = reinterpret_cast<const CFloat4*>(&bufferTangents->GetBufferAsset()->GetBuffer()[0]) + bufferTangents->GetBufferViewDescriptor().m_elementOffset;
 				PK_ASSERT(dstTangents.ElementSizeInBytes() == bufferTangents->GetBufferViewDescriptor().m_elementSize);
 				PK_ASSERT(!dstTangents.Empty());
 				for (u32 i = 0; i < vertexCount; ++i)
@@ -521,7 +523,7 @@ namespace PopcornFX {
 			if (bufferTexcoords != null && m_SampleUVs)
 			{
 				const TStridedMemoryView<CFloat2>	dstUVs = vstream.Texcoords();
-				const CFloat2						*src = reinterpret_cast<const CFloat2*>(bufferTexcoords->GetBufferAsset()->GetBuffer().data()) + bufferTexcoords->GetBufferViewDescriptor().m_elementOffset;
+				const CFloat2						*src = reinterpret_cast<const CFloat2*>(&bufferTexcoords->GetBufferAsset()->GetBuffer()[0]) + bufferTexcoords->GetBufferViewDescriptor().m_elementOffset;
 				PK_ASSERT(dstUVs.ElementSizeInBytes() == bufferTexcoords->GetBufferViewDescriptor().m_elementSize);
 				PK_ASSERT(!dstUVs.Empty());
 				for (u32 i = 0; i < vertexCount; ++i)
@@ -530,7 +532,7 @@ namespace PopcornFX {
 			if (bufferColors != null && m_SampleColors)
 			{
 				const TStridedMemoryView<CFloat4>	dstColors = vstream.Colors();
-				const CUbyte4						*src = reinterpret_cast<const CUbyte4*>(bufferColors->GetBufferAsset()->GetBuffer().data()) + bufferColors->GetBufferViewDescriptor().m_elementOffset;
+				const CUbyte4						*src = reinterpret_cast<const CUbyte4*>(&bufferColors->GetBufferAsset()->GetBuffer()[0]) + bufferColors->GetBufferViewDescriptor().m_elementOffset;
 				PK_ASSERT(dstColors.ElementSizeInBytes() == bufferColors->GetBufferViewDescriptor().m_elementSize);
 				PK_ASSERT(!dstColors.Empty());
 				for (u32 i = 0; i < vertexCount; ++i)
@@ -591,7 +593,7 @@ namespace PopcornFX {
 	{
 		AZ_UNUSED(model);
 		m_ModelAsset = modelAsset;
-		if (m_IsMesh && !m_IsSkinnedMesh)
+		if (m_IsMesh)
 			_LoadMesh();
 	}
 
@@ -636,8 +638,6 @@ namespace PopcornFX {
 			return;
 		}
 
-		m_ModelAsset->AddRefBufferAssets();
-
 		AZ::Data::Asset<AZ::RPI::ModelLodAsset> modelLodAsset = m_ModelAsset->GetLodAssets()[m_LodIndex];
 
 		if (m_SubMeshIndex >= modelLodAsset->GetMeshes().size())
@@ -657,8 +657,6 @@ namespace PopcornFX {
 			AZ::ComponentApplicationBus::BroadcastResult(entityName, &AZ::ComponentApplicationBus::Events::GetEntityName, m_AttachedToEntityId);
 			AZ_Error("PopcornFX", false, "Build descriptor failed for sampler shape %s", entityName.c_str());
 		}
-
-		m_ModelAsset->ReleaseRefBufferAssets();
 	}
 
 	void	PopcornFXSamplerShape::_LoadShape()
