@@ -83,7 +83,7 @@ ly_add_target(
             Gem::ScriptCanvas
             Gem::StartingPointInput.Static
             Gem::EMotionFXStaticLib
-            Gem::PhysX.Static
+            Gem::PhysX5.Static
     AUTOGEN_RULES
         *.ScriptCanvasNodeable.xml,ScriptCanvasNodeable_Header.jinja,$path/$fileprefix.generated.h
         *.ScriptCanvasNodeable.xml,ScriptCanvasNodeable_Source.jinja,$path/$fileprefix.generated.cpp
