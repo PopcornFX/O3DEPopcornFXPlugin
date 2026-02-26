@@ -186,7 +186,7 @@ namespace PopcornFX {
 					*dstTangents++ = ToPk(out);
 				}
 			}
-			else if (const AZ::CatmullRomSpline *catmullRomSpline = azrtti_cast<const AZ::CatmullRomSpline*>(spline.get()))
+			else if (azrtti_cast<const AZ::CatmullRomSpline*>(spline.get()))
 			{
 				//can't get CatmullRomSpline KnotParameterization, need to be at 0
 				for (u32 i = catmullNotLoopingOffset; i < fillCount + catmullNotLoopingOffset; ++i)
