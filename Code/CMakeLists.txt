@@ -1,9 +1,9 @@
 #----------------------------------------------------------------------------
-# Copyright Persistant Studios, SARL. All Rights Reserved.
-# https://www.popcornfx.com/terms-and-conditions/
+# Copyright Persistant Studios, SARL.
+# https://popcornfx.com/popcornfx-community-license/
 #----------------------------------------------------------------------------
 
-set(POPCORNFX_VERSION 2.23.4)
+set(POPCORNFX_VERSION 2.24.0)
 set(POPCORNFX_LICENSE O3DE)
 
 o3de_pal_dir(pal_dir ${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME} "${gem_restricted_path}" "${gem_path}" "${gem_name}")
@@ -83,7 +83,7 @@ ly_add_target(
             Gem::ScriptCanvas
             Gem::StartingPointInput.Static
             Gem::EMotionFXStaticLib
-            Gem::PhysX.Static
+            Gem::PhysX5.Static
     AUTOGEN_RULES
         *.ScriptCanvasNodeable.xml,ScriptCanvasNodeable_Header.jinja,$path/$fileprefix.generated.h
         *.ScriptCanvasNodeable.xml,ScriptCanvasNodeable_Source.jinja,$path/$fileprefix.generated.cpp

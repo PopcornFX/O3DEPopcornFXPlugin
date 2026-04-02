@@ -1,12 +1,12 @@
 #----------------------------------------------------------------------------
-# Copyright Persistant Studios, SARL. All Rights Reserved.
-# https://www.popcornfx.com/terms-and-conditions/
+# Copyright Persistant Studios, SARL.
+# https://popcornfx.com/popcornfx-community-license/
 #----------------------------------------------------------------------------
 
 set(LY_PACKAGE_SERVER_URLS ${LY_PACKAGE_SERVER_URLS} "https://downloads.popcornfx.com/o3de-packages")
 set(package_name PopcornFX-${POPCORNFX_VERSION}-${POPCORNFX_LICENSE}-windows)
-set(pk_package_hash adf75a9d7b876ec7bdd89c08243cf6079837c40b0a6ec2cb806338c7fefffcb5)
-set(pk_package_id dDxF5psRSKzNt4MR)
+set(pk_package_hash 1aabd664433a498a73ce12fad62a1ac5903e9f1d38c013d24c545e95ac29f195)
+set(pk_package_id Tfxf0fLJKQIWuMyh)
 
 ly_associate_package(PACKAGE_NAME ${package_name} TARGETS PopcornFX PACKAGE_HASH ${pk_package_hash})
 pk_download_package_ifn(${package_name} ${pk_package_id})

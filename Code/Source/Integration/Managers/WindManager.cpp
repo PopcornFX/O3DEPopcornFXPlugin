@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-// Copyright Persistant Studios, SARL. All Rights Reserved.
-// https://www.popcornfx.com/terms-and-conditions/
+// Copyright Persistant Studios, SARL.
+// https://popcornfx.com/popcornfx-community-license/
 //----------------------------------------------------------------------------
 
 #include "PopcornFX_precompiled.h"
@@ -329,10 +329,8 @@ void	CWindManager::SampleWindField(	const TStridedMemoryView<CFloat3>		&dstWind,
 			while (srcPos <= srcEndPos)
 			{
 				// Get the positions and unpack:
-				SIMD::Float4		src_x0x1x2x3 = SIMD::Float4::LoadAligned16(srcPos, 0x00);
-				SIMD::Float4		src_y0y1y2y3 = SIMD::Float4::LoadAligned16(srcPos, 0x10);
-				SIMD::Float4		src_z0z1z2z3 = SIMD::Float4::LoadAligned16(srcPos, 0x20);
-				SIMD::Transpose4x3_Unpack(src_x0x1x2x3, src_y0y1y2y3, src_z0z1z2z3);
+				SIMD::Float4		src_x0x1x2x3, src_y0y1y2y3, src_z0z1z2z3;
+				SIMD::LoadAligned16_Transpose4x3_Unpack(src_x0x1x2x3, src_y0y1y2y3, src_z0z1z2z3, srcPos);
 
 				// Transform by the inv wind area matrix:
 				simdAreaWindInvMat.TransformVectors_OneExtend(src_x0x1x2x3, src_y0y1y2y3, src_z0z1z2z3);

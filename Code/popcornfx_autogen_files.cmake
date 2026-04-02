@@ -1,6 +1,6 @@
 #----------------------------------------------------------------------------
-# Copyright Persistant Studios, SARL. All Rights Reserved.
-# https://www.popcornfx.com/terms-and-conditions/
+# Copyright Persistant Studios, SARL.
+# https://popcornfx.com/popcornfx-community-license/
 #----------------------------------------------------------------------------
 
 get_property(scriptcanvas_gem_root GLOBAL PROPERTY "@GEMROOT:ScriptCanvas@")

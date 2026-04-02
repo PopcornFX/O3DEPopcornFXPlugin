@@ -1,6 +1,6 @@
 #----------------------------------------------------------------------------
-# Copyright Persistant Studios, SARL. All Rights Reserved.
-# https://www.popcornfx.com/terms-and-conditions/
+# Copyright Persistant Studios, SARL.
+# https://popcornfx.com/popcornfx-community-license/
 #----------------------------------------------------------------------------
 
 # O3DE version 1.2.0 (23.05.0) and higher provide version major/minor/patch global properties
