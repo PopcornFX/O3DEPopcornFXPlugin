@@ -3,7 +3,7 @@
 # https://popcornfx.com/popcornfx-community-license/
 #----------------------------------------------------------------------------
 
-set(POPCORNFX_VERSION 2.24.0)
+set(POPCORNFX_VERSION 2.24.1)
 set(POPCORNFX_LICENSE O3DE)
 
 o3de_pal_dir(pal_dir ${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME} "${gem_restricted_path}" "${gem_path}" "${gem_name}")
