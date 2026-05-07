@@ -3,7 +3,7 @@
 # https://www.popcornfx.com/terms-and-conditions/
 #----------------------------------------------------------------------------
 
-set(POPCORNFX_VERSION 2.23.4)
+set(POPCORNFX_VERSION 2.23.5)
 set(POPCORNFX_LICENSE O3DE)
 
 o3de_pal_dir(pal_dir ${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME} "${gem_restricted_path}" "${gem_path}" "${gem_name}")
@@ -83,7 +83,7 @@ ly_add_target(
             Gem::ScriptCanvas
             Gem::StartingPointInput.Static
             Gem::EMotionFXStaticLib
-            Gem::PhysX.Static
+            Gem::PhysX5.Static
     AUTOGEN_RULES
         *.ScriptCanvasNodeable.xml,ScriptCanvasNodeable_Header.jinja,$path/$fileprefix.generated.h
         *.ScriptCanvasNodeable.xml,ScriptCanvasNodeable_Source.jinja,$path/$fileprefix.generated.cpp
