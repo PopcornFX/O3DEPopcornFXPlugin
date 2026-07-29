@@ -109,11 +109,11 @@ bool	CRibbonBatchDrawer::AllocBuffers(SRenderContext &ctx)
 
 	{
 		PK_NAMEDSCOPEDPROFILE("CAtomBillboardingBatchPolicy::AllocBuffers Alloc additional inputs");
-		const u32	additionalShaderInputsCount = drawPass.m_ToGenerate.m_AdditionalGeneratedInputs.Count();
+		const u32	additionalShaderInputsCount = m_AdditionalInputs.Count();
 
 		for (u32 i = 0; i < additionalShaderInputsCount; ++i)
 		{
-			const SRendererFeatureFieldDefinition	&curAdditionalShaderInput = drawPass.m_ToGenerate.m_AdditionalGeneratedInputs[i];
+			const SRendererFeatureFieldDefinition	&curAdditionalShaderInput = m_AdditionalInputs[i];
 			SHandledAdditionalFields	*addFieldDesc = m_HandledAdditionalFields.Find(SHandledAdditionalFields(curAdditionalShaderInput.m_Name, curAdditionalShaderInput.m_Type));
 			if (addFieldDesc != null)
 			{
@@ -201,14 +201,14 @@ bool	CRibbonBatchDrawer::MapBuffers(SRenderContext &ctx)
 	m_BBJobs_Ribbon.m_Exec_CopyField.m_PerVertex = false;
 
 	// Additional fields:
-	const u32	additionalShaderInputsCount = m_DrawPass->m_ToGenerate.m_AdditionalGeneratedInputs.Count();
+	const u32	additionalShaderInputsCount = m_AdditionalInputs.Count();
 
 	m_MappedAdditionalShaderInputs.Clear();
 	if (!PK_VERIFY(m_MappedAdditionalShaderInputs.Reserve(m_HandledAdditionalFields.Count())))
 		return false;
 	for (u32 i = 0; i < additionalShaderInputsCount; ++i)
 	{
-		const SRendererFeatureFieldDefinition	&curAdditionalShaderInput = m_DrawPass->m_ToGenerate.m_AdditionalGeneratedInputs[i];
+		const SRendererFeatureFieldDefinition	&curAdditionalShaderInput = m_AdditionalInputs[i];
 		SHandledAdditionalFields	*addFieldDesc = m_HandledAdditionalFields.Find(SHandledAdditionalFields(curAdditionalShaderInput.m_Name, curAdditionalShaderInput.m_Type));
 		if (addFieldDesc != null)
 		{
