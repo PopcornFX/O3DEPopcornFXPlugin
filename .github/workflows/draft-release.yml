@@ -5,6 +5,10 @@ on:
 
 jobs:
   release-on-tag:
+    concurrency:
+      group: release-on-tag
+      queue: max
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -15,9 +19,45 @@ jobs:
       - name: Set ENV
         run: echo SHORT=${GITHUB_REF_NAME%.*} >> $GITHUB_ENV && echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
 
+      # Don't tag LTS releases as the latest when a more recent version already exists
+      - name: Is this the highest published version?
+        id: latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          semver='^[0-9]+\.[0-9]+\.[0-9]+$'
+          this=${GITHUB_REF_NAME#v}
+          if ! printf '%s\n' "$this" | grep -qE "$semver"; then
+            echo "tag $GITHUB_REF_NAME is not a plain vX.Y.Z release tag" >&2
+            exit 1
+          fi
+          published=$(gh release list --repo "$GITHUB_REPOSITORY" --limit 1000 \
+                        --json tagName,isDraft,isPrerelease \
+                        -q '.[] | select(.isDraft == false and .isPrerelease == false) | .tagName')
+          if [ -z "$published" ]; then
+            echo "no published release to compare against; $this is the latest"
+            echo "make=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          highest=$(printf '%s\n' "$published" | sed 's/^v//' \
+                      | { grep -E "$semver" || true; } | sort -V | tail -1)
+          if [ -z "$highest" ]; then
+            echo "$(printf '%s\n' "$published" | wc -l) published release(s), none of them a plain X.Y.Z version" >&2
+            exit 1
+          fi
+          top=$(printf '%s\n%s\n' "$highest" "$this" | sort -V | tail -1)
+          echo "highest published: $highest, this tag: $this"
+          if [ "$top" = "$this" ]; then
+            echo "make=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "make=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: ncipollo/release-action@v1
         with:
           draft: false
+          makeLatest: ${{ steps.latest.outputs.make }}
           name: "O3DE Plugin: ${{ github.ref_name }}"
           body: "PopcornFX Plugin ${{ github.ref_name }} for O3DE\n\n
                 You can download the PopcornFX Editor and find the full changelog here:\n
